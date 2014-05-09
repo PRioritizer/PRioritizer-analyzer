@@ -9,7 +9,7 @@ case class PullRequest(number: Int, branch: String, base:String) {
 
 object PullRequest {
 
-  def getPairs(pulls: List[PullRequest]): Traversable[(PullRequest, PullRequest)] = {
+  def getPairs(pulls: List[PullRequest]): Set[(PullRequest, PullRequest)] = {
     val pairs = for {
       // Pairwise
       x <- pulls
