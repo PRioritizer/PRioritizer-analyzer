@@ -10,6 +10,7 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.lib.{Ref, TextProgressMonitor}
 import scala.collection.JavaConverters._
+import scala.util.matching.Regex
 
 class JGitMerger(workingDirectory: String, remote: String = "origin") extends MergeTester {
   var hasPullRefs: Boolean = _
@@ -19,7 +20,7 @@ class JGitMerger(workingDirectory: String, remote: String = "origin") extends Me
   val gitDir = if (workingDirectory.endsWith(dotGit)) workingDirectory else workingDirectory + File.separator + dotGit
   val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
     .readEnvironment // scan environment GIT_* variables
-    .findGitDir // scan up the file system tree
+    .findGitDir // scan the file system tree
     .build
 
   // Create git client
@@ -59,6 +60,20 @@ class JGitMerger(workingDirectory: String, remote: String = "origin") extends Me
 
   def merge(pr1: PullRequest, pr2: PullRequest): Boolean =
     git.isMergeable(pullRef(pr1), into = pullRef(pr2))
+
+  def gitHubInfo: Option[(String, String)] = {
+    val config = git.getRepository.getConfig
+    val url = config.getString("remote", remote, "url")
+
+    // Match     git@github.com:<owner>/<repo>.git
+    // -OR-  https://github.com/<owner>/<repo>.git
+    val gitHub = "^(?:git@|https?://)github\\.com(?::|/)(.*?)/(.*?)\\.git$".r
+
+    url match {
+      case gitHub(owner, repo) => Some(owner,repo)
+      case _ => None
+    }
+  }
 
   private def pullRef(pr: String): String = s"refs/pull/$remote/$pr"
   private def pullRef(pr: PullRequest): String = pullRef(pr.number.toString)

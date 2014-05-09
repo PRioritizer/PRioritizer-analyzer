@@ -15,6 +15,8 @@ trait MergeTester {
   def merge(pull: PullRequest): Boolean
 
   def merge(pullLeft: PullRequest, pullRight: PullRequest): Boolean
+
+  def gitHubInfo: Option[(String, String)]
 }
 
 class GitMergeOperation(merger: MergeTester, branchToMerge: String) {
