@@ -20,7 +20,7 @@ object TestJGit extends App {
   logger info s"Reading repository..."
   timer.start()
   val git: MergeTester = new merge.jgit.JGitMerger(workingDir, remote)
-  timer.print()
+  timer.log()
 
   // Get pull requests
   logger info s"Fetching pull request meta data..."
@@ -38,7 +38,7 @@ object TestJGit extends App {
   logger info s"Fetching pull requests..."
   timer.start()
   git.fetch()
-  timer.print()
+  timer.log()
 
   // Simulate merge to check for conflicts in PRs
   logger info s"Check for conflicts in PRs (${pullRequests.length})"
@@ -48,7 +48,7 @@ object TestJGit extends App {
     m = git merge pr   // merge the PR into base
     if !m              // keep only conflicted PRs
   } logger error s"CONFLICT: cannot merge $pr"
-  timer.print()
+  timer.log()
 
   // Simulate merge to check for conflicts between two PRs
   val pairs = PullRequest.getPairs(pullRequests) // get pairs
@@ -59,12 +59,12 @@ object TestJGit extends App {
     m = git merge (pr1, pr2) // merge the two PRs into each other
     if !m                    // keep only conflicted PRs
   } logger error s"CONFLICT: cannot merge $pr1 into $pr2"
-  timer.print()
+  timer.log()
 
   // Clean pull request refs
   logger info s"Clean up..."
   timer.start()
   git.clean(force = true)
   GitHub.shutdown()
-  timer.print()
+  timer.log()
 }

@@ -1,11 +1,14 @@
 package utils
 
+import org.slf4j.LoggerFactory
+
 //
 // Stopwatch for benchmarking
 // http://thelastdegree.wordpress.com/2012/07/11/a-scala-stopmatch-for-benchmarking/
 //
 class Stopwatch {
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
   private var startTime = -1L
   private var stopTime = -1L
   private var running = false
@@ -44,5 +47,9 @@ class Stopwatch {
 
   def print() = {
     println(s"${getElapsedTime}ms")
+  }
+
+  def log() = {
+    logger info s"${getElapsedTime}ms"
   }
 }
