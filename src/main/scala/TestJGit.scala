@@ -58,7 +58,7 @@ object TestJGit extends App {
   // Clean pull request refs
   println(s"Clean up...")
   timer.start()
-  git.clean()
+  git.clean(force = true)
   GitHub.shutdown()
   timer.print()
 }

@@ -8,7 +8,7 @@ trait MergeTester {
 
   def fetch(): Unit
 
-  def clean(): Unit
+  def clean(force: Boolean = false): Unit
 
   def merge(branch: String, into: String): Boolean
 

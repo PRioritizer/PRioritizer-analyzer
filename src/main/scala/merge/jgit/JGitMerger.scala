@@ -35,9 +35,9 @@ class JGitMerger(workingDirectory: String, remote: String = "origin") extends Me
     git.fetch.setRemote(remote).setProgressMonitor(monitor).call
   }
 
-  def clean(): Unit = {
+  def clean(force: Boolean): Unit = {
     // Check if repo already had pull requests
-    if (hasPullRefs)
+    if (!force && hasPullRefs)
       return
 
     // Remove pull requests from config
