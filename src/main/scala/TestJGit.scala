@@ -13,8 +13,8 @@ object TestJGit extends App {
 
   // Read access token
   val token = Settings.token
-  val remote = "origin"
-  val workingDir = "C:\\Users\\Erik\\git\\potential-octo-dubstep"
+  val remote = Settings.remote
+  val workingDir = Settings.dir
 
   // Setup Git
   logger info s"Reading repository..."
@@ -41,7 +41,7 @@ object TestJGit extends App {
   timer.print()
 
   // Simulate merge to check for conflicts in PRs
-  logger info s"Check for conflicts in PRs"
+  logger info s"Check for conflicts in PRs (${pullRequests.length})"
   timer.start()
   for {
     pr <- pullRequests // for each PR
@@ -51,10 +51,11 @@ object TestJGit extends App {
   timer.print()
 
   // Simulate merge to check for conflicts between two PRs
-  logger info s"Check for conflicts among PRs"
+  val pairs = PullRequest.getPairs(pullRequests) // get pairs
+  logger info s"Check for conflicts among PRs (${pairs.size})"
   timer.start()
   for {
-    (pr1, pr2) <- PullRequest.getPairs(pullRequests) // get pairs
+    (pr1, pr2) <- pairs
     m = git merge (pr1, pr2) // merge the two PRs into each other
     if !m                    // keep only conflicted PRs
   } logger error s"CONFLICT: cannot merge $pr1 into $pr2"

@@ -16,6 +16,12 @@ object Settings {
   def token: String =
     get("github.api.PersonalAccessToken").orNull
 
+  def remote: String =
+    get("git.remote").orNull
+
+  def dir: String =
+    get("git.dir").orNull
+
   private def read: Map[String, String] = {
     if (resource == null) {
       throw new FileSystemNotFoundException(

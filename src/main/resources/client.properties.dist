@@ -1,2 +1,4 @@
 # GitHub client settings
 github.api.PersonalAccessToken=
+git.dir=\path\to\git\repo
+git.remote=origin
