@@ -10,12 +10,13 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.lib.{Ref, TextProgressMonitor}
 import scala.collection.JavaConverters._
-import scala.util.matching.Regex
+import org.slf4j.LoggerFactory
 
 class JGitMerger(workingDirectory: String, remote: String = "origin") extends MergeTester {
   var hasPullRefs: Boolean = _
   var pullRefs: Traversable[Ref] = _
 
+  val logger = LoggerFactory.getLogger(this.getClass)
   val dotGit = ".git"
   val gitDir = if (workingDirectory.endsWith(dotGit)) workingDirectory else workingDirectory + File.separator + dotGit
   val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
@@ -52,14 +53,20 @@ class JGitMerger(workingDirectory: String, remote: String = "origin") extends Me
     git.gc.call
   }
 
-  def merge(branch: String, into: String): Boolean =
+  def merge(branch: String, into: String): Boolean = {
+    logger info s"Merge $branch into $into"
     git.isMergeable(branch, into)
+  }
 
-  def merge(pr: PullRequest): Boolean =
+  def merge(pr: PullRequest): Boolean = {
+    logger info s"Merge ${pr.branch} into ${pr.base}"
     git.isMergeable(pullRef(pr), into = pr.base)
+  }
 
-  def merge(pr1: PullRequest, pr2: PullRequest): Boolean =
+  def merge(pr1: PullRequest, pr2: PullRequest): Boolean = {
+    logger info s"Merge ${pr1.branch} into ${pr2.branch}"
     git.isMergeable(pullRef(pr1), into = pullRef(pr2))
+  }
 
   def gitHubInfo: Option[(String, String)] = {
     val config = git.getRepository.getConfig
