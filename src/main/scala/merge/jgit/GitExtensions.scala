@@ -12,12 +12,14 @@ object GitExtensions {
     def isMergeable(branch: String, into: String): Boolean = {
       val prevBranch = git.getRepository.getBranch
       val beforeMerge = git.getRepository.resolve(into)
+      val alreadyOnBranch = git.alreadyOnBranch(into)
 
       if (prevBranch == null || beforeMerge == null)
         return false
 
       // Checkout new branch
-      forceCheckout(into)
+      if (!alreadyOnBranch)
+        forceCheckout(into)
 
       try {
         // Do the actual merge here
@@ -28,7 +30,8 @@ object GitExtensions {
         resetHard(beforeMerge)
 
         // Checkout previous branch
-        forceCheckout(prevBranch)
+        if (!alreadyOnBranch)
+          forceCheckout(prevBranch)
       }
 
       // An exception occurred
@@ -49,6 +52,13 @@ object GitExtensions {
 
     def resetHard(obj: ObjectId): Unit =
       resetHard(obj.getName)
+
+    def alreadyOnBranch(name: String): Boolean =
+    alreadyOnBranch(git.getRepository.resolve(name))
+
+    def alreadyOnBranch(obj: ObjectId): Boolean =
+      git.getRepository
+        .resolve(Constants.HEAD) equals obj
   }
 
   implicit class RichMergeStatus(result: MergeResult) {
