@@ -36,7 +36,7 @@ class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMe
     git.fetch.setRemote(remote).setProgressMonitor(monitor).call
   }
 
-  def clean(force: Boolean): Unit = {
+  def clean(force: Boolean, garbageCollect: Boolean): Unit = {
     // Check if repo already had pull requests
     if (!force && hasPullRefs)
       return
@@ -50,7 +50,8 @@ class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMe
     }
     refs.foreach(_.forceDelete())
 
-    git.gc.call
+    if (garbageCollect)
+      git.gc.call
   }
 
   def merge(branch: String, into: String): Boolean = {
