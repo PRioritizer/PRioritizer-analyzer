@@ -12,7 +12,7 @@ import org.eclipse.jgit.lib.{Ref, TextProgressMonitor}
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
 
-class JGitMerger(workingDirectory: String, remote: String = "origin") extends MergeTester {
+class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMerge: Boolean = true) extends MergeTester {
   var hasPullRefs: Boolean = _
   var pullRefs: Traversable[Ref] = _
 
@@ -55,17 +55,26 @@ class JGitMerger(workingDirectory: String, remote: String = "origin") extends Me
 
   def merge(branch: String, into: String): Boolean = {
     logger info s"Merge $branch into $into"
-    git.isMergeable(branch, into)
+    if (inMemoryMerge)
+      git.isMergeable(branch, into)
+    else
+     git.simulate(branch, into)
   }
 
   def merge(pr: PullRequest): Boolean = {
-    logger info s"Merge ${pr.branch} into ${pr.base}"
-    git.isMergeable(pullRef(pr), into = pr.base)
+    logger info s"Merge $pr"
+    if (inMemoryMerge)
+      git.isMergeable(pullRef(pr), into = pr.base)
+    else
+      git.simulate(pullRef(pr), into = pr.base)
   }
 
   def merge(pr1: PullRequest, pr2: PullRequest): Boolean = {
-    logger info s"Merge ${pr1.branch} into ${pr2.branch}"
-    git.isMergeable(pullRef(pr1), into = pullRef(pr2))
+    logger info s"Merge #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
+    if (inMemoryMerge)
+      git.isMergeable(pullRef(pr2), into = pullRef(pr1))
+    else
+      git.simulate(pullRef(pr2), into = pullRef(pr1))
   }
 
   def gitHubInfo: Option[(String, String)] = {

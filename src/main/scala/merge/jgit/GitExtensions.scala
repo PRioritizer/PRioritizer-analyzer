@@ -1,8 +1,11 @@
 package merge.jgit
 
 import org.eclipse.jgit.api._
-import org.eclipse.jgit.lib.{RefUpdate, StoredConfig, ObjectId, Ref}
+import org.eclipse.jgit.lib._
 import scala.collection.JavaConverters._
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.merge.{RecursiveMerger, StrategyRecursive}
+import org.eclipse.jgit.treewalk.FileTreeIterator
 
 object GitExtensions {
   implicit class RichGit(git: Git) {
@@ -10,6 +13,35 @@ object GitExtensions {
       isMergeable(branch.getName, into.getName)
 
     def isMergeable(branch: String, into: String): Boolean = {
+      val repo = git.getRepository
+      val revWalk = new RevWalk(repo)
+
+      val sourceRef = repo.getRef(branch)
+      val headRef = repo.getRef(into)
+
+      if (sourceRef == null || headRef == null)
+        return false
+
+      val sourceCommit = revWalk.lookupCommit(sourceRef.getObjectId)
+      val headCommit = revWalk.lookupCommit(headRef.getObjectId)
+
+      // Check if already up-to-date
+      if (revWalk.isMergedInto(sourceCommit, headCommit))
+        return true
+
+      // Check for fast-forward
+      if (revWalk.isMergedInto(headCommit, sourceCommit))
+        return true
+
+      // Do the actual merge here (in memory)
+      val merger = new MemoryMerger(repo)
+//      val lowLevelResults = merger.getMergeResults
+//      val failingPaths = merger.getFailingPaths
+//      val unmergedPaths = merger.getUnmergedPaths
+      merger.merge(headCommit, sourceCommit)
+    }
+
+    def simulate(branch: String, into: String): Boolean = {
       val prevBranch = git.getRepository.getBranch
       val beforeMerge = git.getRepository.resolve(into)
       val alreadyOnBranch = git.alreadyOnBranch(into)
@@ -45,10 +77,15 @@ object GitExtensions {
     }
 
     def merge(name: String): MergeResult =
-      git.merge.include(name, git.getRepository.resolve(name)).call
+      git.merge
+        .include(name, git.getRepository.resolve(name))
+        .call
 
     def resetHard(name: String): Unit =
-      git.reset.setMode(ResetCommand.ResetType.HARD).setRef(name).call
+      git.reset
+        .setMode(ResetCommand.ResetType.HARD)
+        .setRef(name)
+        .call
 
     def resetHard(obj: ObjectId): Unit =
       resetHard(obj.getName)

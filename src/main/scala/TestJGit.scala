@@ -10,8 +10,9 @@ import utils.Stopwatch
 object TestJGit extends App {
   val timer = new Stopwatch
   val logger = LoggerFactory.getLogger("Application")
+  val inMemoryMerge = true
 
-  // Read access token
+  // Read settings
   val token = Settings.token
   val remote = Settings.remote
   val workingDir = Settings.dir
@@ -19,7 +20,7 @@ object TestJGit extends App {
   // Setup Git
   logger info s"Reading repository..."
   timer.start()
-  val git: MergeTester = new merge.jgit.JGitMerger(workingDir, remote)
+  val git: MergeTester = new merge.jgit.JGitMerger(workingDir, remote, inMemoryMerge)
   timer.log()
 
   // Get pull requests
