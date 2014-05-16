@@ -1,7 +1,8 @@
 import dispatch.github.{GitHub, GhPullRequest}
-import dispatch.github.GitHubExtensions._
-import git.PullRequest
-import merge.MergeTester
+import github.GitHubExtensions
+import GitHubExtensions._
+import git.{MergeTester, PullRequest}
+import jgit.merge.JGitMergerTester
 import org.slf4j.LoggerFactory
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -20,7 +21,7 @@ object TestJGit extends App {
   // Setup Git
   logger info s"Reading repository..."
   timer.start()
-  val git: MergeTester = new merge.jgit.JGitMerger(workingDir, remote, inMemoryMerge)
+  val git: MergeTester = new JGitMergerTester(workingDir, remote, inMemoryMerge)
   timer.log()
 
   // Get pull requests

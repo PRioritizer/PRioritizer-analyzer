@@ -1,4 +1,4 @@
-package merge.jgit
+package jgit.merge
 
 import org.eclipse.jgit.merge.RecursiveMerger
 import org.eclipse.jgit.lib.Repository

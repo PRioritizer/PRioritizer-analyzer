@@ -1,6 +1,4 @@
-package merge
-
-import git.PullRequest
+package git
 
 /**
  * Offers the functionality to test if a specific merge between branches or pull requests is possible or not.
@@ -10,13 +8,13 @@ trait MergeTester {
   /**
    * Creates a builder for merging two branches.
    * @param branch The branch name that is going to be merged.
-   * @return A [[merge.GitMergeBuilder]] where a branch can be merged into with [[merge.GitMergeBuilder#into(String)]].
+   * @return A [[git.MergeBuilder]] where a branch can be merged into with [[git.MergeBuilder#into(String)]].
    */
-  def merge(branch: String): GitMergeBuilder =
-    new GitMergeBuilder(this, branch)
+  def merge(branch: String): MergeBuilder =
+    new MergeBuilder(this, branch)
 
   /**
-   * Fetches the pull requests from the GitHub remote to the local repository.
+   * Fetches the pull requests from the remote to the local repository.
    */
   def fetch(): Unit
 
@@ -52,7 +50,7 @@ trait MergeTester {
   def merge(pullLeft: PullRequest, pullRight: PullRequest): Boolean
 
   /**
-   * @return A [[merge.GitHubInfo]] object containing the owner and repository name.
+   * @return A [[git.GitHubInfo]] object containing the owner and repository name.
    */
   def gitHubInfo: Option[GitHubInfo]
 }
@@ -62,7 +60,7 @@ trait MergeTester {
  * @param merger The merger that performs the actual merge.
  * @param branchToMerge The branch that is going to be merged.
  */
-class GitMergeBuilder(merger: MergeTester, branchToMerge: String) {
+class MergeBuilder(merger: MergeTester, branchToMerge: String) {
   /**
    * Merge the previous branch into `branch`.
    * @param branch The base branch.

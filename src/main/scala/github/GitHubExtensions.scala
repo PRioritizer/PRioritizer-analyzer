@@ -1,6 +1,7 @@
-package dispatch.github
+package github
 
 import git.PullRequest
+import dispatch.github.GhPullRequest
 
 /**
  * Extensions for the dispatch GitHub api.

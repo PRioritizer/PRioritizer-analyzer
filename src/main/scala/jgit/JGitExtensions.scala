@@ -1,16 +1,15 @@
-package merge.jgit
+package jgit
 
 import org.eclipse.jgit.api._
 import org.eclipse.jgit.lib._
 import scala.collection.JavaConverters._
 import org.eclipse.jgit.revwalk.RevWalk
-import org.eclipse.jgit.merge.{RecursiveMerger, StrategyRecursive}
-import org.eclipse.jgit.treewalk.FileTreeIterator
+import jgit.merge.MemoryMerger
 
 /**
  * Extensions for the JGit library
  */
-object GitExtensions {
+object JGitExtensions {
 
   /**
    * Enrichment of the [[org.eclipse.jgit.api.Git]] class.

@@ -1,10 +1,8 @@
-package merge.jgit
+package jgit.merge
 
 import java.io.File
-
-import merge.jgit.GitExtensions._
-import merge.{GitHubInfo, MergeTester}
-import git.PullRequest
+import git.{GitHubInfo, MergeTester, PullRequest}
+import jgit.JGitExtensions._
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
@@ -18,7 +16,7 @@ import org.slf4j.LoggerFactory
  * @param remote The name of the GitHub remote.
  * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
-class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMerge: Boolean = true) extends MergeTester {
+class JGitMergerTester(workingDirectory: String, remote: String = "origin", inMemoryMerge: Boolean = true) extends MergeTester {
   var hasPullRefs: Boolean = _
   var pullRefs: Traversable[Ref] = _
 
