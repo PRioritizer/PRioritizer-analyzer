@@ -1,35 +1,22 @@
 package jgit.merge
 
-import java.io.File
-import git.{GitHubInfo, MergeTester, PullRequest}
+import git.{MergeTester, PullRequest}
 import jgit.JGitExtensions._
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
-import org.eclipse.jgit.lib.{Ref, TextProgressMonitor}
+import org.eclipse.jgit.lib.TextProgressMonitor
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
 
 /**
- * An merge tester implementation for the JGit library.
- * @param workingDirectory The path to the working directory of the git repository.
+ * A merge tester implementation for the JGit library.
+ * @param git The git repository.
  * @param remote The name of the GitHub remote.
  * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
-class JGitMergerTester(workingDirectory: String, remote: String = "origin", inMemoryMerge: Boolean = true) extends MergeTester {
-  var hasPullRefs: Boolean = _
-  var pullRefs: Traversable[Ref] = _
-
+class JGitMergerTester(val git: Git, val remote: String, val inMemoryMerge: Boolean) extends MergeTester {
   val logger = LoggerFactory.getLogger(this.getClass)
-  val dotGit = ".git"
-  val gitDir = if (workingDirectory.endsWith(dotGit)) workingDirectory else workingDirectory + File.separator + dotGit
-  val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
-    .readEnvironment // scan environment GIT_* variables
-    .findGitDir // scan the file system tree
-    .build
-
-  // Create git client
-  val git: Git = new Git(repository)
+  var hasPullRefs: Boolean = _
 
   def fetch(): Unit = {
     // Add pull requests to config, remember previous setting
@@ -63,7 +50,7 @@ class JGitMergerTester(workingDirectory: String, remote: String = "origin", inMe
     if (inMemoryMerge)
       git.isMergeable(branch, into)
     else
-     git.simulate(branch, into)
+      git.simulate(branch, into)
   }
 
   def merge(pr: PullRequest): Boolean = {
@@ -80,20 +67,6 @@ class JGitMergerTester(workingDirectory: String, remote: String = "origin", inMe
       git.isMergeable(pullRef(pr2), into = pullRef(pr1))
     else
       git.simulate(pullRef(pr2), into = pullRef(pr1))
-  }
-
-  def gitHubInfo: Option[GitHubInfo] = {
-    val config = git.getRepository.getConfig
-    val url = config.getString("remote", remote, "url")
-
-    // Match     git@github.com:<owner>/<repo>.git
-    // -OR-  https://github.com/<owner>/<repo>.git
-    val gitHub = "^(?:git@|https?://)github\\.com(?::|/)(.*?)/(.*?)\\.git$".r
-
-    url match {
-      case gitHub(owner, repo) => Some(GitHubInfo(owner,repo))
-      case _ => None
-    }
   }
 
   /**

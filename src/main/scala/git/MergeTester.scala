@@ -48,11 +48,6 @@ trait MergeTester {
    * @return True iff the merge was successful.
    */
   def merge(pullLeft: PullRequest, pullRight: PullRequest): Boolean
-
-  /**
-   * @return A [[git.GitHubInfo]] object containing the owner and repository name.
-   */
-  def gitHubInfo: Option[GitHubInfo]
 }
 
 /**
@@ -69,10 +64,3 @@ class MergeBuilder(merger: MergeTester, branchToMerge: String) {
   def into(branch: String): Boolean =
     merger.merge(branchToMerge, branch)
 }
-
-/**
- * An object that holds GitHub information about the repository.
- * @param owner The name of the owner.
- * @param repo The name of the repository.
- */
-case class GitHubInfo(owner: String, repo: String)
