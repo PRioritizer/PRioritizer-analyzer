@@ -12,6 +12,12 @@ import org.eclipse.jgit.lib.{Ref, TextProgressMonitor}
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
 
+/**
+ * An merge tester implementation for the JGit library.
+ * @param workingDirectory The path to the working directory of the git repository.
+ * @param remote The name of the GitHub remote.
+ * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
+ */
 class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMerge: Boolean = true) extends MergeTester {
   var hasPullRefs: Boolean = _
   var pullRefs: Traversable[Ref] = _
@@ -92,7 +98,22 @@ class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMe
     }
   }
 
+  /**
+   * Returns the ref string for the given pull request. The ref consists of `pr`
+   * prefixed with the remote ref path.
+   * E.g. `"refs/pull/origin/``*``"`.
+   * @param pr The name or number of the pull request or a wildcard (`*`).
+   * @return The ref path to pull request.
+   */
   private def pullRef(pr: String): String = s"refs/pull/$remote/$pr"
+
+  /**
+   * Returns the ref string for the given pull request. The ref consists of the
+   * number of the pull request prefixed with the remote ref path.
+   * E.g. `"refs/pull/origin/123"`.
+   * @param pr The pull request.
+   * @return The ref path to pull request.
+   */
   private def pullRef(pr: PullRequest): String = pullRef(pr.number.toString)
 
   /**
@@ -101,8 +122,8 @@ class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMe
    * is absent when deleting the return value is false.
    * More info about fetching pull requests:
    *   https://help.github.com/articles/checking-out-pull-requests-locally
-   * @param remove Add or remove the configuration (default: add)
-   * @return True iff the action succeeds, otherwise false
+   * @param remove Add or remove the configuration (default: add).
+   * @return True iff the action succeeds, otherwise false.
    */
   private def configurePullRefs(remove: Boolean = false): Boolean = {
     val config = git.getRepository.getConfig

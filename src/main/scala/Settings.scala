@@ -2,26 +2,50 @@ import java.util.Properties
 import scala.collection.JavaConverters._
 import java.nio.file._
 
+/**
+ * Settings object that holds the client properties.
+ */
 object Settings {
   val fileName = "client.properties"
   val resource = getClass.getResource("/" + fileName)
   val data = read
 
+  /**
+   * @param property The name of the property.
+   * @return True iff there exists a property with the give name.
+   */
   def has(property: String): Boolean =
     data.get(property).isDefined
 
+  /**
+   * @param property The name of the property.
+   * @return The value of the property.
+   */
   def get(property: String): Option[String] =
     data.get(property)
 
+  /**
+   * @return The GitHub access token.
+   */
   def token: String =
     get("github.api.PersonalAccessToken").orNull
 
+  /**
+   * @return The GitHub remote name.
+   */
   def remote: String =
     get("git.remote").orNull
 
+  /**
+   * @return The git working directory.
+   */
   def dir: String =
     get("git.dir").orNull
 
+  /**
+   * Read the properties from the config file.
+   * @return A map with the properties.
+   */
   private def read: Map[String, String] = {
     if (resource == null) {
       throw new FileSystemNotFoundException(
