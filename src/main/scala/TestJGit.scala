@@ -31,7 +31,7 @@ object TestJGit extends App {
     sys.exit()
   }
   GitHub.accessToken = token
-  val req = GhPullRequest.get_pull_requests(info.get._1, info.get._2)
+  val req = GhPullRequest.get_pull_requests(info.get.owner, info.get.repo)
   val pullRequests = Await.result(req, Duration.Inf) map (_.asPullRequest)
   logger info s"Got ${pullRequests.length} open pull requests"
 

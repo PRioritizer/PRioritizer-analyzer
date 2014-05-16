@@ -3,7 +3,7 @@ package merge.jgit
 import java.io.File
 
 import merge.jgit.GitExtensions._
-import merge.MergeTester
+import merge.{GitHubInfo, MergeTester}
 import git.PullRequest
 
 import org.eclipse.jgit.api.Git
@@ -78,7 +78,7 @@ class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMe
       git.simulate(pullRef(pr2), into = pullRef(pr1))
   }
 
-  def gitHubInfo: Option[(String, String)] = {
+  def gitHubInfo: Option[GitHubInfo] = {
     val config = git.getRepository.getConfig
     val url = config.getString("remote", remote, "url")
 
@@ -87,7 +87,7 @@ class JGitMerger(workingDirectory: String, remote: String = "origin", inMemoryMe
     val gitHub = "^(?:git@|https?://)github\\.com(?::|/)(.*?)/(.*?)\\.git$".r
 
     url match {
-      case gitHub(owner, repo) => Some(owner,repo)
+      case gitHub(owner, repo) => Some(GitHubInfo(owner,repo))
       case _ => None
     }
   }

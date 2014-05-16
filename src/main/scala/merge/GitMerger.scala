@@ -16,10 +16,12 @@ trait MergeTester {
 
   def merge(pullLeft: PullRequest, pullRight: PullRequest): Boolean
 
-  def gitHubInfo: Option[(String, String)]
+  def gitHubInfo: Option[GitHubInfo]
 }
 
 class GitMergeOperation(merger: MergeTester, branchToMerge: String) {
   def into(branch: String): Boolean =
     merger.merge(branchToMerge, branch)
 }
+
+case class GitHubInfo(owner: String, repo: String)
