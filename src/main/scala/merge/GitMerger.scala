@@ -3,8 +3,8 @@ package merge
 import git.PullRequest
 
 trait MergeTester {
-  def merge(branch: String): GitMergeOperation =
-    new GitMergeOperation(this, branch)
+  def merge(branch: String): GitMergeBuilder =
+    new GitMergeBuilder(this, branch)
 
   def fetch(): Unit
 
@@ -19,7 +19,7 @@ trait MergeTester {
   def gitHubInfo: Option[GitHubInfo]
 }
 
-class GitMergeOperation(merger: MergeTester, branchToMerge: String) {
+class GitMergeBuilder(merger: MergeTester, branchToMerge: String) {
   def into(branch: String): Boolean =
     merger.merge(branchToMerge, branch)
 }
