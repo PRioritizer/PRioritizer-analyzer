@@ -1,4 +1,12 @@
-# GitHub client settings
-github.api.PersonalAccessToken=
-git.dir=\path\to\git\repo
-git.remote=origin
+# Providers
+provider.PullRequests=github|jgit
+provider.MergeTester=github|jgit
+provider.Data=github|jgit
+
+# GitHub provider
+github.Owner=username
+github.Repository=repository-name
+github.PersonalAccessToken=123456789abcdef
+
+# JGit provider
+jgit.Directory=/path/to/local/git/repo

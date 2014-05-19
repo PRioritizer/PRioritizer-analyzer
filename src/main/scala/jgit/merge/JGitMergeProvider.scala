@@ -1,6 +1,6 @@
 package jgit.merge
 
-import git.{MergeTester, PullRequest}
+import git.{MergeProvider, PullRequest}
 import jgit.JGitExtensions._
 
 import org.eclipse.jgit.api.Git
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory
  * @param remote The name of the GitHub remote.
  * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
-class JGitMergerTester(val git: Git, val remote: String, val inMemoryMerge: Boolean) extends MergeTester {
+class JGitMergeProvider(val git: Git, val remote: String, val inMemoryMerge: Boolean) extends MergeProvider {
   val logger = LoggerFactory.getLogger(this.getClass)
   var hasPullRefs: Boolean = _
 

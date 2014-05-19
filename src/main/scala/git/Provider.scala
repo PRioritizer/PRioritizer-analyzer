@@ -1,6 +1,7 @@
 package git
 
 trait Provider {
-  def merger: MergeTester
-  def info: InfoGetter
+  def pullRequests: PullRequestProvider
+  def merger: MergeProvider
+  def data: DataProvider
 }

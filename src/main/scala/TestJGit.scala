@@ -1,9 +1,7 @@
-import dispatch.github.{GitHub, GhPullRequest}
-import github.GitHubExtensions
-import GitHubExtensions._
-import git.{InfoGetter, Provider, MergeTester, PullRequest}
+import dispatch.github.GitHub
+import git.{PullRequestProvider, Provider, MergeProvider, PullRequest}
 import jgit.JGitProvider
-import jgit.merge.JGitMergerTester
+import github.GitHubProvider
 import org.slf4j.LoggerFactory
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -15,27 +13,23 @@ object TestJGit extends App {
   val inMemoryMerge = true
 
   // Read settings
-  val token = Settings.token
-  val remote = Settings.remote
-  val workingDir = Settings.dir
+  val owner = Settings.get("github.Owner").orNull
+  val repository = Settings.get("github.Repository").orNull
+  val token = Settings.get("github.PersonalAccessToken").orNull
+  val workingDir = Settings.get("jgit.Directory").orNull
 
-  // Setup Git
+  // Setup providers
   logger info s"Reading repository..."
   timer.start()
-  val provider: Provider = new JGitProvider(workingDir, remote, inMemoryMerge)
-  val git: MergeTester = provider.merger
-  val info: InfoGetter = provider.info
+  val gitHub: Provider = new GitHubProvider(owner, repository, token)
+  val jGit: Provider = new JGitProvider(workingDir)
+  val git: MergeProvider = jGit.merger
+  val prProvider: PullRequestProvider = gitHub.pullRequests
   timer.log()
 
   // Get pull requests
   logger info s"Fetching pull request meta data..."
-  if (!info.hasGitHubInfo) {
-    logger error s"Remote '$remote' is not a GitHub remote"
-    sys.exit()
-  }
-  GitHub.accessToken = token
-  val req = GhPullRequest.get_pull_requests(info.gitHubInfo.owner, info.gitHubInfo.repository)
-  val pullRequests = Await.result(req, Duration.Inf) map (_.asPullRequest)
+  val pullRequests = Await.result(prProvider.get, Duration.Inf)
   logger info s"Got ${pullRequests.length} open pull requests"
 
   // Fetch pull requests

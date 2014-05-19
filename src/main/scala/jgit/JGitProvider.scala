@@ -1,12 +1,12 @@
 package jgit
 
-import git.Provider
+import git.{PullRequestProvider, Provider}
 import org.slf4j.LoggerFactory
 import java.io.File
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.api.Git
-import jgit.info.JGitInfoGetter
-import jgit.merge.JGitMergerTester
+import jgit.data.JGitDataProvider
+import jgit.merge.JGitMergeProvider
 
 /**
  * A provider implementation for the JGit library.
@@ -26,6 +26,7 @@ class JGitProvider(workingDirectory: String, val remote: String = "origin", inMe
   // Create git client
   val git: Git = new Git(repository)
 
-  override def info: JGitInfoGetter = new JGitInfoGetter(git, remote)
-  override def merger: JGitMergerTester = new JGitMergerTester(git, remote, inMemoryMerge)
+  override def pullRequests: PullRequestProvider = ???
+  override def merger: JGitMergeProvider = new JGitMergeProvider(git, remote, inMemoryMerge)
+  override def data: JGitDataProvider = new JGitDataProvider(git, remote)
 }

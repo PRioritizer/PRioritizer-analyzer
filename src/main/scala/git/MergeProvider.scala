@@ -3,7 +3,7 @@ package git
 /**
  * Offers the functionality to test if a specific merge between branches or pull requests is possible or not.
  */
-trait MergeTester {
+trait MergeProvider {
 
   /**
    * Creates a builder for merging two branches.
@@ -55,7 +55,7 @@ trait MergeTester {
  * @param merger The merger that performs the actual merge.
  * @param branchToMerge The branch that is going to be merged.
  */
-class MergeBuilder(merger: MergeTester, branchToMerge: String) {
+class MergeBuilder(merger: MergeProvider, branchToMerge: String) {
   /**
    * Merge the previous branch into `branch`.
    * @param branch The base branch.

@@ -25,24 +25,6 @@ object Settings {
     data.get(property)
 
   /**
-   * @return The GitHub access token.
-   */
-  def token: String =
-    get("github.api.PersonalAccessToken").orNull
-
-  /**
-   * @return The GitHub remote name.
-   */
-  def remote: String =
-    get("git.remote").orNull
-
-  /**
-   * @return The git working directory.
-   */
-  def dir: String =
-    get("git.dir").orNull
-
-  /**
    * Read the properties from the config file.
    * @return A map with the properties.
    */
