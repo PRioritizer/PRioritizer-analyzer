@@ -16,15 +16,14 @@ trait MergeProvider {
   /**
    * Fetches the pull requests from the remote to the local repository.
    */
-  def fetch(): Unit
+  def fetch(provider: PullRequestProvider): Unit
 
   /**
    * Cleans the local repository. There are two cleaning tasks: removing the local pull requests and garbage collecting
    * the repository.
-   * @param force Whether the pull requests have to be removed, even if they were present before fetching them.
    * @param garbageCollect Whether the repository has to be garbage collected.
    */
-  def clean(force: Boolean = false, garbageCollect: Boolean = false): Unit
+  def clean(garbageCollect: Boolean = false): Unit
 
   /**
    * Merges two branches.

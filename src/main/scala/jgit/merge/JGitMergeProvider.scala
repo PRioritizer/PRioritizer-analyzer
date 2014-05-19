@@ -1,6 +1,6 @@
 package jgit.merge
 
-import git.{MergeProvider, PullRequest}
+import git.{PullRequestProvider, MergeProvider, PullRequest}
 import jgit.JGitExtensions._
 
 import org.eclipse.jgit.api.Git
@@ -11,29 +11,28 @@ import org.slf4j.LoggerFactory
 /**
  * A merge tester implementation for the JGit library.
  * @param git The git repository.
- * @param remote The name of the GitHub remote.
  * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
-class JGitMergeProvider(val git: Git, val remote: String, val inMemoryMerge: Boolean) extends MergeProvider {
+class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeProvider {
   val logger = LoggerFactory.getLogger(this.getClass)
-  var hasPullRefs: Boolean = _
+  val remote = "pulls"
 
-  def fetch(): Unit = {
-    // Add pull requests to config, remember previous setting
-    hasPullRefs = !configurePullRefs()
+  def fetch(provider: PullRequestProvider): Unit = {
+    // Add pull requests to config
+    val config = git.getRepository.getConfig
+    val pulls = s"+${provider.remotePullHeads}:${pullRef("*")}"
+    config.setString("remote", remote, "url", provider.ssh)
+    config.setString("remote", remote, "fetch", pulls)
 
     // Fetch pull requests from remote
     val monitor = new TextProgressMonitor()
     git.fetch.setRemote(remote).setProgressMonitor(monitor).call
   }
 
-  def clean(force: Boolean, garbageCollect: Boolean): Unit = {
-    // Check if repo already had pull requests
-    if (!force && hasPullRefs)
-      return
-
+  def clean(garbageCollect: Boolean): Unit = {
     // Remove pull requests from config
-    configurePullRefs(remove = true)
+    val config = git.getRepository.getConfig
+    config.unsetSection("remote", remote)
 
     // Remove pull request refs
     val refs = git.getRepository.getRefDatabase.getRefs(pullRef("")).values.asScala map {
@@ -72,42 +71,18 @@ class JGitMergeProvider(val git: Git, val remote: String, val inMemoryMerge: Boo
   /**
    * Returns the ref string for the given pull request. The ref consists of `pr`
    * prefixed with the remote ref path.
-   * E.g. `"refs/pull/origin/``*``"`.
+   * E.g. `"refs/pulls/``*``"`.
    * @param pr The name or number of the pull request or a wildcard (`*`).
    * @return The ref path to pull request.
    */
-  private def pullRef(pr: String): String = s"refs/pull/$remote/$pr"
+  private def pullRef(pr: String): String = s"refs/$remote/$pr"
 
   /**
    * Returns the ref string for the given pull request. The ref consists of the
    * number of the pull request prefixed with the remote ref path.
-   * E.g. `"refs/pull/origin/123"`.
+   * E.g. `"refs/pulls/123"`.
    * @param pr The pull request.
    * @return The ref path to pull request.
    */
   private def pullRef(pr: PullRequest): String = pullRef(pr.number.toString)
-
-  /**
-   * Adds or removes the pull request fetch configuration.
-   * If the configuration is already present when adding or if the configuration
-   * is absent when deleting the return value is false.
-   * More info about fetching pull requests:
-   *   https://help.github.com/articles/checking-out-pull-requests-locally
-   * @param remove Add or remove the configuration (default: add).
-   * @return True iff the action succeeds, otherwise false.
-   */
-  private def configurePullRefs(remove: Boolean = false): Boolean = {
-    val config = git.getRepository.getConfig
-    val pulls = s"+refs/pull/*/head:${pullRef("*")}"
-
-    // Change setting
-    val res = if (remove)
-      config.removeString("remote", remote, "fetch", pulls)
-    else
-      config.addString("remote", remote, "fetch", pulls)
-    config.save()
-
-    // Return true iff succeeded
-    res
-  }
 }

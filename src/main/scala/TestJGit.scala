@@ -1,7 +1,4 @@
-import dispatch.github.GitHub
 import git._
-import jgit.JGitProvider
-import github.GitHubProvider
 import org.slf4j.LoggerFactory
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
@@ -29,7 +26,7 @@ object TestJGit {
       timer.logLap()
 
       logger info s"Fetching pull requests..."
-      git.fetch()
+      git.fetch(prs)
       timer.logLap()
 
       logger info s"Check for conflicts in PRs (${pullRequests.length})"
