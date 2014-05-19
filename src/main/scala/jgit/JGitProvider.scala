@@ -10,14 +10,14 @@ import jgit.merge.JGitMergeProvider
 
 /**
  * A provider implementation for the JGit library.
- * @param workingDirectory The path to the working directory of the git repository.
+ * @param repoDirectory The path to the directory of the git repository. It can either be a working directory or a bare git directory.
  * @param remote The name of the GitHub remote.
  * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
-class JGitProvider(workingDirectory: String, val remote: String = "origin", inMemoryMerge: Boolean = true) extends Provider {
+class JGitProvider(repoDirectory: String, val remote: String = "origin", inMemoryMerge: Boolean = true) extends Provider {
   val logger = LoggerFactory.getLogger(this.getClass)
   val dotGit = ".git"
-  val gitDir = if (workingDirectory.endsWith(dotGit)) workingDirectory else workingDirectory + File.separator + dotGit
+  val gitDir = if (repoDirectory.endsWith(dotGit)) repoDirectory else repoDirectory + File.separator + dotGit
   val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
     .readEnvironment // scan environment GIT_* variables
     .findGitDir // scan the file system tree
