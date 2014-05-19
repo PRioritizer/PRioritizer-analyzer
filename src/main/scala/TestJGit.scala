@@ -16,27 +16,30 @@ object TestJGit {
     var loader: Provider = null
 
     try {
-      logger info s"Setup providers..."
       timer.start()
+      logger info s"Setup providers..."
       loader = new ProviderLoader
       val git: MergeProvider = loader.merger.orNull
       val prs: PullRequestProvider = loader.pullRequests.orNull
-      timer.log()
+      timer.logLap()
 
       logger info s"Fetching pull request meta data..."
       val pullRequests = Await.result(prs.get, Duration.Inf)
       logger info s"Got ${pullRequests.length} open pull requests"
+      timer.logLap()
 
       logger info s"Fetching pull requests..."
       git.fetch()
+      timer.logLap()
 
       logger info s"Check for conflicts in PRs (${pullRequests.length})"
       mergePullRequests(git, pullRequests)
+      timer.logLap()
 
       val pairs = PullRequest.getPairs(pullRequests)
       logger info s"Check for conflicts among PRs (${pairs.size})"
       mergePullRequestPairs(git, pairs)
-
+      timer.logLap()
     } finally {
       if (loader != null)
         loader.dispose()

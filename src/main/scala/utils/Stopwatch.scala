@@ -12,12 +12,19 @@ class Stopwatch {
 
   private val logger = LoggerFactory.getLogger(this.getClass)
   private var startTime = -1L
+  private var lapTime = -1L
   private var stopTime = -1L
   private var running = false
 
   def start(): Stopwatch = {
     startTime = System.currentTimeMillis()
+    lapTime = startTime
     running = true
+    this
+  }
+
+  def lap(): Stopwatch = {
+    lapTime = System.currentTimeMillis()
     this
   }
 
@@ -29,6 +36,7 @@ class Stopwatch {
 
   def reset(): Stopwatch = {
     startTime = -1
+    lapTime = -1
     stopTime = -1
     running = false
     this
@@ -45,7 +53,28 @@ class Stopwatch {
       stopTime - startTime
   }
 
-  def print() = println(s"${getElapsedTime}ms")
+  def getLapTime = {
+    if (lapTime == -1)
+      0L
+    else if (running)
+      System.currentTimeMillis() - lapTime
+    else
+      stopTime - lapTime
+  }
 
-  def log() = logger info s"${getElapsedTime}ms"
+  def print() = println(toString)
+
+  def log() = logger info toString
+
+  def printLap() = {
+    print()
+    lap()
+  }
+
+  def logLap() = {
+    log()
+    lap()
+  }
+
+  override def toString: String = f"Lap: $getLapTime%5dms, Total: $getElapsedTime%5dms"
 }
