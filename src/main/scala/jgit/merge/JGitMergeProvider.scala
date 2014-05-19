@@ -46,7 +46,7 @@ class JGitMergeProvider(val git: Git, val remote: String, val inMemoryMerge: Boo
   }
 
   def merge(branch: String, into: String): Boolean = {
-    logger info s"Merge $branch into $into"
+    logger trace s"Merge $branch into $into"
     if (inMemoryMerge)
       git.isMergeable(branch, into)
     else
@@ -54,7 +54,7 @@ class JGitMergeProvider(val git: Git, val remote: String, val inMemoryMerge: Boo
   }
 
   def merge(pr: PullRequest): Boolean = {
-    logger info s"Merge $pr"
+    logger trace s"Merge $pr"
     if (inMemoryMerge)
       git.isMergeable(pullRef(pr), into = pr.base)
     else
@@ -62,7 +62,7 @@ class JGitMergeProvider(val git: Git, val remote: String, val inMemoryMerge: Boo
   }
 
   def merge(pr1: PullRequest, pr2: PullRequest): Boolean = {
-    logger info s"Merge #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
+    logger trace s"Merge #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
     if (inMemoryMerge)
       git.isMergeable(pullRef(pr2), into = pullRef(pr1))
     else

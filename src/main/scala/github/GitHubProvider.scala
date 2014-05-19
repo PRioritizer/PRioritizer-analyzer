@@ -14,7 +14,12 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
   // Set global access token
   GitHub.accessToken = token
 
-  override def pullRequests: GitHubPullRequestProvider = new GitHubPullRequestProvider(owner, repository)
-  override def merger: MergeProvider = ???
-  override def data: DataProvider = ???
+  override def pullRequests: Option[GitHubPullRequestProvider] =
+    Some(new GitHubPullRequestProvider(owner, repository))
+  override def merger: Option[MergeProvider] = None
+  override def data: Option[DataProvider] = None
+
+  override def dispose(): Unit = {
+    GitHub.shutdown()
+  }
 }

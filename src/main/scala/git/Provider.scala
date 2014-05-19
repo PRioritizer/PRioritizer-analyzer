@@ -1,7 +1,9 @@
 package git
 
 trait Provider {
-  def pullRequests: PullRequestProvider
-  def merger: MergeProvider
-  def data: DataProvider
+  def pullRequests: Option[PullRequestProvider]
+  def merger: Option[MergeProvider]
+  def data: Option[DataProvider]
+
+  def dispose(): Unit = {}
 }

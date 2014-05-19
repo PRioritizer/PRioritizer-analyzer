@@ -26,7 +26,17 @@ class JGitProvider(workingDirectory: String, val remote: String = "origin", inMe
   // Create git client
   val git: Git = new Git(repository)
 
-  override def pullRequests: PullRequestProvider = ???
-  override def merger: JGitMergeProvider = new JGitMergeProvider(git, remote, inMemoryMerge)
-  override def data: JGitDataProvider = new JGitDataProvider(git, remote)
+  override def pullRequests: Option[PullRequestProvider] = None
+  override def merger: Option[JGitMergeProvider] =
+    Some(new JGitMergeProvider(git, remote, inMemoryMerge))
+  override def data: Option[JGitDataProvider] =
+    Some(new JGitDataProvider(git, remote))
+
+  override def dispose(): Unit = {
+    for (m <- merger)
+      m.clean(force = true)
+
+    git.close()
+    repository.close()
+  }
 }
