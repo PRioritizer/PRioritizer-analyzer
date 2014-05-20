@@ -22,8 +22,9 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
     // Add pull requests to config
     val config = git.getRepository.getConfig
     val pulls = s"+${provider.remotePullHeads}:${pullRef("*")}"
+    val heads = s"+${provider.remoteHeads}:${targetRef("*")}"
     config.setString("remote", remote, "url", provider.ssh)
-    config.setString("remote", remote, "fetch", pulls)
+    config.setStringList("remote", remote, "fetch", List(heads, pulls).asJava)
 
     // Fetch pull requests from remote
     val monitor = new TextProgressMonitor()
@@ -36,10 +37,12 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
     config.unsetSection("remote", remote)
 
     // Remove pull request refs
-    val refs = git.getRepository.getRefDatabase.getRefs(pullRef("")).values.asScala map {
+    val refs = git.getRepository.getRefDatabase.getRefs(pullRef("")).values.asScala ++
+               git.getRepository.getRefDatabase.getRefs(targetRef("")).values.asScala
+    val uRefs = refs map {
       ref => git.getRepository.updateRef(ref.getName)
     }
-    refs.foreach(_.forceDelete())
+    uRefs.foreach(_.forceDelete())
 
     if (garbageCollect)
       git.gc.call
@@ -56,9 +59,9 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
   def merge(pr: PullRequest): Boolean = {
     logger trace s"Merge $pr"
     if (inMemoryMerge)
-      git.isMergeable(pullRef(pr), into = pr.target)
+      git.isMergeable(pullRef(pr), into = targetRef(pr))
     else
-      git.simulate(pullRef(pr), into = pr.target)
+      git.simulate(pullRef(pr), into = targetRef(pr))
   }
 
   def merge(pr1: PullRequest, pr2: PullRequest): Boolean = {

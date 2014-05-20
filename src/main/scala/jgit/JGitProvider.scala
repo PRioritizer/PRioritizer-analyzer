@@ -42,8 +42,7 @@ class JGitProvider(repoDirectory: String, inMemoryMerge: Boolean = true) extends
 
 object JGitProvider {
   /**
-   * Returns the ref string for the given pull request. The ref consists of `pr`
-   * prefixed with the remote ref path.
+   * Returns the ref string for the head of given pull request.
    * E.g. `"refs/pulls/``*``"`.
    * @param pr The name or number of the pull request or a wildcard (`*`).
    * @return The ref path to pull request.
@@ -51,11 +50,26 @@ object JGitProvider {
   def pullRef(pr: String): String = s"refs/pulls/$pr"
 
   /**
-   * Returns the ref string for the given pull request. The ref consists of the
-   * number of the pull request prefixed with the remote ref path.
+   * Returns the ref string for the head of given pull request.
    * E.g. `"refs/pulls/123"`.
    * @param pr The pull request.
    * @return The ref path to pull request.
    */
   def pullRef(pr: PullRequest): String = pullRef(pr.number.toString)
+
+  /**
+   * Returns the ref string for the merge target of the given pull request.
+   * E.g. `"refs/pulls/targets/``*``"`.
+   * @param pr The name or number of the pull request or a wildcard (`*`).
+   * @return The ref path to pull request.
+   */
+  def targetRef(pr: String): String = s"refs/pulls/targets/$pr"
+
+  /**
+   * Returns the ref string for the merge target of the given pull request.
+   * E.g. `"refs/pulls/targets/master"`.
+   * @param pr The pull request.
+   * @return The ref path to pull request.
+   */
+  def targetRef(pr: PullRequest): String = targetRef(pr.target)
 }

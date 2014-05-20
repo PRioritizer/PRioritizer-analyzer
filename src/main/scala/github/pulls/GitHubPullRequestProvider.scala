@@ -14,6 +14,8 @@ class GitHubPullRequestProvider(val owner: String, val repository: String) exten
 
   override val remotePullHeads: String = "refs/pull/*/head"
 
+  override val remoteHeads: String = "refs/heads/*"
+
   override def get: Future[List[PullRequest]] = {
     val req = GhPullRequest.get_pull_requests(owner, repository)
 

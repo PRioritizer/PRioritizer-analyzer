@@ -60,9 +60,9 @@ object TestJGit {
   def mergePullRequestPairs(git: MergeProvider, pairs: Traversable[(PullRequest, PullRequest)]): Unit = {
     pairs foreach { case (pr1, pr2) =>
       if (git merge (pr1, pr2))
-        logger info s"MERGED: $pr1 into $pr2"
+        logger info s"MERGED: #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
       else
-        logger error s"CONFLICT: $pr1 into $pr2"
+        logger error s"CONFLICT: #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
     }
   }
 }

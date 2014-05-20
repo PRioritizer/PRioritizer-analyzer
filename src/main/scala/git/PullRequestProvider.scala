@@ -13,4 +13,6 @@ trait PullRequestProvider {
   def https: String
 
   def remotePullHeads: String
+
+  def remoteHeads: String
 }

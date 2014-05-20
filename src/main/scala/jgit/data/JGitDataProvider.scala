@@ -14,11 +14,12 @@ import org.gitective.core.{CommitUtils, CommitFinder}
 class JGitDataProvider(val git: Git) extends DataProvider {
   override def enrich(pullRequest: PullRequest): RichPullRequest = {
     val repo = git.getRepository
-    val pull = pullRef(pullRequest)
-    val base: RevCommit = CommitUtils.getBase(repo, pullRequest.target, pull)
+    val head = pullRef(pullRequest)
+    val target = targetRef(pullRequest)
+    val base: RevCommit = CommitUtils.getBase(repo, target, head)
 
     val lineCount: DiffLineCountFilter = new DiffLineCountFilter
-    new CommitFinder(repo).setFilter(lineCount).findBetween(pull, base)
+    new CommitFinder(repo).setFilter(lineCount).findBetween(head, base)
 
     RichPullRequest(pullRequest, lineCount.getTotal)
   }
