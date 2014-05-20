@@ -38,7 +38,13 @@ object TestJGit {
       mergePullRequests(git, pullRequests)
       timer.logLap()
 
-      val pairs = PullRequest.getPairs(pullRequests)
+      // Reduce number of pairs:
+      // - filter out very large PRs
+      // - filter out pairs with PRs that target two different branches
+      val maxDiff = 1000
+      val small = pullRequests filter {pr => pr.lineCount < maxDiff}
+      val pairs = PullRequest.getPairs(small) filter { case (pr1, pr2) => pr1.target == pr2.target }
+
       logger info s"Check for conflicts among PRs (${pairs.size})"
       mergePullRequestPairs(git, pairs)
       timer.logLap()
