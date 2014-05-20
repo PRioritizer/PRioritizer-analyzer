@@ -4,14 +4,55 @@ import scala.collection.immutable.SortedSet
 
 /**
  * An object that holds information about the pull request.
+ */
+trait PullRequest {
+  /**
+   * @return The number of the pull request.
+   */
+  def number: Int
+  /**
+   * @return The source branch name.
+   */
+  def branch: String
+  /**
+   * @return The target branch name.
+   */
+  def target: String
+
+  override def toString: String = {
+    s"#$number: '$branch' into '$target'"
+  }
+}
+
+/**
+ * An object that holds information about the pull request.
  * @param number The number of the pull request.
  * @param branch The source branch name.
- * @param base The target branch name.
+ * @param target The target branch name.
  */
-case class PullRequest(number: Int, branch: String, base:String) {
-  override def toString: String = {
-    s"#$number: '$branch' into '$base'"
-  }
+case class SimplePullRequest(number: Int, branch: String, target: String) extends PullRequest
+
+/**
+ * An object that holds information about the pull request.
+ * @param number The number of the pull request.
+ * @param branch The source branch name.
+ * @param target The target branch name.
+ * @param lineCount The number of added/deleted/changed lines.
+ */
+case class RichPullRequest(number: Int,
+                           branch: String,
+                           target: String,
+                           lineCount: Long) extends PullRequest {
+}
+
+/**
+ * Helper functions for pull requests.
+ */
+object RichPullRequest {
+  implicit val ord = Ordering.by[RichPullRequest, Int](_.number)
+
+  def apply(pr: PullRequest, lineCount: Long): RichPullRequest =
+    RichPullRequest(pr.number, pr.branch, pr.target, lineCount)
 }
 
 /**

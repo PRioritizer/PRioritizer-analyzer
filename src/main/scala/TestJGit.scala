@@ -18,15 +18,20 @@ object TestJGit {
       loader = new ProviderLoader
       val git: MergeProvider = loader.merger.orNull
       val prs: PullRequestProvider = loader.pullRequests.orNull
-      timer.logLap()
-
-      logger info s"Fetching pull request meta data..."
-      val pullRequests = Await.result(prs.get, Duration.Inf)
-      logger info s"Got ${pullRequests.length} open pull requests"
+      val data: DataProvider = loader.data.orNull
       timer.logLap()
 
       logger info s"Fetching pull requests..."
       git.fetch(prs)
+      timer.logLap()
+
+      logger info s"Fetching pull request meta data..."
+      val simplePullRequests = Await.result(prs.get, Duration.Inf)
+      logger info s"Got ${simplePullRequests.length} open pull requests"
+      timer.logLap()
+
+      logger info s"Enriching pull request meta data..."
+      val pullRequests = simplePullRequests map data.enrich
       timer.logLap()
 
       logger info s"Check for conflicts in PRs (${pullRequests.length})"

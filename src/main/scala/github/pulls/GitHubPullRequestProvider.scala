@@ -1,6 +1,6 @@
 package github.pulls
 
-import git.{PullRequest, PullRequestProvider}
+import git.{PullRequest, SimplePullRequest, PullRequestProvider}
 import dispatch.github.GhPullRequest
 import scala.concurrent.Future
 import dispatch.Defaults._
@@ -22,6 +22,6 @@ class GitHubPullRequestProvider(val owner: String, val repository: String) exten
       list <- req
     } yield for {
       pr <- list
-    } yield PullRequest(pr.number, pr.head.label, pr.base.ref)
+    } yield SimplePullRequest(pr.number, pr.head.label, pr.base.ref)
   }
 }

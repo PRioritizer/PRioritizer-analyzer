@@ -2,6 +2,7 @@ package jgit.merge
 
 import git.{PullRequestProvider, MergeProvider, PullRequest}
 import jgit.JGitExtensions._
+import jgit.JGitProvider._
 
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.TextProgressMonitor
@@ -55,9 +56,9 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
   def merge(pr: PullRequest): Boolean = {
     logger trace s"Merge $pr"
     if (inMemoryMerge)
-      git.isMergeable(pullRef(pr), into = pr.base)
+      git.isMergeable(pullRef(pr), into = pr.target)
     else
-      git.simulate(pullRef(pr), into = pr.base)
+      git.simulate(pullRef(pr), into = pr.target)
   }
 
   def merge(pr1: PullRequest, pr2: PullRequest): Boolean = {
@@ -67,22 +68,4 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
     else
       git.simulate(pullRef(pr2), into = pullRef(pr1))
   }
-
-  /**
-   * Returns the ref string for the given pull request. The ref consists of `pr`
-   * prefixed with the remote ref path.
-   * E.g. `"refs/pulls/``*``"`.
-   * @param pr The name or number of the pull request or a wildcard (`*`).
-   * @return The ref path to pull request.
-   */
-  private def pullRef(pr: String): String = s"refs/$remote/$pr"
-
-  /**
-   * Returns the ref string for the given pull request. The ref consists of the
-   * number of the pull request prefixed with the remote ref path.
-   * E.g. `"refs/pulls/123"`.
-   * @param pr The pull request.
-   * @return The ref path to pull request.
-   */
-  private def pullRef(pr: PullRequest): String = pullRef(pr.number.toString)
 }
