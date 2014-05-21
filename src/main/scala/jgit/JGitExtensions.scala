@@ -1,10 +1,12 @@
 package jgit
 
-import org.eclipse.jgit.api._
+import org.eclipse.jgit.api.{Git, CheckoutResult, ResetCommand}
+import org.eclipse.jgit.api.{MergeResult => JGitMergeResult}
 import org.eclipse.jgit.lib._
 import scala.collection.JavaConverters._
 import org.eclipse.jgit.revwalk.RevWalk
 import jgit.merge.MemoryMerger
+import git.MergeResult._
 
 /**
  * Extensions for the JGit library
@@ -22,7 +24,7 @@ object JGitExtensions {
      * @param into The base branch, where `branch` is merged into.
      * @return True iff the merge was successful.
      */
-    def isMergeable(branch: Ref, into: Ref): Boolean =
+    def isMergeable(branch: Ref, into: Ref): MergeResult =
       isMergeable(branch.getName, into.getName)
 
     /**
@@ -31,7 +33,7 @@ object JGitExtensions {
      * @param into The base branch, where `branch` is merged into.
      * @return True iff the merge was successful.
      */
-    def isMergeable(branch: String, into: String): Boolean = {
+    def isMergeable(branch: String, into: String): MergeResult = {
       val repo = git.getRepository
       val revWalk = new RevWalk(repo)
 
@@ -39,26 +41,27 @@ object JGitExtensions {
       val headRef = repo.getRef(into)
 
       if (sourceRef == null || headRef == null)
-        return false
+        return Error
 
       val sourceCommit = revWalk.lookupCommit(sourceRef.getObjectId)
       val headCommit = revWalk.lookupCommit(headRef.getObjectId)
 
       // Check if already up-to-date
       if (revWalk.isMergedInto(sourceCommit, headCommit))
-        return true
+        return Merged
 
       // Check for fast-forward
       if (revWalk.isMergedInto(headCommit, sourceCommit))
-        return true
+        return Merged
 
       try {
         // Do the actual merge here (in memory)
         val merger = new MemoryMerger(repo)
         // merger.(getMergeResults|getFailingPaths|getUnmergedPaths)
-        merger.merge(headCommit, sourceCommit)
+        val result = merger.merge(headCommit, sourceCommit)
+        if (result) Merged else Conflict
       } catch {
-        case _: Exception => false
+        case _: Exception => Error
       }
     }
 
@@ -68,13 +71,13 @@ object JGitExtensions {
      * @param into The base branch, where `branch` is merged into.
      * @return True iff the merge was successful.
      */
-    def simulate(branch: String, into: String): Boolean = {
+    def simulate(branch: String, into: String): MergeResult = {
       val prevBranch = git.getRepository.getBranch
       val beforeMerge = git.getRepository.resolve(into)
       val alreadyOnBranch = git.alreadyOnBranch(into)
 
       if (prevBranch == null || beforeMerge == null)
-        return false
+        return Error
 
       // Checkout new branch
       if (!alreadyOnBranch)
@@ -83,7 +86,9 @@ object JGitExtensions {
       try {
         // Do the actual merge here
         val result = merge(branch)
-        return result.isOK
+        if (result.isOK) Merged else Conflict
+      } catch {
+        case _: Exception => Error
       } finally {
         // Reset merged branch
         resetHard(beforeMerge)
@@ -92,9 +97,6 @@ object JGitExtensions {
         if (!alreadyOnBranch)
           forceCheckout(prevBranch)
       }
-
-      // An exception occurred
-      false
     }
 
     /**
@@ -113,7 +115,7 @@ object JGitExtensions {
      * @param name The branch to be merged.
      * @return The merge result.
      */
-    def merge(name: String): MergeResult =
+    def merge(name: String): JGitMergeResult =
       git.merge
         .include(name, git.getRepository.resolve(name))
         .call
@@ -155,16 +157,16 @@ object JGitExtensions {
    * Enrichment of the [[org.eclipse.jgit.api.MergeResult]] class.
    * @param result The merge result.
    */
-  implicit class RichMergeStatus(result: MergeResult) {
+  implicit class RichMergeStatus(result: JGitMergeResult) {
     /**
      * @return True iff the merge results was positive.
      */
     def isOK: Boolean = result.getMergeStatus match {
-      case MergeResult.MergeStatus.ABORTED => false
-      case MergeResult.MergeStatus.CHECKOUT_CONFLICT => false
-      case MergeResult.MergeStatus.CONFLICTING => false
-      case MergeResult.MergeStatus.FAILED => false
-      case MergeResult.MergeStatus.NOT_SUPPORTED => false
+      case JGitMergeResult.MergeStatus.ABORTED => false
+      case JGitMergeResult.MergeStatus.CHECKOUT_CONFLICT => false
+      case JGitMergeResult.MergeStatus.CONFLICTING => false
+      case JGitMergeResult.MergeStatus.FAILED => false
+      case JGitMergeResult.MergeStatus.NOT_SUPPORTED => false
       case _ => true
     }
   }

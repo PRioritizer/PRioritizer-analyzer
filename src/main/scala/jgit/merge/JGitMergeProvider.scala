@@ -1,6 +1,7 @@
 package jgit.merge
 
 import git.{PullRequestProvider, MergeProvider, PullRequest}
+import git.MergeResult._
 import jgit.JGitExtensions._
 import jgit.JGitProvider._
 
@@ -48,7 +49,7 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
       git.gc.call
   }
 
-  def merge(branch: String, into: String): Boolean = {
+  def merge(branch: String, into: String): MergeResult = {
     logger trace s"Merge $branch into $into"
     if (inMemoryMerge)
       git.isMergeable(branch, into)
@@ -56,7 +57,7 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
       git.simulate(branch, into)
   }
 
-  def merge(pr: PullRequest): Boolean = {
+  def merge(pr: PullRequest): MergeResult = {
     logger trace s"Merge $pr"
     if (inMemoryMerge)
       git.isMergeable(pullRef(pr), into = targetRef(pr))
@@ -64,7 +65,7 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
       git.simulate(pullRef(pr), into = targetRef(pr))
   }
 
-  def merge(pr1: PullRequest, pr2: PullRequest): Boolean = {
+  def merge(pr1: PullRequest, pr2: PullRequest): MergeResult = {
     logger trace s"Merge #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
     if (inMemoryMerge)
       git.isMergeable(pullRef(pr2), into = pullRef(pr1))

@@ -1,5 +1,7 @@
 package git
 
+import git.MergeResult.MergeResult
+
 /**
  * Offers the functionality to test if a specific merge between branches or pull requests is possible or not.
  */
@@ -31,14 +33,14 @@ trait MergeProvider {
    * @param into The base branch, where `branch` is merged into.
    * @return True iff the merge was successful.
    */
-  def merge(branch: String, into: String): Boolean
+  def merge(branch: String, into: String): MergeResult
 
   /**
    * Merges a pull request into its target branch.
    * @param pull The pull request.
    * @return True iff the merge was successful.
    */
-  def merge(pull: PullRequest): Boolean
+  def merge(pull: PullRequest): MergeResult
 
   /**
    * Merges two pull requests.
@@ -46,7 +48,7 @@ trait MergeProvider {
    * @param pullRight The pull request, where `pullLeft` is merged into.
    * @return True iff the merge was successful.
    */
-  def merge(pullLeft: PullRequest, pullRight: PullRequest): Boolean
+  def merge(pullLeft: PullRequest, pullRight: PullRequest): MergeResult
 }
 
 /**
@@ -60,6 +62,14 @@ class MergeBuilder(merger: MergeProvider, branchToMerge: String) {
    * @param branch The base branch.
    * @return True iff the merge was successful.
    */
-  def into(branch: String): Boolean =
+  def into(branch: String): MergeResult =
     merger.merge(branchToMerge, branch)
+}
+
+/**
+ * An enum type for merge results.
+ */
+object MergeResult extends Enumeration {
+  type MergeResult = Value
+  val Merged, Conflict, Error = Value
 }
