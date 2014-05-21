@@ -1,12 +1,14 @@
 package jgit
 
+import git.MergeResult._
+import jgit.merge.MemoryMerger
+import scala.collection.JavaConverters._
 import org.eclipse.jgit.api.{Git, CheckoutResult, ResetCommand}
 import org.eclipse.jgit.api.{MergeResult => JGitMergeResult}
 import org.eclipse.jgit.lib._
-import scala.collection.JavaConverters._
-import org.eclipse.jgit.revwalk.RevWalk
-import jgit.merge.MemoryMerger
-import git.MergeResult._
+import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
+import org.gitective.core.{CommitFinder, CommitUtils}
+import org.gitective.core.filter.commit.CommitCountFilter
 
 /**
  * Extensions for the JGit library
@@ -151,6 +153,26 @@ object JGitExtensions {
     def alreadyOnBranch(obj: ObjectId): Boolean =
       git.getRepository
         .resolve(Constants.HEAD) equals obj
+
+    /**
+     * Calculates the number of commits between two commits.
+     * @param objectId One end of the chain.
+     * @param otherId The other end of the chain.
+     * @return The distance.
+     */
+    def distance(objectId: ObjectId, otherId: ObjectId): Long = {
+      val repo = git.getRepository
+      val base: RevCommit = CommitUtils.getBase(repo, objectId, otherId)
+      val count: CommitCountFilter = new CommitCountFilter
+      val finder: CommitFinder = new CommitFinder(repo).setFilter(count)
+
+      finder.findBetween(objectId, base)
+      val num = count.getCount
+      count.reset()
+
+      finder.findBetween(otherId, base)
+      num + count.getCount
+    }
   }
 
   /**
