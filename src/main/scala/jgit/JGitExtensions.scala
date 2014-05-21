@@ -21,46 +21,49 @@ object JGitExtensions {
    */
   implicit class RichGit(git: Git) {
     /**
-     * Checks if `branch` can be merged into `into`. The merge is done in-memory.
+     * Checks if `branch` can be merged into `head`. The merge is done in-memory.
      * @param branch The branch to be merged.
-     * @param into The base branch, where `branch` is merged into.
+     * @param head The head branch, where `branch` is merged into.
      * @return True iff the merge was successful.
      */
-    def isMergeable(branch: Ref, into: Ref): MergeResult =
-      isMergeable(branch.getName, into.getName)
+    def isMergeable(branch: String, head: String): MergeResult = {
+      val repo = git.getRepository
+
+      val branchId = repo resolve branch
+      val headId = repo resolve head
+
+      if (branchId == null || headId == null)
+        return Error
+
+      isMergeable(branchId, headId)
+    }
 
     /**
-     * Checks if `branch` can be merged into `into`. The merge is done in-memory.
+     * Checks if `branch` can be merged into `head`. The merge is done in-memory.
      * @param branch The branch to be merged.
-     * @param into The base branch, where `branch` is merged into.
+     * @param head The head branch, where `branch` is merged into.
      * @return True iff the merge was successful.
      */
-    def isMergeable(branch: String, into: String): MergeResult = {
+    def isMergeable(branch: ObjectId, head: ObjectId): MergeResult = {
       val repo = git.getRepository
       val revWalk = new RevWalk(repo)
 
-      val sourceRef = repo.getRef(branch)
-      val headRef = repo.getRef(into)
-
-      if (sourceRef == null || headRef == null)
-        return Error
-
-      val sourceCommit = revWalk.lookupCommit(sourceRef.getObjectId)
-      val headCommit = revWalk.lookupCommit(headRef.getObjectId)
+      val branchCommit = revWalk.lookupCommit(branch)
+      val headCommit = revWalk.lookupCommit(head)
 
       // Check if already up-to-date
-      if (revWalk.isMergedInto(sourceCommit, headCommit))
+      if (revWalk.isMergedInto(branchCommit, headCommit))
         return Merged
 
       // Check for fast-forward
-      if (revWalk.isMergedInto(headCommit, sourceCommit))
+      if (revWalk.isMergedInto(headCommit, branchCommit))
         return Merged
 
       try {
         // Do the actual merge here (in memory)
         val merger = new MemoryMerger(repo)
         // merger.(getMergeResults|getFailingPaths|getUnmergedPaths)
-        val result = merger.merge(headCommit, sourceCommit)
+        val result = merger.merge(headCommit, branchCommit)
         if (result) Merged else Conflict
       } catch {
         case _: Exception => Error
