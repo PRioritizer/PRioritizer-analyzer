@@ -14,9 +14,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * A merge tester implementation for the JGit library.
  * @param git The git repository.
- * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
-class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeProvider {
+class JGitMergeProvider(val git: Git) extends MergeProvider {
   val remote = "pulls"
 
   def fetch(provider: PullRequestProvider): Future[Unit] = {
@@ -50,24 +49,12 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
       git.gc.call
   }
 
-  def merge(branch: String, into: String): Future[MergeResult] = {
-    if (inMemoryMerge)
-      Future { git.isMergeable(branch, into) }
-    else
-      Future { git.simulate(branch, into) }
-  }
+  def merge(branch: String, into: String): Future[MergeResult] =
+    Future { git.isMergeable(branch, into) }
 
-  def merge(pr: PullRequest): Future[MergeResult] = {
-    if (inMemoryMerge)
-      Future { git.isMergeable(pullRef(pr), into = targetRef(pr)) }
-    else
-      Future { git.simulate(pullRef(pr), into = targetRef(pr)) }
-  }
+  def merge(pr: PullRequest): Future[MergeResult] =
+    Future { git.isMergeable(pullRef(pr), targetRef(pr)) }
 
-  def merge(pr1: PullRequest, pr2: PullRequest): Future[MergeResult] = {
-    if (inMemoryMerge)
-      Future { git.isMergeable(pullRef(pr2), into = pullRef(pr1)) }
-    else
-      Future { git.simulate(pullRef(pr2), into = pullRef(pr1)) }
-  }
+  def merge(pr1: PullRequest, pr2: PullRequest): Future[MergeResult] =
+    Future { git.isMergeable(pullRef(pr2), pullRef(pr1)) }
 }
