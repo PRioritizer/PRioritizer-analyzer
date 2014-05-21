@@ -45,9 +45,6 @@ object TestJGit {
       logger info s"Enriching done"
       timer.logLap()
 
-      logger info s"Check for conflicts in PRs (${pullRequests.length})"
-      val merges = mergePullRequests(git, pullRequests)
-
       // Reduce number of pairs:
       // - filter out very large PRs
       // - filter out pairs with PRs that target two different branches
@@ -55,7 +52,10 @@ object TestJGit {
       val small = pullRequests filter {pr => pr.lineCount < maxDiff}
       val pairs = PullRequest.getPairs(small) filter { case (pr1, pr2) => pr1.target == pr2.target }
 
+      logger info s"Check for conflicts in PRs (${pullRequests.length})"
+      logger info s"Skip too large PRs (${pullRequests.length - small.length})"
       logger info s"Check for conflicts among PRs (${pairs.size})"
+      val merges = mergePullRequests(git, pullRequests)
       val pairMerges = mergePullRequestPairs(git, pairs)
 
       // Wait for merges to complete
