@@ -8,7 +8,6 @@ import jgit.JGitProvider._
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.TextProgressMonitor
 import scala.collection.JavaConverters._
-import org.slf4j.LoggerFactory
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -18,7 +17,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
 class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeProvider {
-  val logger = LoggerFactory.getLogger(this.getClass)
   val remote = "pulls"
 
   def fetch(provider: PullRequestProvider): Future[Unit] = {
@@ -53,7 +51,6 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
   }
 
   def merge(branch: String, into: String): Future[MergeResult] = {
-    logger trace s"Merge $branch into $into"
     if (inMemoryMerge)
       Future { git.isMergeable(branch, into) }
     else
@@ -61,7 +58,6 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
   }
 
   def merge(pr: PullRequest): Future[MergeResult] = {
-    logger trace s"Merge $pr"
     if (inMemoryMerge)
       Future { git.isMergeable(pullRef(pr), into = targetRef(pr)) }
     else
@@ -69,7 +65,6 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
   }
 
   def merge(pr1: PullRequest, pr2: PullRequest): Future[MergeResult] = {
-    logger trace s"Merge #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
     if (inMemoryMerge)
       Future { git.isMergeable(pullRef(pr2), into = pullRef(pr1)) }
     else

@@ -14,7 +14,6 @@ import jgit.merge.JGitMergeProvider
  * @param inMemoryMerge Whether to merge tester has to simulate merges on disk or in-memory.
  */
 class JGitProvider(repoDirectory: String, inMemoryMerge: Boolean = true) extends Provider {
-  val logger = LoggerFactory.getLogger(this.getClass)
   val dotGit = ".git"
   val gitDir = if (repoDirectory.endsWith(dotGit)) repoDirectory else repoDirectory + File.separator + dotGit
   val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
