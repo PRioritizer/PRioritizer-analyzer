@@ -21,24 +21,32 @@ object TestJGit {
       val git: MergeProvider = loader.merger.orNull
       val prs: PullRequestProvider = loader.pullRequests.orNull
       val data: DataProvider = loader.data.orNull
+      logger info s"Setup done"
       timer.logLap()
 
       logger info s"Fetching pull requests..."
-      git.fetch(prs)
-      timer.logLap()
+      val fetch = git.fetch(prs)
 
       logger info s"Fetching pull request meta data..."
-      val simplePullRequests = Await.result(prs.get, Duration.Inf)
+      val fetchPulls = prs.get
+
+      // Wait for fetch to complete
+      Await.ready(fetch, Duration.Inf)
+      logger info s"Fetching done"
+      val simplePullRequests = Await.result(fetchPulls, Duration.Inf)
       logger info s"Got ${simplePullRequests.length} open pull requests"
       timer.logLap()
 
       logger info s"Enriching pull request meta data..."
-      val pullRequests = simplePullRequests map data.enrich
+      val enrichPulls = dispatch.Future.sequence(simplePullRequests map data.enrich)
+
+      // Wait for enrichment to complete
+      val pullRequests = Await.result(enrichPulls, Duration.Inf)
+      logger info s"Enriching done"
       timer.logLap()
 
       logger info s"Check for conflicts in PRs (${pullRequests.length})"
       val merges = mergePullRequests(git, pullRequests)
-      timer.logLap()
 
       // Reduce number of pairs:
       // - filter out very large PRs
@@ -49,11 +57,11 @@ object TestJGit {
 
       logger info s"Check for conflicts among PRs (${pairs.size})"
       val pairMerges = mergePullRequestPairs(git, pairs)
-      timer.logLap()
 
-      logger info s"Waiting for merges to complete..."
+      // Wait for merges to complete
       val allMerges = dispatch.Future.sequence(Seq(merges, pairMerges))
       Await.ready(allMerges, Duration.Inf)
+      logger info s"Merging done"
       timer.logLap()
     } finally {
       if (loader != null)

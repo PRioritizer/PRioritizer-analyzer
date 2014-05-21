@@ -21,7 +21,7 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
   val logger = LoggerFactory.getLogger(this.getClass)
   val remote = "pulls"
 
-  def fetch(provider: PullRequestProvider): Unit = {
+  def fetch(provider: PullRequestProvider): Future[Unit] = {
     // Add pull requests to config
     val config = git.getRepository.getConfig
     val pulls = s"+${provider.remotePullHeads}:${pullRef("*")}"
@@ -31,7 +31,8 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
 
     // Fetch pull requests from remote
     val monitor = new TextProgressMonitor()
-    git.fetch.setRemote(remote).setProgressMonitor(monitor).call
+    val cmd = git.fetch.setRemote(remote).setProgressMonitor(monitor)
+    Future { cmd.call }
   }
 
   def clean(garbageCollect: Boolean): Unit = {
