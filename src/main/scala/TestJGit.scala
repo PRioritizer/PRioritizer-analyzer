@@ -45,15 +45,8 @@ object TestJGit {
       logger info s"Enriching done"
       timer.logLap()
 
-      // Reduce number of pairs:
-      // - filter out very large PRs
-      // - filter out pairs with PRs that target two different branches
-      val maxDiff = 1000
-      val small = pullRequests filter {pr => pr.lineCount < maxDiff}
-      val pairs = PullRequest.getPairs(small) filter { case (pr1, pr2) => pr1.target == pr2.target }
-
       logger info s"Check for conflicts in PRs (${pullRequests.length})"
-      logger info s"Skip too large PRs (${pullRequests.length - small.length})"
+      val pairs = getPairs(pullRequests)
       logger info s"Check for conflicts among PRs (${pairs.size})"
       val merges = mergePullRequests(git, pullRequests)
       val pairMerges = mergePullRequestPairs(git, pairs)
@@ -67,6 +60,32 @@ object TestJGit {
       if (loader != null)
         loader.dispose()
     }
+  }
+
+  /**
+   * Get the pull request pairs.
+   * Reduce the number of pairs by:
+   * - filtering out very large PRs
+   * - filtering out pairs with PRs that target two different branches
+   * @param pullRequests The pull requests
+   * @return Pairwise combination of the pull requests.
+   */
+  def getPairs(pullRequests: List[RichPullRequest]): Traversable[(PullRequest, PullRequest)] = {
+    val large = Settings.get("settings.large").get.toInt
+    val skipLarge = Settings.get("settings.pairs.skipLarge").get.toBoolean
+    val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
+
+    val forPairs = if (skipLarge)
+      pullRequests filter {pr => pr.lineCount < large}
+    else
+      pullRequests
+
+    logger info s"Skip too large PRs (${pullRequests.length - forPairs.length})"
+
+    if (skipDifferentTargets)
+      PullRequest.getPairs(forPairs) filter { case (pr1, pr2) => pr1.target == pr2.target }
+    else
+      PullRequest.getPairs(forPairs)
   }
 
   def mergePullRequests(git: MergeProvider, pullRequests: Traversable[PullRequest]): Future[Traversable[MergeResult]] = {

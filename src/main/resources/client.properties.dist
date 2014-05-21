@@ -3,6 +3,11 @@ provider.PullRequests=github|jgit
 provider.MergeTester=github|jgit
 provider.Data=github|jgit
 
+# Settings
+settings.large=1000
+settings.pairs.skipLarge=true
+settings.pairs.skipDifferentTargets=true
+
 # GitHub provider
 github.Owner=username
 github.Repository=repository-name
