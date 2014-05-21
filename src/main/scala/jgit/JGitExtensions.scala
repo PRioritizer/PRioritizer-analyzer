@@ -8,7 +8,7 @@ import org.eclipse.jgit.api.{MergeResult => JGitMergeResult}
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
 import org.gitective.core.{CommitFinder, CommitUtils}
-import org.gitective.core.filter.commit.CommitCountFilter
+import org.gitective.core.filter.commit.{DiffLineCountFilter, CommitCountFilter}
 
 /**
  * Extensions for the JGit library
@@ -163,8 +163,8 @@ object JGitExtensions {
     def distance(objectId: ObjectId, otherId: ObjectId): Long = {
       val repo = git.getRepository
       val base: RevCommit = CommitUtils.getBase(repo, objectId, otherId)
-      val count: CommitCountFilter = new CommitCountFilter
-      val finder: CommitFinder = new CommitFinder(repo).setFilter(count)
+      val count = new CommitCountFilter
+      val finder = new CommitFinder(repo).setFilter(count)
 
       finder.findBetween(objectId, base)
       val num = count.getCount
@@ -172,6 +172,26 @@ object JGitExtensions {
 
       finder.findBetween(otherId, base)
       num + count.getCount
+    }
+
+    /**
+     * Calculates the number of diff lines between two commits.
+     * @param objectId One end of the chain.
+     * @param otherId The other end of the chain.
+     * @return The number of added/deleted/changed lines.
+     */
+    def diffSize(objectId: ObjectId, otherId: ObjectId): Long = {
+      val repo = git.getRepository
+      val base: RevCommit = CommitUtils.getBase(repo, objectId, otherId)
+      val count = new DiffLineCountFilter
+      val finder = new CommitFinder(repo).setFilter(count)
+
+      finder.findBetween(objectId, base)
+      val num = count.getTotal
+      count.reset()
+
+      finder.findBetween(otherId, base)
+      num + count.getTotal
     }
   }
 

@@ -24,6 +24,6 @@ class GitHubPullRequestProvider(val owner: String, val repository: String) exten
       list <- req
     } yield for {
       pr <- list
-    } yield SimplePullRequest(pr.number, pr.head.label, pr.base.ref)
+    } yield SimplePullRequest(pr.number, pr.head.label, pr.base.ref, pr.base.sha)
   }
 }

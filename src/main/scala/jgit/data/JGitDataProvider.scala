@@ -2,10 +2,8 @@ package jgit.data
 
 import git.{RichPullRequest, PullRequest, DataProvider}
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.revwalk.RevCommit
 import jgit.JGitProvider._
-import org.gitective.core.filter.commit.DiffLineCountFilter
-import org.gitective.core.{CommitUtils, CommitFinder}
+import jgit.JGitExtensions._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -16,15 +14,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class JGitDataProvider(val git: Git) extends DataProvider {
   override def enrich(pullRequest: PullRequest): Future[RichPullRequest] = {
     val repo = git.getRepository
-    val head = pullRef(pullRequest)
-    val target = targetRef(pullRequest)
+    val head = repo resolve pullRef(pullRequest)
+    val base = repo resolve pullRequest.base
+
+    // Check if commit are resolved
+    if (head == null || base == null)
+      return Future { RichPullRequest(pullRequest) }
 
     Future {
-      val lineCount: DiffLineCountFilter = new DiffLineCountFilter
-      val base: RevCommit = CommitUtils.getBase(repo, target, head)
-      new CommitFinder(repo).setFilter(lineCount).findBetween(head, base)
-
-      RichPullRequest(pullRequest, lineCount.getTotal)
+      val lineCount = git.diffSize(head, base)
+      RichPullRequest(pullRequest, lineCount)
     }
   }
 }

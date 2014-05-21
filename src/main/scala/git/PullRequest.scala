@@ -18,6 +18,10 @@ trait PullRequest {
    * @return The target branch name.
    */
   def target: String
+  /**
+   * @return The base commit name.
+   */
+  def base: String
 
   override def toString: String = {
     s"#$number: '$branch' into '$target'"
@@ -29,19 +33,22 @@ trait PullRequest {
  * @param number The number of the pull request.
  * @param branch The source branch name.
  * @param target The target branch name.
+ * @param base The base commit name.
  */
-case class SimplePullRequest(number: Int, branch: String, target: String) extends PullRequest
+case class SimplePullRequest(number: Int, branch: String, target: String, base: String) extends PullRequest
 
 /**
  * An object that holds information about the pull request.
  * @param number The number of the pull request.
  * @param branch The source branch name.
  * @param target The target branch name.
+ * @param base The base commit name.
  * @param lineCount The number of added/deleted/changed lines.
  */
 case class RichPullRequest(number: Int,
                            branch: String,
                            target: String,
+                           base: String,
                            lineCount: Long) extends PullRequest {
 }
 
@@ -51,8 +58,11 @@ case class RichPullRequest(number: Int,
 object RichPullRequest {
   implicit val ord = Ordering.by[RichPullRequest, Int](_.number)
 
+  def apply(pr: PullRequest): RichPullRequest =
+    apply(pr, -1)
+
   def apply(pr: PullRequest, lineCount: Long): RichPullRequest =
-    RichPullRequest(pr.number, pr.branch, pr.target, lineCount)
+    RichPullRequest(pr.number, pr.branch, pr.target, pr.base, lineCount)
 }
 
 /**
