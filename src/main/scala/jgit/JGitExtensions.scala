@@ -52,12 +52,14 @@ object JGitExtensions {
       if (revWalk.isMergedInto(headCommit, sourceCommit))
         return true
 
-      // Do the actual merge here (in memory)
-      val merger = new MemoryMerger(repo)
-//      val lowLevelResults = merger.getMergeResults
-//      val failingPaths = merger.getFailingPaths
-//      val unmergedPaths = merger.getUnmergedPaths
-      merger.merge(headCommit, sourceCommit)
+      try {
+        // Do the actual merge here (in memory)
+        val merger = new MemoryMerger(repo)
+        // merger.(getMergeResults|getFailingPaths|getUnmergedPaths)
+        merger.merge(headCommit, sourceCommit)
+      } catch {
+        case _: Exception => false
+      }
     }
 
     /**
