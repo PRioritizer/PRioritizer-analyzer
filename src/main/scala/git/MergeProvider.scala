@@ -1,6 +1,7 @@
 package git
 
 import git.MergeResult.MergeResult
+import scala.concurrent.Future
 
 /**
  * Offers the functionality to test if a specific merge between branches or pull requests is possible or not.
@@ -33,14 +34,14 @@ trait MergeProvider {
    * @param into The base branch, where `branch` is merged into.
    * @return True iff the merge was successful.
    */
-  def merge(branch: String, into: String): MergeResult
+  def merge(branch: String, into: String): Future[MergeResult]
 
   /**
    * Merges a pull request into its target branch.
    * @param pull The pull request.
    * @return True iff the merge was successful.
    */
-  def merge(pull: PullRequest): MergeResult
+  def merge(pull: PullRequest): Future[MergeResult]
 
   /**
    * Merges two pull requests.
@@ -48,7 +49,7 @@ trait MergeProvider {
    * @param pullRight The pull request, where `pullLeft` is merged into.
    * @return True iff the merge was successful.
    */
-  def merge(pullLeft: PullRequest, pullRight: PullRequest): MergeResult
+  def merge(pullLeft: PullRequest, pullRight: PullRequest): Future[MergeResult]
 }
 
 /**
@@ -62,7 +63,7 @@ class MergeBuilder(merger: MergeProvider, branchToMerge: String) {
    * @param branch The base branch.
    * @return True iff the merge was successful.
    */
-  def into(branch: String): MergeResult =
+  def into(branch: String): Future[MergeResult] =
     merger.merge(branchToMerge, branch)
 }
 

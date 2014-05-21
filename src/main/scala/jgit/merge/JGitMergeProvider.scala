@@ -9,6 +9,8 @@ import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.TextProgressMonitor
 import scala.collection.JavaConverters._
 import org.slf4j.LoggerFactory
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * A merge tester implementation for the JGit library.
@@ -49,27 +51,27 @@ class JGitMergeProvider(val git: Git, val inMemoryMerge: Boolean) extends MergeP
       git.gc.call
   }
 
-  def merge(branch: String, into: String): MergeResult = {
+  def merge(branch: String, into: String): Future[MergeResult] = {
     logger trace s"Merge $branch into $into"
     if (inMemoryMerge)
-      git.isMergeable(branch, into)
+      Future { git.isMergeable(branch, into) }
     else
-      git.simulate(branch, into)
+      Future { git.simulate(branch, into) }
   }
 
-  def merge(pr: PullRequest): MergeResult = {
+  def merge(pr: PullRequest): Future[MergeResult] = {
     logger trace s"Merge $pr"
     if (inMemoryMerge)
-      git.isMergeable(pullRef(pr), into = targetRef(pr))
+      Future { git.isMergeable(pullRef(pr), into = targetRef(pr)) }
     else
-      git.simulate(pullRef(pr), into = targetRef(pr))
+      Future { git.simulate(pullRef(pr), into = targetRef(pr)) }
   }
 
-  def merge(pr1: PullRequest, pr2: PullRequest): MergeResult = {
+  def merge(pr1: PullRequest, pr2: PullRequest): Future[MergeResult] = {
     logger trace s"Merge #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
     if (inMemoryMerge)
-      git.isMergeable(pullRef(pr2), into = pullRef(pr1))
+      Future { git.isMergeable(pullRef(pr2), into = pullRef(pr1)) }
     else
-      git.simulate(pullRef(pr2), into = pullRef(pr1))
+      Future { git.simulate(pullRef(pr2), into = pullRef(pr1)) }
   }
 }

@@ -1,8 +1,10 @@
 import git._
+import git.MergeResult._
 import org.slf4j.LoggerFactory
-import scala.concurrent.Await
+import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
 import utils.Stopwatch
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object TestJGit {
   val timer = new Stopwatch
@@ -35,7 +37,7 @@ object TestJGit {
       timer.logLap()
 
       logger info s"Check for conflicts in PRs (${pullRequests.length})"
-      mergePullRequests(git, pullRequests)
+      val merges = mergePullRequests(git, pullRequests)
       timer.logLap()
 
       // Reduce number of pairs:
@@ -46,7 +48,12 @@ object TestJGit {
       val pairs = PullRequest.getPairs(small) filter { case (pr1, pr2) => pr1.target == pr2.target }
 
       logger info s"Check for conflicts among PRs (${pairs.size})"
-      mergePullRequestPairs(git, pairs)
+      val pairMerges = mergePullRequestPairs(git, pairs)
+      timer.logLap()
+
+      logger info s"Waiting for merges to complete..."
+      val allMerges = dispatch.Future.sequence(Seq(merges, pairMerges))
+      Await.ready(allMerges, Duration.Inf)
       timer.logLap()
     } finally {
       if (loader != null)
@@ -54,31 +61,37 @@ object TestJGit {
     }
   }
 
-  def mergePullRequests(git: MergeProvider, pullRequests: Traversable[PullRequest]): Unit = {
-    pullRequests foreach { pr =>
-      val result = git merge pr
-      result match {
-        case MergeResult.Merged =>
+  def mergePullRequests(git: MergeProvider, pullRequests: Traversable[PullRequest]): Future[Traversable[MergeResult]] = {
+    val results = pullRequests map { pr => {
+      val res = git merge pr
+      res.onSuccess {
+        case Merged =>
           logger info s"MERGED: $pr"
-        case MergeResult.Conflict =>
+        case Conflict =>
           logger info s"CONFLICT: $pr"
-        case MergeResult.Error =>
+        case Error =>
           logger error s"ERROR: $pr"
       }
-    }
+      res
+    }}
+
+    dispatch.Future.sequence(results)
   }
 
-  def mergePullRequestPairs(git: MergeProvider, pairs: Traversable[(PullRequest, PullRequest)]): Unit = {
-    pairs foreach { case (pr1, pr2) =>
-      val result = git merge (pr1, pr2)
-      result match {
-        case MergeResult.Merged =>
+  def mergePullRequestPairs(git: MergeProvider, pairs: Traversable[(PullRequest, PullRequest)]): Future[Traversable[MergeResult]] = {
+    val results = pairs map { case (pr1, pr2) => {
+      val res = git merge (pr1, pr2)
+      res.onSuccess {
+        case Merged =>
           logger info s"MERGED: #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
-        case MergeResult.Conflict =>
+        case Conflict =>
           logger info s"CONFLICT: #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
-        case MergeResult.Error =>
+        case Error =>
           logger error s"ERROR: #${pr1.number} '${pr1.branch}' into #${pr2.number} '${pr2.branch}'"
       }
-    }
+      res
+    }}
+
+    dispatch.Future.sequence(results)
   }
 }
