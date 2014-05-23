@@ -1,12 +1,21 @@
 # Providers
-provider.PullRequestProvider=github|jgit
-provider.MergeProvider=github|jgit
-provider.EnrichmentProvider=github|jgit
+provider.PullRequestProvider=ghtorrent|github|jgit
+provider.MergeProvider=ghtorrent|github|jgit
+provider.EnrichmentProvider=ghtorrent|github|jgit
 
 # Settings
 settings.large=1000
 settings.pairs.skipLarge=true
 settings.pairs.skipDifferentTargets=true
+
+# GHTorrent provider
+ghtorrent.Host=localhost
+ghtorrent.Port=3306
+ghtorrent.User=mysql-user
+ghtorrent.Password=mysql-password
+ghtorrent.Database=mysql-database
+ghtorrent.Owner=username
+ghtorrent.Repository=repository-name
 
 # GitHub provider
 github.Owner=username
