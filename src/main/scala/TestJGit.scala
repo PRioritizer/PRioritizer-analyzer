@@ -46,9 +46,13 @@ object TestJGit {
       timer.logLap()
 
       logger info s"Check for conflicts in PRs (${pullRequests.length})"
-      val pairs = getPairs(pullRequests)
-      logger info s"Check for conflicts among PRs (${pairs.size})"
       val merges = mergePullRequests(git, pullRequests)
+
+      val largePullRequests = getLargePullRequests(pullRequests)
+      logger info s"Skip too large PRs (${largePullRequests.length})"
+      val pairs = getPairs(pullRequests.diff(largePullRequests))
+
+      logger info s"Check for conflicts among PRs (${pairs.size})"
       val pairMerges = mergePullRequestPairs(git, pairs)
 
       // Wait for merges to complete
@@ -63,30 +67,29 @@ object TestJGit {
     }
   }
 
+  def getLargePullRequests(pullRequests: List[RichPullRequest]): List[RichPullRequest] = {
+    val large = Settings.get("settings.large").get.toInt
+    val skipLarge = Settings.get("settings.pairs.skipLarge").get.toBoolean
+
+    if (skipLarge)
+      pullRequests filter {pr => pr.lineCount > large}
+    else
+      List()
+  }
+
   /**
    * Get the pull request pairs.
-   * Reduce the number of pairs by:
-   * - filtering out very large PRs
-   * - filtering out pairs with PRs that target two different branches
+   * Reduce the number of pairs by filtering out pairs with PRs that target two different branches
    * @param pullRequests The pull requests
    * @return Pairwise combination of the pull requests.
    */
   def getPairs(pullRequests: List[RichPullRequest]): Traversable[(PullRequest, PullRequest)] = {
-    val large = Settings.get("settings.large").get.toInt
-    val skipLarge = Settings.get("settings.pairs.skipLarge").get.toBoolean
     val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
 
-    val forPairs = if (skipLarge)
-      pullRequests filter {pr => pr.lineCount < large}
-    else
-      pullRequests
-
-    logger info s"Skip too large PRs (${pullRequests.length - forPairs.length})"
-
     if (skipDifferentTargets)
-      PullRequest.getPairs(forPairs) filter { case (pr1, pr2) => pr1.target == pr2.target }
+      PullRequest.getPairs(pullRequests) filter { case (pr1, pr2) => pr1.target == pr2.target }
     else
-      PullRequest.getPairs(forPairs)
+      PullRequest.getPairs(pullRequests)
   }
 
   def mergePullRequests(git: MergeProvider, pullRequests: Traversable[PullRequest]): Future[Traversable[MergeResult]] = {
