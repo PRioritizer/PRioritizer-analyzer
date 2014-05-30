@@ -55,7 +55,8 @@ object TestJGit {
       val allMerges = dispatch.Future.sequence(Seq(merges, pairMerges))
       Await.ready(allMerges, Duration.Inf)
       logger info s"Merging done"
-      timer.logLap()
+      timer.log()
+      timer.logMinutes()
     } finally {
       if (loader != null)
         loader.dispose()
