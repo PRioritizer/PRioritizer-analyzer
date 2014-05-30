@@ -98,16 +98,18 @@ object JGitExtensions {
      */
     def diffSize(objectId: ObjectId, otherId: ObjectId): Long = {
       val repo = git.getRepository
-      val base: RevCommit = CommitUtils.getBase(repo, objectId, otherId)
+      val base = CommitUtils.getBase(repo, objectId, otherId)
       val count = new DiffLineCountFilter
       val finder = new CommitFinder(repo).setFilter(count)
 
+      // added + 2*edited + deleted
+      // (count edited line as both added and deleted)
       finder.findBetween(objectId, base)
-      val num = count.getTotal
+      val num = count.getTotal + count.getEdited
       count.reset()
 
       finder.findBetween(otherId, base)
-      num + count.getTotal
+      num + count.getTotal + count.getEdited
     }
   }
 
