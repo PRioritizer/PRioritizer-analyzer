@@ -17,10 +17,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 class JGitMergeProvider(val git: Git) extends MergeProvider {
   val remote = "pulls"
+  val repo = git.getRepository
+  val merger = new MemoryMerger(repo)
 
   def fetch(provider: PullRequestProvider): Future[Unit] = {
     // Add pull requests to config
-    val config = git.getRepository.getConfig
+    val config = repo.getConfig
     val pulls = s"+${provider.remotePullHeads}:${pullRef("*")}"
     val heads = s"+${provider.remoteHeads}:${targetRef("*")}"
     config.setString(ConfigConstants.CONFIG_REMOTE_SECTION, remote,
@@ -36,14 +38,14 @@ class JGitMergeProvider(val git: Git) extends MergeProvider {
 
   def clean(garbageCollect: Boolean): Unit = {
     // Remove pull requests from config
-    val config = git.getRepository.getConfig
+    val config = repo.getConfig
     config.unsetSection(ConfigConstants.CONFIG_REMOTE_SECTION, remote)
 
     // Remove pull request refs
-    val refs = git.getRepository.getRefDatabase.getRefs(pullRef("")).values.asScala ++
-               git.getRepository.getRefDatabase.getRefs(targetRef("")).values.asScala
+    val refs = repo.getRefDatabase.getRefs(pullRef("")).values.asScala ++
+               repo.getRefDatabase.getRefs(targetRef("")).values.asScala
     val uRefs = refs map {
-      ref => git.getRepository.updateRef(ref.getName)
+      ref => repo.updateRef(ref.getName)
     }
     uRefs.foreach(_.forceDelete())
 
@@ -52,11 +54,11 @@ class JGitMergeProvider(val git: Git) extends MergeProvider {
   }
 
   def merge(branch: String, into: String): Future[MergeResult] =
-    Future { git.isMergeable(branch, into) }
+    Future { repo.isMergeable(branch, into) }
 
   def merge(pr: PullRequest): Future[MergeResult] =
-    Future { git.isMergeable(pullRef(pr), targetRef(pr)) }
+    Future { repo.isMergeable(pullRef(pr), targetRef(pr)) }
 
   def merge(pr1: PullRequest, pr2: PullRequest): Future[MergeResult] =
-    Future { git.isMergeable(pullRef(pr2), pullRef(pr1)) }
+    Future { repo.isMergeable(pullRef(pr2), pullRef(pr1)) }
 }

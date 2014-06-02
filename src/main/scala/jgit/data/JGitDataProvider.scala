@@ -1,7 +1,7 @@
 package jgit.data
 
 import git.{RichPullRequest, PullRequest, DataProvider}
-import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Repository
 import jgit.JGitProvider._
 import jgit.JGitExtensions._
 import scala.concurrent.Future
@@ -10,12 +10,11 @@ import org.gitective.core.CommitUtils
 
 /**
  * An info getter implementation for the JGit library.
- * @param git The git repository.
+ * @param repo The git repository.
  */
-class JGitDataProvider(val git: Git) extends DataProvider {
+class JGitDataProvider(val repo: Repository) extends DataProvider {
   override def enrich(pullRequest: PullRequest): Future[RichPullRequest] = {
     Future {
-      val repo = git.getRepository
       val head = repo resolve pullRef(pullRequest)
       val target = repo resolve targetRef(pullRequest)
       //val base = repo resolve pullRequest.base
@@ -25,7 +24,7 @@ class JGitDataProvider(val git: Git) extends DataProvider {
       if (head == null || base == null)
         RichPullRequest(pullRequest)
       else {
-        val lineCount = git.diffSize(head, base)
+        val lineCount = repo.diffSize(head, base)
         RichPullRequest(pullRequest, lineCount)
       }
     }

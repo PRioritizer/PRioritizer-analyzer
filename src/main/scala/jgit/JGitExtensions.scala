@@ -2,9 +2,6 @@ package jgit
 
 import git.MergeResult._
 import jgit.merge.MemoryMerger
-import scala.collection.JavaConverters._
-import org.eclipse.jgit.api.{Git, CheckoutResult, ResetCommand}
-import org.eclipse.jgit.api.{MergeResult => JGitMergeResult}
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
 import org.gitective.core.{CommitFinder, CommitUtils}
@@ -14,12 +11,11 @@ import org.gitective.core.filter.commit.{DiffLineCountFilter, CommitCountFilter}
  * Extensions for the JGit library
  */
 object JGitExtensions {
-
   /**
-   * Enrichment of the [[org.eclipse.jgit.api.Git]] class.
-   * @param git The git object.
+   * Enrichment of the [[org.eclipse.jgit.lib.Repository]] class.
+   * @param repo The repository object.
    */
-  implicit class RichGit(git: Git) {
+  implicit class RichRepository(repo: Repository) {
     /**
      * Checks if `branch` can be merged into `head`. The merge is done in-memory.
      * @param branch The branch to be merged.
@@ -27,8 +23,6 @@ object JGitExtensions {
      * @return True iff the merge was successful.
      */
     def isMergeable(branch: String, head: String): MergeResult = {
-      val repo = git.getRepository
-
       val branchId = repo resolve branch
       val headId = repo resolve head
 
@@ -45,7 +39,6 @@ object JGitExtensions {
      * @return True iff the merge was successful.
      */
     def isMergeable(branch: ObjectId, head: ObjectId): MergeResult = {
-      val repo = git.getRepository
       val revWalk = new RevWalk(repo)
 
       val branchCommit = revWalk.lookupCommit(branch)
@@ -62,8 +55,8 @@ object JGitExtensions {
       try {
         // Do the actual merge here (in memory)
         val merger = new MemoryMerger(repo)
-        // merger.(getMergeResults|getFailingPaths|getUnmergedPaths)
         val result = merger.merge(headCommit, branchCommit)
+        // merger.(getMergeResults|getFailingPaths|getUnmergedPaths)
         if (result) Merged else Conflict
       } catch {
         case _: Exception => Error
@@ -77,7 +70,6 @@ object JGitExtensions {
      * @return The distance.
      */
     def distance(objectId: ObjectId, otherId: ObjectId): Long = {
-      val repo = git.getRepository
       val base: RevCommit = CommitUtils.getBase(repo, objectId, otherId)
       val count = new CommitCountFilter
       val finder = new CommitFinder(repo).setFilter(count)
@@ -97,7 +89,6 @@ object JGitExtensions {
      * @return The number of added/deleted/changed lines.
      */
     def diffSize(objectId: ObjectId, otherId: ObjectId): Long = {
-      val repo = git.getRepository
       val base = CommitUtils.getBase(repo, objectId, otherId)
       val count = new DiffLineCountFilter
       val finder = new CommitFinder(repo).setFilter(count)

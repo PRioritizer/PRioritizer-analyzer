@@ -8,3 +8,7 @@ import org.eclipse.jgit.lib.Repository
  * @param local The local repository.
  */
 class MemoryMerger(local: Repository) extends RecursiveMerger(local, true)
+//  override def merge(tips: AnyObjectId*): Boolean = {
+//    // Do stuff here
+//    super.merge(tips: _*)
+//  }

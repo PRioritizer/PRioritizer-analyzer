@@ -27,7 +27,7 @@ class JGitProvider(repoDirectory: String) extends Provider {
   override def merger: Option[JGitMergeProvider] =
     Some(new JGitMergeProvider(git))
   override def data: Option[JGitDataProvider] =
-    Some(new JGitDataProvider(git))
+    Some(new JGitDataProvider(repository))
 
   override def dispose(): Unit = {
     for (m <- merger)
