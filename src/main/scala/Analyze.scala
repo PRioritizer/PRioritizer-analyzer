@@ -6,7 +6,7 @@ import scala.concurrent.duration.Duration
 import utils.Stopwatch
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object TestJGit {
+object Analyze {
   val timer = new Stopwatch
   val logger = LoggerFactory.getLogger("Application")
   val inMemoryMerge = true
