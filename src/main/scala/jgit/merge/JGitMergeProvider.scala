@@ -6,7 +6,7 @@ import jgit.JGitExtensions._
 import jgit.JGitProvider._
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.TextProgressMonitor
+import org.eclipse.jgit.lib.{ConfigConstants, TextProgressMonitor}
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -23,8 +23,10 @@ class JGitMergeProvider(val git: Git) extends MergeProvider {
     val config = git.getRepository.getConfig
     val pulls = s"+${provider.remotePullHeads}:${pullRef("*")}"
     val heads = s"+${provider.remoteHeads}:${targetRef("*")}"
-    config.setString("remote", remote, "url", provider.ssh)
-    config.setStringList("remote", remote, "fetch", List(heads, pulls).asJava)
+    config.setString(ConfigConstants.CONFIG_REMOTE_SECTION, remote,
+      ConfigConstants.CONFIG_KEY_URL, provider.ssh)
+    config.setStringList(ConfigConstants.CONFIG_REMOTE_SECTION, remote,
+      ConfigConstants.CONFIG_FETCH_SECTION, List(heads, pulls).asJava)
 
     // Fetch pull requests from remote
     val monitor = new TextProgressMonitor()
@@ -35,7 +37,7 @@ class JGitMergeProvider(val git: Git) extends MergeProvider {
   def clean(garbageCollect: Boolean): Unit = {
     // Remove pull requests from config
     val config = git.getRepository.getConfig
-    config.unsetSection("remote", remote)
+    config.unsetSection(ConfigConstants.CONFIG_REMOTE_SECTION, remote)
 
     // Remove pull request refs
     val refs = git.getRepository.getRefDatabase.getRefs(pullRef("")).values.asScala ++
