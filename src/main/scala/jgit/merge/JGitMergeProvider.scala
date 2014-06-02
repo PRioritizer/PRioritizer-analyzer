@@ -20,7 +20,7 @@ class JGitMergeProvider(val git: Git) extends MergeProvider {
   val repo = git.getRepository
   val merger = new MemoryMerger(repo)
 
-  def fetch(provider: PullRequestProvider): Future[Unit] = {
+  override def fetch(provider: PullRequestProvider): Future[Unit] = {
     // Add pull requests to config
     val config = repo.getConfig
     val pulls = s"+${provider.remotePullHeads}:${pullRef("*")}"
@@ -35,6 +35,8 @@ class JGitMergeProvider(val git: Git) extends MergeProvider {
     val cmd = git.fetch.setRemote(remote).setProgressMonitor(monitor)
     Future { cmd.call }
   }
+
+  override def clean(): Unit = clean(garbageCollect = false)
 
   def clean(garbageCollect: Boolean): Unit = {
     // Remove pull requests from config
@@ -53,12 +55,12 @@ class JGitMergeProvider(val git: Git) extends MergeProvider {
       git.gc.call
   }
 
-  def merge(branch: String, into: String): Future[MergeResult] =
+  override def merge(branch: String, into: String): Future[MergeResult] =
     Future { repo.isMergeable(branch, into) }
 
-  def merge(pr: PullRequest): Future[MergeResult] =
+  override def merge(pr: PullRequest): Future[MergeResult] =
     Future { repo.isMergeable(pullRef(pr), targetRef(pr)) }
 
-  def merge(pr1: PullRequest, pr2: PullRequest): Future[MergeResult] =
+  override def merge(pr1: PullRequest, pr2: PullRequest): Future[MergeResult] =
     Future { repo.isMergeable(pullRef(pr2), pullRef(pr1)) }
 }

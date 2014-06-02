@@ -24,9 +24,8 @@ trait MergeProvider {
   /**
    * Cleans the local repository. There are two cleaning tasks: removing the local pull requests and garbage collecting
    * the repository.
-   * @param garbageCollect Whether the repository has to be garbage collected.
    */
-  def clean(garbageCollect: Boolean = false): Unit
+  def clean(): Unit
 
   /**
    * Merges two branches.

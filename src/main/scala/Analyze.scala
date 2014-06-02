@@ -67,7 +67,7 @@ object Analyze {
     }
   }
 
-  def getLargePullRequests(pullRequests: List[RichPullRequest]): List[RichPullRequest] = {
+  def getLargePullRequests(pullRequests: List[PullRequest]): List[PullRequest] = {
     val large = Settings.get("settings.large").get.toInt
     val skipLarge = Settings.get("settings.pairs.skipLarge").get.toBoolean
 
@@ -83,7 +83,7 @@ object Analyze {
    * @param pullRequests The pull requests
    * @return Pairwise combination of the pull requests.
    */
-  def getPairs(pullRequests: List[RichPullRequest]): Traversable[(PullRequest, PullRequest)] = {
+  def getPairs(pullRequests: List[PullRequest]): Traversable[(PullRequest, PullRequest)] = {
     val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
 
     if (skipDifferentTargets)
