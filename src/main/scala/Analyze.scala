@@ -38,7 +38,8 @@ object Analyze {
       timer.logLap()
 
       logger info s"Enriching pull request meta data..."
-      val enrichFutures = dispatch.Future.sequence(pullRequests map data.enrich)
+
+      val enrichFutures = Future.sequence(pullRequests map data.enrich)
 
       // Wait for enrichment to complete
       pullRequests = Await.result(enrichFutures, Duration.Inf)
@@ -104,7 +105,7 @@ object Analyze {
         pr
       }
     }
-    dispatch.Future.sequence(results)
+    Future.sequence(results)
   }
 
   def mergePullRequestPairs(git: MergeProvider, pairs: List[(PullRequest, PullRequest)]): Future[List[(PullRequest, PullRequest, MergeResult)]] = {
@@ -112,7 +113,7 @@ object Analyze {
       for (res <- git merge (pr1, pr2))
       yield (pr1, pr2, res)
     }
-    dispatch.Future.sequence(results)
+    Future.sequence(results)
   }
 
   def combineResults(pullRequests: List[PullRequest], results: List[(PullRequest, PullRequest, MergeResult)]): List[PullRequest] = {
