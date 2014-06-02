@@ -72,11 +72,13 @@ class Stopwatch {
 
   def printLap() = {
     print()
+    printMinutes()
     lap()
   }
 
   def logLap() = {
     log()
+    logMinutes()
     lap()
   }
 

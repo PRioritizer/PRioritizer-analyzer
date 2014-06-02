@@ -18,13 +18,12 @@ class JGitDataProvider(val repo: Repository) extends DataProvider {
       val head = repo resolve pullRef(pullRequest)
       val target = repo resolve targetRef(pullRequest)
       val base = if (head != null && target != null) CommitUtils.getBase(repo, head, target) else null
-      val clone = pullRequest.copy()
 
       // Check if commits are resolved
       if (head != null && base != null)
-        clone.lineCount = repo.diffSize(head, base)
+        pullRequest.lineCount = repo.diffSize(head, base)
 
-      clone
+      pullRequest
     }
   }
 }

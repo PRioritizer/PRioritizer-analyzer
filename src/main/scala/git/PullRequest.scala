@@ -16,15 +16,15 @@ case class PullRequest(number: Int,
   /**
    * The number of added/deleted/changed lines.
    */
-  var lineCount: Long = _
+  var lineCount: Long = 0L
   /**
    * The number of added/deleted/changed lines.
    */
-  var isMergeable: Boolean = _
+  var isMergeable: Boolean = false
   /**
    * The number of added/deleted/changed lines.
    */
-  val conflictsWith: Traversable[PullRequest] = List()
+  var conflictsWith: List[PullRequest] = List()
 
   override def toString: String = {
     s"#$number: '$branch' into '$target'"
