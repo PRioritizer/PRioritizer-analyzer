@@ -1,11 +1,10 @@
 package jgit
 
 import git.{PullRequest, PullRequestProvider, Provider}
-import org.slf4j.LoggerFactory
 import java.io.File
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.api.Git
-import jgit.data.JGitDataProvider
+import jgit.enrich.JGitEnrichmentProvider
 import jgit.merge.JGitMergeProvider
 
 /**
@@ -23,14 +22,14 @@ class JGitProvider(repoDirectory: String) extends Provider {
   // Create git client
   val git: Git = new Git(repository)
 
-  override def pullRequests: Option[PullRequestProvider] = None
-  override def merger: Option[JGitMergeProvider] =
+  override def pullRequestProvider: Option[PullRequestProvider] = None
+  override def mergeProvider: Option[JGitMergeProvider] =
     Some(new JGitMergeProvider(git))
-  override def data: Option[JGitDataProvider] =
-    Some(new JGitDataProvider(repository))
+  override def enrichmentProvider: Option[JGitEnrichmentProvider] =
+    Some(new JGitEnrichmentProvider(repository))
 
   override def dispose(): Unit = {
-    for (m <- merger)
+    for (m <- mergeProvider)
       m.clean()
 
     git.close()

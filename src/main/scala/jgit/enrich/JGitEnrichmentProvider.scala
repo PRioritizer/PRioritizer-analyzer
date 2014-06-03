@@ -1,6 +1,6 @@
-package jgit.data
+package jgit.enrich
 
-import git.{PullRequest, DataProvider}
+import git.{PullRequest, EnrichmentProvider}
 import org.eclipse.jgit.lib.Repository
 import jgit.JGitProvider._
 import jgit.JGitExtensions._
@@ -12,7 +12,7 @@ import org.gitective.core.CommitUtils
  * An info getter implementation for the JGit library.
  * @param repo The git repository.
  */
-class JGitDataProvider(val repo: Repository) extends DataProvider {
+class JGitEnrichmentProvider(val repo: Repository) extends EnrichmentProvider {
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
       val head = repo resolve pullRef(pullRequest)

@@ -1,26 +1,26 @@
-import git.{DataProvider, MergeProvider, PullRequestProvider, Provider}
+import git.{EnrichmentProvider, MergeProvider, PullRequestProvider, Provider}
 import github.GitHubProvider
 import jgit.JGitProvider
 
 class ProviderLoader extends Provider {
   private val providers = scala.collection.mutable.Map[String,Provider]()
 
-  override val pullRequests: Option[PullRequestProvider] = for {
-    name <- Settings.get("provider.PullRequests")
+  override val pullRequestProvider: Option[PullRequestProvider] = for {
+    name <- Settings.get("provider.PullRequestProvider")
     provider <- getProvider(name)
-    pullRequests <- provider.pullRequests
+    pullRequests <- provider.pullRequestProvider
   } yield pullRequests
 
-  override val merger: Option[MergeProvider] = for {
-    name <- Settings.get("provider.MergeTester")
+  override val mergeProvider: Option[MergeProvider] = for {
+    name <- Settings.get("provider.MergeProvider")
     provider <- getProvider(name)
-    merger <- provider.merger
+    merger <- provider.mergeProvider
   } yield merger
 
-  override val data: Option[DataProvider] = for {
-    name <- Settings.get("provider.Data")
+  override val enrichmentProvider: Option[EnrichmentProvider] = for {
+    name <- Settings.get("provider.EnrichmentProvider")
     provider <- getProvider(name)
-    data <- provider.data
+    data <- provider.enrichmentProvider
   } yield data
 
   override def dispose(): Unit = {

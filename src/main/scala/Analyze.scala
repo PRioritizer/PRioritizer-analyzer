@@ -21,9 +21,9 @@ object Analyze {
       timer.start()
       logger info s"Setup providers..."
       loader = new ProviderLoader
-      val git: MergeProvider = loader.merger.orNull
-      val prs: PullRequestProvider = loader.pullRequests.orNull
-      val data: DataProvider = loader.data.orNull
+      val git: MergeProvider = loader.mergeProvider.orNull
+      val prs: PullRequestProvider = loader.pullRequestProvider.orNull
+      val data: EnrichmentProvider = loader.enrichmentProvider.orNull
       logger info s"Setup done"
       timer.logLap()
 

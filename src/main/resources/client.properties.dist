@@ -1,7 +1,7 @@
 # Providers
-provider.PullRequests=github|jgit
-provider.MergeTester=github|jgit
-provider.Data=github|jgit
+provider.PullRequestProvider=github|jgit
+provider.MergeProvider=github|jgit
+provider.EnrichmentProvider=github|jgit
 
 # Settings
 settings.large=1000

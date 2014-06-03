@@ -1,6 +1,6 @@
 package github
 
-import git.{MergeProvider, DataProvider, Provider}
+import git.{MergeProvider, EnrichmentProvider, Provider}
 import github.pulls.GitHubPullRequestProvider
 import dispatch.github.GitHub
 
@@ -14,10 +14,10 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
   // Set global access token
   GitHub.accessToken = token
 
-  override def pullRequests: Option[GitHubPullRequestProvider] =
+  override def pullRequestProvider: Option[GitHubPullRequestProvider] =
     Some(new GitHubPullRequestProvider(owner, repository))
-  override def merger: Option[MergeProvider] = None
-  override def data: Option[DataProvider] = None
+  override def mergeProvider: Option[MergeProvider] = None
+  override def enrichmentProvider: Option[EnrichmentProvider] = None
 
   override def dispose(): Unit = {
     GitHub.shutdown()
