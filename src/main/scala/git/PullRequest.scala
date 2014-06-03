@@ -1,34 +1,33 @@
 package git
 
 import scala.collection.immutable.SortedSet
+import org.json4s._
+import org.json4s.native.JsonMethods._
 
 /**
  * An object that holds information about the pull request.
  * @param number The number of the pull request.
  * @param branch The source branch name.
  * @param target The target branch name.
- * @param base The base commit name.
  */
 case class PullRequest(number: Int,
                   branch: String,
-                  target: String,
-                  base: String) {
+                  target: String) {
   /**
    * The number of added/deleted/changed lines.
    */
   var lineCount: Long = 0L
   /**
-   * The number of added/deleted/changed lines.
+   * Indicates whether this PR is mergeable with its target
    */
   var isMergeable: Boolean = false
   /**
-   * The number of added/deleted/changed lines.
+   * Contains a list of PRs that conflict with this PR.
    */
   var conflictsWith: List[PullRequest] = List()
 
-  override def toString: String = {
+  override def toString: String =
     s"#$number: '$branch' into '$target'"
-  }
 }
 
 /**
