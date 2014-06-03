@@ -90,7 +90,7 @@ object JGitExtensions {
      */
     def diffSize(objectId: ObjectId, otherId: ObjectId): Long = {
       val base = CommitUtils.getBase(repo, objectId, otherId)
-      val count = new DiffLineCountFilter
+      val count = new DiffLineCountFilter(true) // detectRenames = true
       val finder = new CommitFinder(repo).setFilter(count)
 
       // added + 2*edited + deleted
