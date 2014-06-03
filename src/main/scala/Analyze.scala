@@ -1,6 +1,7 @@
 import git._
 import git.MergeResult._
 import org.slf4j.LoggerFactory
+import output.JsonWriter
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
 import utils.{ProgressMonitor, Stopwatch}
@@ -68,7 +69,8 @@ object Analyze {
       logger info s"Combining done"
       timer.logLap()
 
-      // TODO: Output pull requests
+      // Output pull requests
+      JsonWriter.writePullRequests("pull-requests.json", pullRequests)
     } finally {
       if (loader != null)
         loader.dispose()

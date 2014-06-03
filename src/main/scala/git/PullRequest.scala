@@ -1,8 +1,6 @@
 package git
 
 import scala.collection.immutable.SortedSet
-import org.json4s.native.JsonMethods._
-import org.json4s.JsonDSL._
 
 /**
  * An object that holds information about the pull request.
@@ -28,18 +26,6 @@ case class PullRequest(number: Int,
 
   override def toString: String =
     s"#$number: '$branch' into '$target'"
-
-  def toJson: String = {
-    val json = (
-      ("number" -> number)
-      ~ ("branch" -> branch)
-      ~ ("target" -> target)
-      ~ ("lineCount" -> lineCount)
-      ~ ("isMergeable" -> isMergeable)
-      ~ ("conflictsWith" -> conflictsWith.map(_.number))
-    )
-    compact(render(json))
-  }
 }
 
 /**
