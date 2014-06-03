@@ -68,7 +68,6 @@ object Analyze {
       logger info s"Combining done"
       timer.logLap()
 
-      // TODO: progress info
       // TODO: Output pull requests
     } finally {
       if (loader != null)
