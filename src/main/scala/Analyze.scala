@@ -3,11 +3,12 @@ import git.MergeResult._
 import org.slf4j.LoggerFactory
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
-import utils.Stopwatch
+import utils.{ProgressMonitor, Stopwatch}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Analyze {
   val timer = new Stopwatch
+  val monitor = new ProgressMonitor
   val logger = LoggerFactory.getLogger("Application")
   val inMemoryMerge = true
 
@@ -46,13 +47,14 @@ object Analyze {
       logger info s"Enriching done"
       timer.logLap()
 
-      logger info s"Merging PRs... (${pullRequests.length})"
-      val mergeFutures = mergePullRequests(git, pullRequests)
-
       val largePullRequests = getLargePullRequests(pullRequests)
       val pairs = getPairs(pullRequests.diff(largePullRequests))
-      logger info s"Skip too large PRs (${largePullRequests.length})"
-      logger info s"Pairwise merging PRs... (${pairs.size})"
+
+      logger info s"Merging PRs... (${pullRequests.length})"
+      logger info s"Pairwise merging PRs... (${pairs.length})"
+      logger info s"Skip too large pairs (${largePullRequests.length})"
+      monitor.total = pullRequests.length + pairs.length
+      val mergeFutures = mergePullRequests(git, pullRequests)
       val pairFutures = mergePullRequestPairs(git, pairs)
 
       // Wait for merges to complete
@@ -66,6 +68,7 @@ object Analyze {
       logger info s"Combining done"
       timer.logLap()
 
+      // TODO: progress info
       // TODO: Output pull requests
     } finally {
       if (loader != null)
@@ -100,7 +103,9 @@ object Analyze {
 
   def mergePullRequests(git: MergeProvider, pullRequests: List[PullRequest]): Future[List[PullRequest]] = {
     val results = pullRequests map { pr =>
-      for (res <- git.merge(pr)) yield {
+      val future = git merge pr
+      future.onComplete { case _ => monitor.increment() }
+      for (res <- future) yield {
         pr.isMergeable = res == Merged
         pr
       }
@@ -110,7 +115,9 @@ object Analyze {
 
   def mergePullRequestPairs(git: MergeProvider, pairs: List[(PullRequest, PullRequest)]): Future[List[(PullRequest, PullRequest, MergeResult)]] = {
     val results = pairs map { case (pr1, pr2) =>
-      for (res <- git merge (pr1, pr2))
+      val future = git merge (pr1, pr2)
+      future.onComplete { case _ => monitor.increment() }
+      for (res <- future)
       yield (pr1, pr2, res)
     }
     Future.sequence(results)
