@@ -5,7 +5,6 @@ import git.MergeResult._
 import jgit.JGitExtensions._
 import jgit.JGitProvider._
 
-import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.lib.{ConfigConstants, TextProgressMonitor}
 import scala.collection.JavaConverters._
 import scala.concurrent.Future

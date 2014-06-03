@@ -5,9 +5,6 @@ import org.json4s.JsonAST._
 import git.PullRequest
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.JString
-import org.json4s.JsonAST.JBool
-import org.json4s.ext.JodaTimeSerializers
-import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.DateTimeZone
 
 object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (

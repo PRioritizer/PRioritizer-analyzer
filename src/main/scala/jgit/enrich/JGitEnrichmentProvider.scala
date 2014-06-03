@@ -1,7 +1,6 @@
 package jgit.enrich
 
 import git.{PullRequest, EnrichmentProvider}
-import org.eclipse.jgit.lib.Repository
 import jgit.JGitProvider._
 import jgit.JGitExtensions._
 import scala.concurrent.Future
