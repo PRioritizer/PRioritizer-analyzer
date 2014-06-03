@@ -43,13 +43,13 @@ case class PullRequest(number: Int,
    */
   var contributorIndex: Double = _
   /**
-   * The ratio of previously accepted pull requests of the same requester.
+   * The number of accepted pull requests by the same requester.
    */
-  var previouslyAcceptedPullRequests: Int = _
+  var acceptedPullRequests: Int = _
   /**
-   * The number of previously created pull requests of the same requester.
+   * The number of other created pull requests by the same requester.
    */
-  var previouslyCreatedPullRequests: Int = _
+  var totalPullRequests: Int = _
 
   /**
    * @return The total number of added/edited/deleted lines.
