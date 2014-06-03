@@ -6,6 +6,9 @@ import git.PullRequest
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.JString
 import org.json4s.JsonAST.JBool
+import org.json4s.ext.JodaTimeSerializers
+import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.DateTimeZone
 
 object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
   {
@@ -13,20 +16,17 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       JField("number", JInt(number)) ::
       JField("branch", JString(branch)) ::
       JField("target", JString(target)) ::
-      JField("lineCount", JInt(lineCount)) ::
-      JField("isMergeable", JBool(isMergeable)) ::
       Nil
     ) =>
-      val pr = PullRequest(number.toInt, branch, target)
-      pr.lineCount = lineCount.toInt
-      pr.isMergeable = isMergeable
-      pr
+      PullRequest(number.toInt, branch, target)
   },
   {
     case pr: PullRequest =>
       ("number" -> pr.number) ~
       ("branch" -> pr.branch) ~
       ("target" -> pr.target) ~
+      ("createdAt" -> pr.createdAt.toDateTime(DateTimeZone.UTC).toString()) ~
+      ("updatedAt" -> pr.updatedAt.toDateTime(DateTimeZone.UTC).toString()) ~
       ("lineCount" -> pr.lineCount) ~
       ("isMergeable" -> pr.isMergeable) ~
       ("conflictsWith" -> pr.conflictsWith.map(_.number))

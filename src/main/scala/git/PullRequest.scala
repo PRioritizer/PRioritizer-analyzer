@@ -1,6 +1,7 @@
 package git
 
 import scala.collection.immutable.SortedSet
+import org.joda.time.DateTime
 
 /**
  * An object that holds information about the pull request.
@@ -12,13 +13,21 @@ case class PullRequest(number: Int,
                   branch: String,
                   target: String) {
   /**
+   * The creation date.
+   */
+  var createdAt: DateTime = _
+  /**
+   * The last modification date.
+   */
+  var updatedAt: DateTime = _
+  /**
    * The number of added/deleted/changed lines.
    */
-  var lineCount: Long = 0L
+  var lineCount: Long = _
   /**
    * Indicates whether this PR is mergeable with its target
    */
-  var isMergeable: Boolean = false
+  var isMergeable: Boolean = _
   /**
    * Contains a list of PRs that conflict with this PR.
    */

@@ -24,6 +24,11 @@ class GitHubPullRequestProvider(val owner: String, val repository: String) exten
       list <- req
     } yield for {
       pr <- list
-    } yield PullRequest(pr.number, pr.head.label, pr.base.ref)
+    } yield {
+      val p = PullRequest(pr.number, pr.head.label, pr.base.ref)
+      p.createdAt = pr.created_at
+      p.updatedAt = pr.updated_at
+      p
+    }
   }
 }

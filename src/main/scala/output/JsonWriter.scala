@@ -3,10 +3,11 @@ package output
 import git.PullRequest
 import org.json4s.{Formats, DefaultFormats}
 import org.json4s.native.Serialization
+import org.json4s.ext.JodaTimeSerializers
 
 object JsonWriter {
   def writePullRequests(file: String, pullRequests: List[PullRequest]): Unit = {
-    implicit var formats: Formats = DefaultFormats + PullRequestSerializer
+    implicit var formats: Formats = DefaultFormats ++ JodaTimeSerializers.all + PullRequestSerializer
     val json = Serialization.writePrettyOld(pullRequests)
     writeToFile(file, json)
   }
