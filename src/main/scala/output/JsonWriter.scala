@@ -7,7 +7,7 @@ import org.json4s.native.Serialization
 object JsonWriter {
   def writePullRequests(file: String, pullRequests: List[PullRequest]): Unit = {
     implicit var formats: Formats = DefaultFormats + PullRequestSerializer
-    val json = Serialization.write(pullRequests)
+    val json = Serialization.writePrettyOld(pullRequests)
     writeToFile(file, json)
   }
 
