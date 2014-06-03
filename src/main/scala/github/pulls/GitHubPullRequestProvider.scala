@@ -4,9 +4,12 @@ import git.{PullRequest, PullRequestProvider}
 import dispatch.github.GhPullRequest
 import scala.concurrent.Future
 import dispatch.Defaults._
+import github.GitHubProvider
 
-class GitHubPullRequestProvider(val owner: String, val repository: String) extends PullRequestProvider {
+class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullRequestProvider {
   val host = "github.com"
+  val owner = provider.owner
+  val repository = provider.repository
 
   override val https: String = s"https://$host/$owner/$repository.git"
 

@@ -24,9 +24,9 @@ class JGitProvider(repoDirectory: String) extends Provider {
 
   override def pullRequestProvider: Option[PullRequestProvider] = None
   override def mergeProvider: Option[JGitMergeProvider] =
-    Some(new JGitMergeProvider(git))
+    Some(new JGitMergeProvider(this))
   override def enrichmentProvider: Option[JGitEnrichmentProvider] =
-    Some(new JGitEnrichmentProvider(repository))
+    Some(new JGitEnrichmentProvider(this))
 
   override def dispose(): Unit = {
     for (m <- mergeProvider)

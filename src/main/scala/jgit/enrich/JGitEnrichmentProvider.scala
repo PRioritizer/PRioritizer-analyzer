@@ -7,12 +7,15 @@ import jgit.JGitExtensions._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.gitective.core.CommitUtils
+import jgit.JGitProvider
 
 /**
  * An info getter implementation for the JGit library.
- * @param repo The git repository.
+ * @param provider The JGit provider.
  */
-class JGitEnrichmentProvider(val repo: Repository) extends EnrichmentProvider {
+class JGitEnrichmentProvider(val provider: JGitProvider) extends EnrichmentProvider {
+  val repo = provider.repository
+
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
       val head = repo resolve pullRef(pullRequest)

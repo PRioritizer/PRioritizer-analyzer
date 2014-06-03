@@ -15,7 +15,7 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
   GitHub.accessToken = token
 
   override def pullRequestProvider: Option[GitHubPullRequestProvider] =
-    Some(new GitHubPullRequestProvider(owner, repository))
+    Some(new GitHubPullRequestProvider(this))
   override def mergeProvider: Option[MergeProvider] = None
   override def enrichmentProvider: Option[EnrichmentProvider] = None
 

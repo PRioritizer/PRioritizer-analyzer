@@ -10,14 +10,16 @@ import org.eclipse.jgit.lib.{ConfigConstants, TextProgressMonitor}
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import jgit.JGitProvider
 
 /**
  * A merge tester implementation for the JGit library.
- * @param git The git repository.
+ * @param provider The JGit provider.
  */
-class JGitMergeProvider(val git: Git) extends MergeProvider {
+class JGitMergeProvider(val provider: JGitProvider) extends MergeProvider {
   val remote = "pulls"
-  val repo = git.getRepository
+  val git = provider.git
+  val repo = provider.repository
   val merger = new MemoryMerger(repo)
 
   override def fetch(provider: PullRequestProvider): Future[Unit] = {
