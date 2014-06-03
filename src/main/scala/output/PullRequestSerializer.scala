@@ -14,16 +14,18 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
   {
     case JObject(
       JField("number", JInt(number)) ::
-      JField("branch", JString(branch)) ::
+      JField("author", JString(author)) ::
+      JField("source", JString(source)) ::
       JField("target", JString(target)) ::
       Nil
     ) =>
-      PullRequest(number.toInt, branch, target)
+      PullRequest(number.toInt, author, source, target)
   },
   {
     case pr: PullRequest =>
       ("number" -> pr.number) ~
-      ("branch" -> pr.branch) ~
+      ("author" -> pr.author) ~
+      ("source" -> pr.source) ~
       ("target" -> pr.target) ~
       ("createdAt" -> pr.createdAt.toDateTime(DateTimeZone.UTC).toString()) ~
       ("updatedAt" -> pr.updatedAt.toDateTime(DateTimeZone.UTC).toString()) ~

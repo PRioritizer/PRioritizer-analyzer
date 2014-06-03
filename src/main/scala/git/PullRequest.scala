@@ -6,11 +6,13 @@ import org.joda.time.DateTime
 /**
  * An object that holds information about the pull request.
  * @param number The number of the pull request.
- * @param branch The source branch name.
+ * @param author The author name.
+ * @param source The source branch name.
  * @param target The target branch name.
  */
 case class PullRequest(number: Int,
-                  branch: String,
+                  author: String,
+                  source: String,
                   target: String) {
   /**
    * The creation date.
@@ -36,6 +38,18 @@ case class PullRequest(number: Int,
    * Contains a list of PRs that conflict with this PR.
    */
   var conflictsWith: List[PullRequest] = List()
+  /**
+   * Indicates the rate of involvement of the requester.
+   */
+  var contributorIndex: Double = _
+  /**
+   * The ratio of previously accepted pull requests of the same requester.
+   */
+  var previouslyAcceptedPullRequests: Int = _
+  /**
+   * The number of previously created pull requests of the same requester.
+   */
+  var previouslyCreatedPullRequests: Int = _
 
   /**
    * @return The total number of added/edited/deleted lines.
@@ -43,7 +57,7 @@ case class PullRequest(number: Int,
   def linesTotal: Long = linesAdded + linesDeleted
 
   override def toString: String =
-    s"#$number: '$branch' into '$target'"
+    s"#$number: '$author:$source' into '$target'"
 }
 
 /**
