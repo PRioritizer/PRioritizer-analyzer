@@ -86,21 +86,19 @@ object JGitExtensions {
      * Calculates the number of diff lines between two commits.
      * @param objectId One end of the chain.
      * @param otherId The other end of the chain.
-     * @return The number of added/deleted/changed lines.
+     * @return The number of added/edited/deleted lines.
      */
-    def diffSize(objectId: ObjectId, otherId: ObjectId): Long = {
+    def diffSize(objectId: ObjectId, otherId: ObjectId): (Long, Long, Long) = {
       val base = CommitUtils.getBase(repo, objectId, otherId)
       val count = new DiffLineCountFilter(true) // detectRenames = true
       val finder = new CommitFinder(repo).setFilter(count)
 
-      // added + 2*edited + deleted
-      // (count edited line as both added and deleted)
       finder.findBetween(objectId, base)
-      val num = count.getTotal + count.getEdited
+      val size = (count.getAdded, count.getEdited, count.getDeleted)
       count.reset()
 
       finder.findBetween(otherId, base)
-      num + count.getTotal + count.getEdited
+      (size._1 + count.getAdded, size._2 + count.getEdited, size._3 + count.getDeleted)
     }
   }
 

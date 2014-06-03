@@ -20,8 +20,11 @@ class JGitDataProvider(val repo: Repository) extends DataProvider {
       val base = if (head != null && target != null) CommitUtils.getBase(repo, head, target) else null
 
       // Check if commits are resolved
-      if (head != null && base != null)
-        pullRequest.lineCount = repo.diffSize(head, base)
+      if (head != null && base != null) {
+        val (added, edited, deleted) = repo.diffSize(head, base)
+        pullRequest.linesAdded = added + edited
+        pullRequest.linesDeleted = deleted + edited
+      }
 
       pullRequest
     }

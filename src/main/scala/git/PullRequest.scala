@@ -21,9 +21,13 @@ case class PullRequest(number: Int,
    */
   var updatedAt: DateTime = _
   /**
-   * The number of added/deleted/changed lines.
+   * The number of added lines.
    */
-  var lineCount: Long = _
+  var linesAdded: Long = _
+  /**
+   * The number of deleted lines.
+   */
+  var linesDeleted: Long = _
   /**
    * Indicates whether this PR is mergeable with its target
    */
@@ -32,6 +36,11 @@ case class PullRequest(number: Int,
    * Contains a list of PRs that conflict with this PR.
    */
   var conflictsWith: List[PullRequest] = List()
+
+  /**
+   * @return The total number of added/edited/deleted lines.
+   */
+  def linesTotal: Long = linesAdded + linesDeleted
 
   override def toString: String =
     s"#$number: '$branch' into '$target'"

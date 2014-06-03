@@ -82,7 +82,7 @@ object Analyze {
     val skipLarge = Settings.get("settings.pairs.skipLarge").get.toBoolean
 
     if (skipLarge)
-      pullRequests filter {pr => pr.lineCount > large}
+      pullRequests filter {pr => pr.linesTotal > large}
     else
       List()
   }

@@ -27,7 +27,8 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       ("target" -> pr.target) ~
       ("createdAt" -> pr.createdAt.toDateTime(DateTimeZone.UTC).toString()) ~
       ("updatedAt" -> pr.updatedAt.toDateTime(DateTimeZone.UTC).toString()) ~
-      ("lineCount" -> pr.lineCount) ~
+      ("linesAdded" -> pr.linesAdded) ~
+      ("linesDeleted" -> pr.linesDeleted) ~
       ("isMergeable" -> pr.isMergeable) ~
       ("conflictsWith" -> pr.conflictsWith.map(_.number))
   }
