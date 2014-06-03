@@ -1,7 +1,10 @@
-import git.{EnrichmentProvider, MergeProvider, PullRequestProvider, Provider}
+import git._
 import ghtorrent.GHTorrentProvider
 import github.GitHubProvider
 import jgit.JGitProvider
+import scala.concurrent.Future
+import scala.Some
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class ProviderLoader extends Provider {
   private val providers = scala.collection.mutable.Map[String,Provider]()
@@ -20,9 +23,12 @@ class ProviderLoader extends Provider {
 
   override val enrichmentProvider: Option[EnrichmentProvider] = for {
     name <- Settings.get("provider.EnrichmentProvider")
-    provider <- getProvider(name)
-    data <- provider.enrichmentProvider
-  } yield data
+  } yield new CombinedEnrichmentProvider(
+      name.split(',').toList
+        .map(getProvider)
+        .flatMap(o => o)
+        .flatMap(_.enrichmentProvider)
+    )
 
   override def dispose(): Unit = {
     providers.values
@@ -68,5 +74,13 @@ class ProviderLoader extends Provider {
   private def createJGitProvider: JGitProvider = {
     val workingDir = Settings.get("jgit.Directory").orNull
     new JGitProvider(workingDir)
+  }
+}
+
+class CombinedEnrichmentProvider(providers: Traversable[EnrichmentProvider]) extends EnrichmentProvider {
+  override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
+    val futures = providers map { _.enrich(pullRequest) }
+    val list = Future.sequence(futures)
+    for(l <- list) yield l.head
   }
 }

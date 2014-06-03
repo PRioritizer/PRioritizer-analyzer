@@ -1,7 +1,7 @@
 # Providers
 provider.PullRequestProvider=ghtorrent|github|jgit
 provider.MergeProvider=ghtorrent|github|jgit
-provider.EnrichmentProvider=ghtorrent|github|jgit
+provider.EnrichmentProvider=ghtorrent,github,jgit
 
 # Settings
 settings.large=1000
