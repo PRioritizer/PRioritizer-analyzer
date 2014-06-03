@@ -21,3 +21,6 @@ project/plugins/project/
 
 # User properties
 client.properties
+
+# Output
+*.json
