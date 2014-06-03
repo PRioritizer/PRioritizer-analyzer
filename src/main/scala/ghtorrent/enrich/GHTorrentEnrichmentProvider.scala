@@ -11,26 +11,28 @@ import scala.slick.jdbc.StaticQuery
  * @param provider The GHTorrent provider.
  */
 class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends EnrichmentProvider {
-  private val cache = scala.collection.mutable.Map[String,(Int,Int)]()
+  private val pullCache = scala.collection.mutable.Map[String,(Int,Int)]()
+  private val commitCache = scala.collection.mutable.Map[String,Int]()
+  private val numCommits = getCommitCount()
 
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
-      val (total, accepted) = getPreviousPullRequests(pullRequest)
+      val (total, accepted) = getPreviousPullRequests(pullRequest.author)
+      pullRequest.contributorIndex = getCommitCount(pullRequest.author) / numCommits.toDouble
       pullRequest.previouslyCreatedPullRequests = total
       pullRequest.previouslyAcceptedPullRequests = accepted
       pullRequest
     }
   }
 
-  def getPreviousPullRequests(pullRequest: PullRequest): (Int, Int) = {
+  def getPreviousPullRequests(author: String): (Int, Int) = {
     implicit val session = provider.Db
     val owner = provider.owner
     val repo = provider.repository
-    val author = pullRequest.author
 
     // Check cache first (may be bypassed due to parallel execution)
-    if (cache.get(author).isDefined)
-      return cache.get(author).get
+    if (pullCache.get(author).isDefined)
+      return pullCache.get(author).get
 
     val query = StaticQuery.query[(String, String, String), (Int)]("""SELECT
         pull_requests.merged
@@ -51,8 +53,40 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
 
     // Save in cache and return
     this.synchronized {
-      cache += author ->(total, accepted)
+      pullCache += author -> (total, accepted)
     }
     (total, accepted)
+  }
+
+  def getCommitCount(author: String = null): Int = {
+    implicit val session = provider.Db
+    val owner = provider.owner
+    val repo = provider.repository
+    val authorX = if (author != null) author else "%"
+
+    // Check cache first (may be bypassed due to parallel execution)
+    if (commitCache.get(author).isDefined)
+      return commitCache.get(author).get
+
+    val query = StaticQuery.query[(String, String, String), (Int)]("""SELECT
+      COUNT(commits.author_id)
+      FROM
+      users
+      INNER JOIN commits ON users.id = commits.author_id
+      INNER JOIN projects ON commits.project_id = projects.id
+      INNER JOIN users AS owners ON owners.id = projects.owner_id
+      WHERE
+      owners.login = ? AND
+      projects.`name` = ? AND
+      users.login LIKE ?""")
+
+    // Execute query
+    val count = query.apply(owner, repo, authorX).list(session).head
+
+    // Save in cache and return
+    this.synchronized {
+      commitCache += authorX -> count
+    }
+    count
   }
 }
