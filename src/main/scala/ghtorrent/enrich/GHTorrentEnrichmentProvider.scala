@@ -11,6 +11,8 @@ import scala.slick.jdbc.StaticQuery
  * @param provider The GHTorrent provider.
  */
 class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends EnrichmentProvider {
+  private val cache = scala.collection.mutable.Map[String,(Int,Int)]()
+
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
       val (total, accepted) = getPreviousPullRequests(pullRequest)
@@ -21,10 +23,14 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
   }
 
   def getPreviousPullRequests(pullRequest: PullRequest): (Int, Int) = {
+    implicit val session = provider.Db
     val owner = provider.owner
     val repo = provider.repository
     val author = pullRequest.author
-    implicit val session = provider.Db
+
+    // Check cache first (may be bypassed due to parallel execution)
+    if (cache.get(author).isDefined)
+      return cache.get(author).get
 
     val query = StaticQuery.query[(String, String, String), (Int)]("""SELECT
         pull_requests.merged
@@ -38,9 +44,15 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
         projects.`name` = ? AND
         users.login = ?""")
 
+    // Execute query
     val list = query.apply(owner, repo, author).list(session)
     val total = list.length
     val accepted = list.sum
+
+    // Save in cache and return
+    this.synchronized {
+      cache += author ->(total, accepted)
+    }
     (total, accepted)
   }
 }
