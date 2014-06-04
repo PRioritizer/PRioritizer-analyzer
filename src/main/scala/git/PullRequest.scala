@@ -31,6 +31,14 @@ case class PullRequest(number: Int,
    */
   var linesDeleted: Long = _
   /**
+   * The number of changed files.
+   */
+  var filesChanged: Long = _
+  /**
+   * The number of commits.
+   */
+  var commits: Long = _
+  /**
    * Indicates whether this PR is mergeable with its target
    */
   var isMergeable: Boolean = _
