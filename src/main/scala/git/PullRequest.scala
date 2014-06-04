@@ -16,6 +16,10 @@ case class PullRequest(number: Int,
                   source: String,
                   target: String) {
   /**
+   * The title.
+   */
+  var title: String = _
+  /**
    * The creation date.
    */
   var createdAt: DateTime = _
