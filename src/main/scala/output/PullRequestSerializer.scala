@@ -30,6 +30,8 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       ("linesDeleted" -> pr.linesDeleted) ~
       ("filesChanged" -> pr.filesChanged) ~
       ("commits" -> pr.commits) ~
+      ("comments" -> pr.comments) ~
+      ("type" -> pr.`type`.toString) ~
       ("isMergeable" -> pr.isMergeable) ~
       ("conflictsWith" -> pr.conflictsWith.map(_.number)) ~
       ("contributorIndex" -> pr.contributorIndex) ~

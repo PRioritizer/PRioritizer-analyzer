@@ -2,6 +2,7 @@ package git
 
 import scala.collection.immutable.SortedSet
 import org.joda.time.DateTime
+import git.PullRequestType.PullRequestType
 
 /**
  * An object that holds information about the pull request.
@@ -38,6 +39,14 @@ case class PullRequest(number: Int,
    * The number of commits.
    */
   var commits: Long = _
+  /**
+   * The number of comments.
+   */
+  var comments: Long = _
+  /**
+   * The number of comments.
+   */
+  var `type`: PullRequestType = PullRequestType.Unknown
   /**
    * Indicates whether this PR is mergeable with its target
    */
@@ -96,4 +105,12 @@ object PullRequest {
     // Distinct and sort
     SortedSet(pairs: _*).toList
   }
+}
+
+/**
+ * An enum type for severity levels.
+ */
+object PullRequestType extends Enumeration {
+  type PullRequestType = Value
+  val Fix, Refactor, Feature, Documentation, Unknown = Value
 }

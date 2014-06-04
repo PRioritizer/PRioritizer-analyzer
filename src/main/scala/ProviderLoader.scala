@@ -81,6 +81,6 @@ class CombinedEnrichmentProvider(providers: Traversable[EnrichmentProvider]) ext
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
     val futures = providers map { _.enrich(pullRequest) }
     val list = Future.sequence(futures)
-    for(l <- list) yield l.head
+    for(l <- list) yield if (!l.isEmpty) l.head else pullRequest
   }
 }

@@ -3,6 +3,7 @@ package github
 import git.{MergeProvider, EnrichmentProvider, Provider}
 import github.pulls.GitHubPullRequestProvider
 import dispatch.github.GitHub
+import github.enrich.GitHubEnrichmentProvider
 
 /**
  * A provider implementation for GitHub.
@@ -17,7 +18,8 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
   override def pullRequestProvider: Option[GitHubPullRequestProvider] =
     Some(new GitHubPullRequestProvider(this))
   override def mergeProvider: Option[MergeProvider] = None
-  override def enrichmentProvider: Option[EnrichmentProvider] = None
+  override def enrichmentProvider: Option[EnrichmentProvider] =
+    Some(new GitHubEnrichmentProvider(this))
 
   override def dispose(): Unit = {
     GitHub.shutdown()
