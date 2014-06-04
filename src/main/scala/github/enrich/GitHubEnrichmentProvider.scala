@@ -37,6 +37,7 @@ class GitHubEnrichmentProvider(val provider: GitHubProvider) extends EnrichmentP
     val words = labels + ", " + issue.title
     pullRequest.`type` = PullRequestType.parse(words) // (security fixes > bug fixes > refactoring > features > documentation)
     pullRequest.comments = issue.comments
+    pullRequest.milestone = issue.milestone.fold(0)(m => m.number)
     pullRequest
   }
 
@@ -44,7 +45,6 @@ class GitHubEnrichmentProvider(val provider: GitHubProvider) extends EnrichmentP
     val waitPr = GhPullRequest.get_pull_request(owner, repository, pullRequest.number)
     val pr = Await.result(waitPr, Duration.Inf)
 
-    pullRequest.comments = pr.comments
     pullRequest.isMergeable = pr.mergeable
     pullRequest.commits = pr.commits
     pullRequest.linesAdded = pr.additions

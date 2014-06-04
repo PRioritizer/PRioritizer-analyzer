@@ -48,7 +48,11 @@ case class PullRequest(number: Int,
    */
   var comments: Long = _
   /**
-   * The number of comments.
+   * The milestone number.
+   */
+  var milestone: Long = _
+  /**
+   * The type.
    */
   var `type`: PullRequestType = PullRequestType.Unknown
   /**
