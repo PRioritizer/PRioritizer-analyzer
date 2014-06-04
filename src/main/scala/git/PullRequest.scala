@@ -110,11 +110,3 @@ object PullRequest {
     SortedSet(pairs: _*).toList
   }
 }
-
-/**
- * An enum type for severity levels.
- */
-object PullRequestType extends Enumeration {
-  type PullRequestType = Value
-  val Fix, Refactor, Feature, Documentation, Unknown = Value
-}

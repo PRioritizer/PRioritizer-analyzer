@@ -23,16 +23,11 @@ class GitHubEnrichmentProvider(val provider: GitHubProvider) extends EnrichmentP
       else
         pullRequest
 
-      if (!hasSeverity(pr))
-        enrichWithIssue(pr)
-      else
-        pr
+      enrichWithIssue(pr)
     }
   }
 
   private def hasStats(pullRequest: PullRequest): Boolean = pullRequest.commits > 0
-
-  private def hasSeverity(pullRequest: PullRequest): Boolean = pullRequest.`type` != PullRequestType.Unknown
 
   private def enrichWithIssue(pullRequest: PullRequest): PullRequest = {
     val waitIssue = GhIssue.get_issue(owner, repository, pullRequest.number)
@@ -40,7 +35,7 @@ class GitHubEnrichmentProvider(val provider: GitHubProvider) extends EnrichmentP
 
     val labels = issue.labels.map{l => l.name}.mkString(", ")
     val words = labels + ", " + issue.title
-    pullRequest.`type` = parseType(words) // (security fixes > bug fixes > refactoring > features > documentation)
+    pullRequest.`type` = PullRequestType.parse(words) // (security fixes > bug fixes > refactoring > features > documentation)
     pullRequest.comments = issue.comments
     pullRequest
   }
@@ -56,16 +51,5 @@ class GitHubEnrichmentProvider(val provider: GitHubProvider) extends EnrichmentP
     pullRequest.linesDeleted = pr.deletions
     pullRequest.filesChanged = pr.changed_files
     pullRequest
-  }
-
-  private def parseType(words: String): PullRequestType = {
-    if(words.contains("fix") || words.contains("bug") || words.contains("secur"))
-      PullRequestType.Fix
-    else if(words.contains("refactor") || words.contains("chang"))
-      PullRequestType.Refactor
-    else if(words.contains("doc") || words.contains("comment"))
-      PullRequestType.Documentation
-    else
-      PullRequestType.Feature
   }
 }

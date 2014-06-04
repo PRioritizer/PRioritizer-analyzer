@@ -1,6 +1,6 @@
 package github.pulls
 
-import git.{PullRequest, PullRequestProvider}
+import git.{PullRequestType, PullRequest, PullRequestProvider}
 import dispatch.github.GhPullRequest
 import scala.concurrent.Future
 import dispatch.Defaults._
@@ -30,6 +30,7 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
     } yield {
       val p = PullRequest(pr.number, pr.user.login, pr.head.ref, pr.base.ref)
       p.title = pr.title
+      p.`type` = PullRequestType.parse(pr.title)
       p.createdAt = pr.created_at
       p.updatedAt = pr.updated_at
       p
