@@ -23,7 +23,7 @@ class JGitEnrichmentProvider(val provider: JGitProvider) extends EnrichmentProvi
 
       // Check if commits are resolved
       if (head != null && base != null) {
-        val (added, edited, deleted) = repo.diffSize(head, base)
+        val Stats(added, edited, deleted, _, _) = repo.stats(head, base)
         pullRequest.linesAdded = added + edited
         pullRequest.linesDeleted = deleted + edited
       }

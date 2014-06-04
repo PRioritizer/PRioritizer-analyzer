@@ -5,7 +5,8 @@ import jgit.merge.MemoryMerger
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
 import org.gitective.core.{CommitFinder, CommitUtils}
-import org.gitective.core.filter.commit.{DiffLineCountFilter, CommitCountFilter}
+import org.gitective.core.filter.commit.{DiffFileCountFilter, AllCommitFilter, DiffLineCountFilter, CommitCountFilter}
+import org.eclipse.jgit.revwalk.filter.RevFilter
 
 /**
  * Extensions for the JGit library
@@ -88,18 +89,33 @@ object JGitExtensions {
      * @param otherId The other end of the chain.
      * @return The number of added/edited/deleted lines.
      */
-    def diffSize(objectId: ObjectId, otherId: ObjectId): (Long, Long, Long) = {
+    def stats(objectId: ObjectId, otherId: ObjectId): Stats = {
       val base = CommitUtils.getBase(repo, objectId, otherId)
-      val count = new DiffLineCountFilter(true) // detectRenames = true
-      val finder = new CommitFinder(repo).setFilter(count)
+      val detectRenames = true
+      val diffCount = new DiffLineCountFilter(detectRenames)
+      val fileCount = new DiffFileCountFilter(detectRenames)
+      val commitCount = new CommitCountFilter()
+      val filter = new AllCommitFilter(diffCount, fileCount, commitCount)
+      val finder = new CommitFinder(repo).setFilter(filter)
 
       finder.findBetween(objectId, base)
-      val size = (count.getAdded, count.getEdited, count.getDeleted)
-      count.reset()
+      val stats = Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
+      filter.reset()
+
+      if (otherId == base)
+        return stats
 
       finder.findBetween(otherId, base)
-      (size._1 + count.getAdded, size._2 + count.getEdited, size._3 + count.getDeleted)
+      stats + Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
     }
+  }
+
+  case class Stats(addedLines: Long, editedLines: Long, deletedLines: Long, numFiles: Long, numCommits: Long) {
+    def +(other: Stats) = Stats(addedLines + other.addedLines,
+                                editedLines + other.editedLines,
+                                deletedLines + other.deletedLines,
+                                numFiles + other.numFiles,
+                                numCommits + other.numCommits)
   }
 
   /**
