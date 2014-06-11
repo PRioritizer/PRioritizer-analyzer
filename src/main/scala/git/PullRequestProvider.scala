@@ -8,6 +8,12 @@ import scala.concurrent.Future
 trait PullRequestProvider {
   def get: Future[List[PullRequest]]
 
+  def source: String
+
+  def owner: String
+
+  def repository: String
+
   def ssh: String
 
   def https: String

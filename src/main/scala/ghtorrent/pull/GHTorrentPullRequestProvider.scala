@@ -7,6 +7,7 @@ import ghtorrent.GHTorrentProvider
 
 class GHTorrentPullRequestProvider(val provider: GHTorrentProvider) extends PullRequestProvider {
   val host = "github.com"
+  val source = "github"
   val owner = provider.owner
   val repository = provider.repository
 
