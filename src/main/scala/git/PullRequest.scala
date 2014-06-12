@@ -82,7 +82,7 @@ case class PullRequest(number: Int,
   def linesTotal: Long = linesAdded + linesDeleted
 
   override def toString: String =
-    s"#$number: '$author:$source' into '$target'"
+    s"#$number: '$source' into '$target'"
 }
 
 /**
