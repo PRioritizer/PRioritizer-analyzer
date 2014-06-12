@@ -1,6 +1,7 @@
 package output
 
 import git.{PullRequestProvider, PullRequest}
+import org.joda.time.{DateTimeZone, DateTime}
 import org.json4s.JsonAST.{JArray, JString, JObject}
 import org.json4s.{Extraction, JField, Formats, DefaultFormats}
 import org.json4s.native.Serialization
@@ -13,6 +14,7 @@ object JsonWriter {
       JField("source", JString(provider.source)),
       JField("owner", JString(provider.owner)),
       JField("repository", JString(provider.repository)),
+      JField("date", JString(DateTime.now.toDateTime(DateTimeZone.UTC).toString())),
       JField("pullRequests", Extraction.decompose(pullRequests))
     ))
     val json = Serialization.writePrettyOld(jsonObject)
