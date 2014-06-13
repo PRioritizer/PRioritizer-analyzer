@@ -13,16 +13,14 @@ import scala.slick.jdbc.StaticQuery
 class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends EnrichmentProvider {
   private val pullCache = scala.collection.mutable.Map[String,(Int,Int)]()
   private val commitCache = scala.collection.mutable.Map[String,Int]()
-  private val numCommits = getCommitCount()
+  //private val numCommits = getCommitCount()
 
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
       val (total, accepted) = getOtherPullRequests(pullRequest.author)
-      if (numCommits > 0) {
-        pullRequest.contributorIndex = getCommitCount(pullRequest.author) / numCommits.toDouble
-        pullRequest.totalPullRequests = total
-        pullRequest.acceptedPullRequests = accepted
-      }
+      pullRequest.contributedCommits = getCommitCount(pullRequest.author)
+      pullRequest.totalPullRequests = total
+      pullRequest.acceptedPullRequests = accepted
       pullRequest
     }
   }

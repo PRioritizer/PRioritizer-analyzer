@@ -64,9 +64,9 @@ case class PullRequest(number: Int,
    */
   var conflictsWith: List[PullRequest] = List()
   /**
-   * Indicates the rate of involvement of the requester.
+   * The number of commits of the requester that are in the repo.
    */
-  var contributorIndex: Double = _
+  var contributedCommits: Int = _
   /**
    * The number of accepted pull requests by the same requester.
    */
