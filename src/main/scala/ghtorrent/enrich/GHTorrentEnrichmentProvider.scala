@@ -18,9 +18,11 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
       val (total, accepted) = getOtherPullRequests(pullRequest.author)
-      pullRequest.contributorIndex = getCommitCount(pullRequest.author) / numCommits.toDouble
-      pullRequest.totalPullRequests = total
-      pullRequest.acceptedPullRequests = accepted
+      if (numCommits > 0) {
+        pullRequest.contributorIndex = getCommitCount(pullRequest.author) / numCommits.toDouble
+        pullRequest.totalPullRequests = total
+        pullRequest.acceptedPullRequests = accepted
+      }
       pullRequest
     }
   }
