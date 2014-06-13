@@ -59,8 +59,8 @@ class ProviderLoader extends Provider {
     val user = Settings.get("ghtorrent.User").orNull
     val pass = Settings.get("ghtorrent.Password").orNull
     val db = Settings.get("ghtorrent.Database").orNull
-    val owner = Settings.get("ghtorrent.Owner").orNull
-    val repository = Settings.get("ghtorrent.Repository").orNull
+    val owner = Settings.get("github.Owner").orNull
+    val repository = Settings.get("github.Repository").orNull
     new GHTorrentProvider(host, port, user, pass, db, owner, repository)
   }
 
