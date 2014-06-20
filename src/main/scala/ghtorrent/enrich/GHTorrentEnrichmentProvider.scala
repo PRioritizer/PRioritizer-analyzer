@@ -11,8 +11,8 @@ import scala.slick.jdbc.StaticQuery
  * @param provider The GHTorrent provider.
  */
 class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends EnrichmentProvider {
-  private val pullCache = scala.collection.mutable.Map[String,(Int,Int)]()
-  private val commitCache = scala.collection.mutable.Map[String,Int]()
+  val owner = provider.owner
+  val repo = provider.repository
   //private val numCommits = getCommitCount()
 
   override def enrich(pullRequest: PullRequest): Future[PullRequest] = Future {
@@ -25,43 +25,21 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
 
   def getOtherPullRequests(author: String): (Int, Int) = {
     implicit val session = provider.Db
-    val owner = provider.owner
-    val repo = provider.repository
-
-    // Check cache first (may be bypassed due to parallel execution)
-    if (pullCache.get(author).isDefined)
-      return pullCache.get(author).get
 
     // Execute query
     val query = getPullRequestCountQuery
     val total = query.apply("opened", owner, repo, author).list(session).sum
     val accepted = query.apply("merged", owner, repo, author).list(session).sum
-
-    // Save in cache and return
-    this.synchronized {
-      pullCache += author -> (total, accepted)
-    }
     (total, accepted)
   }
 
   def getCommitCount(author: String = null): Int = {
     implicit val session = provider.Db
-    val owner = provider.owner
-    val repo = provider.repository
     val authorX = if (author != null) author else "%"
-
-    // Check cache first (may be bypassed due to parallel execution)
-    if (commitCache.get(author).isDefined)
-      return commitCache.get(author).get
 
     // Execute query
     val query = getCommitCountQuery
     val count = query.apply(owner, repo, authorX).list(session).head
-
-    // Save in cache and return
-    this.synchronized {
-      commitCache += authorX -> count
-    }
     count
   }
 
