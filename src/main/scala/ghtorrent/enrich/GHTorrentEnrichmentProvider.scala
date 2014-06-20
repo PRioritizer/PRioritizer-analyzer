@@ -15,14 +15,12 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
   private val commitCache = scala.collection.mutable.Map[String,Int]()
   //private val numCommits = getCommitCount()
 
-  override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
-    Future {
-      val (total, accepted) = getOtherPullRequests(pullRequest.author)
-      pullRequest.contributedCommits = getCommitCount(pullRequest.author)
-      pullRequest.totalPullRequests = total
-      pullRequest.acceptedPullRequests = accepted
-      pullRequest
-    }
+  override def enrich(pullRequest: PullRequest): Future[PullRequest] = Future {
+    val (total, accepted) = getOtherPullRequests(pullRequest.author)
+    pullRequest.contributedCommits = getCommitCount(pullRequest.author)
+    pullRequest.totalPullRequests = total
+    pullRequest.acceptedPullRequests = accepted
+    pullRequest
   }
 
   def getOtherPullRequests(author: String): (Int, Int) = {
@@ -34,22 +32,10 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
     if (pullCache.get(author).isDefined)
       return pullCache.get(author).get
 
-    val query = StaticQuery.query[(String, String, String), (Int)]("""SELECT
-        pull_requests.merged
-        FROM
-        users
-        INNER JOIN pull_requests ON users.id = pull_requests.user_id
-        INNER JOIN projects ON pull_requests.base_repo_id = projects.id
-        INNER JOIN users AS owners ON owners.id = projects.owner_id
-        WHERE
-        owners.login = ? AND
-        projects.`name` = ? AND
-        users.login = ?""")
-
     // Execute query
-    val list = query.apply(owner, repo, author).list(session)
-    val total = list.length
-    val accepted = list.sum
+    val query = getPullRequestCountQuery
+    val total = query.apply("opened", owner, repo, author).list(session).sum
+    val accepted = query.apply("merged", owner, repo, author).list(session).sum
 
     // Save in cache and return
     this.synchronized {
@@ -68,19 +54,8 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
     if (commitCache.get(author).isDefined)
       return commitCache.get(author).get
 
-    val query = StaticQuery.query[(String, String, String), (Int)]("""SELECT
-      COUNT(commits.author_id)
-      FROM
-      users
-      INNER JOIN commits ON users.id = commits.author_id
-      INNER JOIN projects ON commits.project_id = projects.id
-      INNER JOIN users AS owners ON owners.id = projects.owner_id
-      WHERE
-      owners.login = ? AND
-      projects.`name` = ? AND
-      users.login LIKE ?""")
-
     // Execute query
+    val query = getCommitCountQuery
     val count = query.apply(owner, repo, authorX).list(session).head
 
     // Save in cache and return
@@ -88,5 +63,39 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
       commitCache += authorX -> count
     }
     count
+  }
+
+  def getCommitCountQuery: StaticQuery[(String, String, String), (Int)] = {
+    StaticQuery.query[(String, String, String), (Int)](
+      """SELECT
+        |COUNT(commits.author_id)
+        |FROM
+        |users
+        |INNER JOIN commits ON users.id = commits.author_id
+        |INNER JOIN projects ON commits.project_id = projects.id
+        |INNER JOIN users AS owners ON owners.id = projects.owner_id
+        |WHERE
+        |owners.login = ? AND
+        |projects.`name` = ? AND
+        |users.login LIKE ?""".stripMargin)
+  }
+
+  def getPullRequestCountQuery: StaticQuery[(String, String, String, String), (Int)] = {
+    StaticQuery.query[(String, String, String, String), (Int)](
+      """SELECT
+        |COUNT(DISTINCT pull_requests.id)
+        |FROM
+        |pull_requests
+        |INNER JOIN projects ON pull_requests.base_repo_id = projects.id
+        |INNER JOIN users AS owners ON owners.id = projects.owner_id
+        |INNER JOIN pull_request_history AS actor_history ON actor_history.pull_request_id = pull_requests.id
+        |INNER JOIN pull_request_history AS pull_history ON pull_history.pull_request_id = pull_requests.id
+        |INNER JOIN users AS actor ON actor.id = actor_history.actor_id
+        |WHERE
+        |actor_history.action = 'opened' AND
+        |pull_history.action = ? AND
+        |owners.login = ? AND
+        |projects.`name` = ? AND
+        |actor.login = ?""".stripMargin)
   }
 }
