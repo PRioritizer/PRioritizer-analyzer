@@ -2,8 +2,8 @@ import git._
 import ghtorrent.GHTorrentProvider
 import github.GitHubProvider
 import jgit.JGitProvider
-import scala.concurrent.Future
-import scala.Some
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ProviderLoader extends Provider {
@@ -78,9 +78,12 @@ class ProviderLoader extends Provider {
 }
 
 class CombinedEnrichmentProvider(providers: Traversable[EnrichmentProvider]) extends EnrichmentProvider {
-  override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
-    val futures = providers map { _.enrich(pullRequest) }
-    val list = Future.sequence(futures)
-    for(l <- list) yield if (!l.isEmpty) l.head else pullRequest
+  override def enrich(pullRequest: PullRequest): Future[PullRequest] = Future {
+    // Execute multiple providers sequentially, so that later provider can skip enrichment of certain values
+    providers foreach { p =>
+      val future = p.enrich(pullRequest)
+      Await.ready(future, Duration.Inf)
+    }
+    pullRequest
   }
 }
