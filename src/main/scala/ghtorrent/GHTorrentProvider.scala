@@ -1,6 +1,7 @@
 package ghtorrent
 
-import git.{PullRequestProvider, MergeProvider, EnrichmentProvider, Provider}
+import ghtorrent.repo.GHTorrentRepositoryProvider
+import git._
 import ghtorrent.pull.GHTorrentPullRequestProvider
 import scala.slick.driver.MySQLDriver.simple._
 import ghtorrent.enrich.GHTorrentEnrichmentProvider
@@ -21,6 +22,8 @@ class GHTorrentProvider(val host: String, val port: Int, val user: String, val p
   val dbDriver = "com.mysql.jdbc.Driver"
   val Db = Database.forURL(dbUrl, user, password, driver = dbDriver).createSession()
 
+  override def repositoryProvider: Option[RepositoryProvider] =
+    Some(new GHTorrentRepositoryProvider(this))
   override def pullRequestProvider: Option[PullRequestProvider] =
     Some(new GHTorrentPullRequestProvider(this))
   override def mergeProvider: Option[MergeProvider] = None

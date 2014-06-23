@@ -1,6 +1,6 @@
 package github
 
-import git.{MergeProvider, EnrichmentProvider, Provider}
+import git.{RepositoryProvider, MergeProvider, EnrichmentProvider, Provider}
 import github.pulls.GitHubPullRequestProvider
 import dispatch.github.GitHub
 import github.enrich.GitHubEnrichmentProvider
@@ -15,6 +15,7 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
   // Set global access token
   GitHub.accessToken = token
 
+  override def repositoryProvider: Option[RepositoryProvider] = None
   override def pullRequestProvider: Option[GitHubPullRequestProvider] =
     Some(new GitHubPullRequestProvider(this))
   override def mergeProvider: Option[MergeProvider] = None

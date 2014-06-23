@@ -1,19 +1,23 @@
 package output
 
-import git.{PullRequestProvider, PullRequest}
+import git.{Provider, PullRequestProvider, PullRequest}
 import org.joda.time.{DateTimeZone, DateTime}
-import org.json4s.JsonAST.{JArray, JString, JObject}
+import org.json4s.JsonAST.{JInt, JArray, JString, JObject}
 import org.json4s.{Extraction, JField, Formats, DefaultFormats}
 import org.json4s.native.Serialization
 import org.json4s.ext.JodaTimeSerializers
 
 object JsonWriter {
-  def writePullRequests(file: String, provider: PullRequestProvider, pullRequests: List[PullRequest]): Unit = {
+  def writePullRequests(file: String, provider: Provider, pullRequests: List[PullRequest]): Unit = {
     implicit var formats: Formats = DefaultFormats ++ JodaTimeSerializers.all + PullRequestSerializer
+    val prProvider = provider.pullRequestProvider.orNull
+    val repoProvider = provider.repositoryProvider.orNull
+
     val jsonObject = JObject(List(
-      JField("source", JString(provider.source)),
-      JField("owner", JString(provider.owner)),
-      JField("repository", JString(provider.repository)),
+      JField("source", JString(prProvider.source)),
+      JField("owner", JString(prProvider.owner)),
+      JField("repository", JString(prProvider.repository)),
+      JField("commits", JInt(repoProvider.commits)),
       JField("date", JString(DateTime.now.toDateTime(DateTimeZone.UTC).toString())),
       JField("pullRequests", Extraction.decompose(pullRequests))
     ))

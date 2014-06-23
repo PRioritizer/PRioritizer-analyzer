@@ -70,7 +70,7 @@ object Analyze {
       timer.logLap()
 
       // Output pull requests
-      JsonWriter.writePullRequests("pull-requests.json", prs, pullRequests)
+      JsonWriter.writePullRequests("pull-requests.json", loader, pullRequests)
     } finally {
       if (loader != null)
         loader.dispose()

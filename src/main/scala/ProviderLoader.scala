@@ -9,6 +9,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ProviderLoader extends Provider {
   private val providers = scala.collection.mutable.Map[String,Provider]()
 
+  override val repositoryProvider: Option[RepositoryProvider] = for {
+    name <- Settings.get("provider.RepositoryProvider")
+    provider <- getProvider(name)
+    repo <- provider.repositoryProvider
+  } yield repo
+
   override val pullRequestProvider: Option[PullRequestProvider] = for {
     name <- Settings.get("provider.PullRequestProvider")
     provider <- getProvider(name)

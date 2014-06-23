@@ -1,6 +1,6 @@
 package jgit
 
-import git.{PullRequest, PullRequestProvider, Provider}
+import git.{RepositoryProvider, PullRequest, PullRequestProvider, Provider}
 import java.io.File
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.api.Git
@@ -22,6 +22,7 @@ class JGitProvider(repoDirectory: String) extends Provider {
   // Create git client
   val git: Git = new Git(repository)
 
+  override def repositoryProvider: Option[RepositoryProvider] = None
   override def pullRequestProvider: Option[PullRequestProvider] = None
   override def mergeProvider: Option[JGitMergeProvider] =
     Some(new JGitMergeProvider(this))

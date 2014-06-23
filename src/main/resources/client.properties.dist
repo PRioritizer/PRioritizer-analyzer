@@ -1,4 +1,5 @@
 # Providers
+provider.RepositoryProvider=ghtorrent|github|jgit
 provider.PullRequestProvider=ghtorrent|github|jgit
 provider.MergeProvider=ghtorrent|github|jgit
 provider.EnrichmentProvider=ghtorrent,github,jgit
