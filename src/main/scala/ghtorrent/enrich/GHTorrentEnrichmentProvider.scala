@@ -24,6 +24,7 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
     pullRequest.contributedCommits = getCommitCount(pullRequest.author)
     pullRequest.totalPullRequests = total
     pullRequest.acceptedPullRequests = accepted
+    pullRequest.coreMember = isCoreMember(pullRequest.author)
     pullRequest
   }
 
@@ -44,6 +45,15 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
     val query = getCommitCountQuery
     val count = query.apply(repoId, author).list(session).head
     count
+  }
+
+  def isCoreMember(author: String): Boolean = {
+    implicit val session = provider.Db
+
+    // Execute query
+    val query = getCoreMemberQuery
+    val coreMember = query.apply(repoId, author).list(session).nonEmpty
+    coreMember
   }
 
   def getCommitCountQuery: StaticQuery[(Int, String), Int] = {
@@ -73,5 +83,17 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
         |actor_history.action = 'opened' AND
         |actor.login = ? AND
         |pull_history.action = ?""".stripMargin)
+  }
+
+  def getCoreMemberQuery: StaticQuery[(Int, String), Int] = {
+    StaticQuery.query[(Int, String), Int](
+      """SELECT
+        |users.id
+        |FROM
+        |project_members
+        |INNER JOIN users ON users.id = project_members.user_id
+        |WHERE
+        |project_members.repo_id = ? AND
+        |users.login = ?""".stripMargin)
   }
 }

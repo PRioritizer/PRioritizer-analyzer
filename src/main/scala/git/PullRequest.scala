@@ -44,6 +44,10 @@ case class PullRequest(number: Int,
    */
   var commits: Long = _
   /**
+   * Indicates whether the author is a core member.
+   */
+  var coreMember: Boolean = _
+  /**
    * The number of comments.
    */
   var comments: Long = _
