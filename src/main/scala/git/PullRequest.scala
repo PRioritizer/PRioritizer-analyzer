@@ -11,75 +11,27 @@ import git.PullRequestType.PullRequestType
  * @param source The source branch name.
  * @param target The target branch name.
  */
-case class PullRequest(number: Int,
-                  author: String,
-                  source: String,
-                  target: String) {
-  /**
-   * The title.
-   */
-  var title: String = _
-  /**
-   * The creation date.
-   */
-  var createdAt: DateTime = _
-  /**
-   * The last modification date.
-   */
-  var updatedAt: DateTime = _
-  /**
-   * The number of added lines.
-   */
-  var linesAdded: Long = _
-  /**
-   * The number of deleted lines.
-   */
-  var linesDeleted: Long = _
-  /**
-   * The number of changed files.
-   */
-  var filesChanged: Long = _
-  /**
-   * The number of commits.
-   */
-  var commits: Long = _
-  /**
-   * Indicates whether the author is a core member.
-   */
-  var coreMember: Boolean = _
-  /**
-   * The number of comments.
-   */
-  var comments: Long = _
-  /**
-   * The milestone number.
-   */
-  var milestone: Long = _
-  /**
-   * The type.
-   */
-  var `type`: PullRequestType = PullRequestType.Unknown
-  /**
-   * Indicates whether this PR is mergeable with its target
-   */
-  var isMergeable: Boolean = _
-  /**
-   * Contains a list of PRs that conflict with this PR.
-   */
-  var conflictsWith: List[PullRequest] = List()
-  /**
-   * The number of commits of the requester that are in the repo.
-   */
-  var contributedCommits: Int = _
-  /**
-   * The number of accepted pull requests by the same requester.
-   */
-  var acceptedPullRequests: Int = _
-  /**
-   * The number of other created pull requests by the same requester.
-   */
-  var totalPullRequests: Int = _
-
+case class PullRequest( number: Int,
+                        author: String,
+                        source: String,
+                        target: String,
+                        var title: String = "",
+                        var createdAt: DateTime = null,
+                        var updatedAt: DateTime = null,
+                        var linesAdded: Long = 0,
+                        var linesDeleted: Long = 0,
+                        var filesChanged: Long = 0,
+                        var commits: Long = 0,
+                        var coreMember: Boolean = false,
+                        var comments: Long = 0,
+                        var milestone: Long = 0,
+                        var `type`: PullRequestType = PullRequestType.Unknown,
+                        var isMergeable: Boolean = false,
+                        var conflictsWith: List[PullRequest] = List(),
+                        var contributedCommits: Int = 0,
+                        var acceptedPullRequests: Int = 0,
+                        var totalPullRequests: Int = 0
+                        ) {
   /**
    * @return The total number of added/edited/deleted lines.
    */
