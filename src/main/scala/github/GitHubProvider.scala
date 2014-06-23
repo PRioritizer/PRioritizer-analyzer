@@ -1,10 +1,7 @@
 package github
 
-import git.decorate.PullRequestDecorator
-import git.{PullRequestList, RepositoryProvider, MergeProvider, Provider}
-import github.pulls.GitHubPullRequestProvider
+import git._
 import dispatch.github.GitHub
-import github.decorate.GitHubDecorator
 
 /**
  * A provider implementation for GitHub.

@@ -1,13 +1,11 @@
-package github.decorate
+package github
 
-import git.decorate.PullRequestDecorator
-import git.{PullRequestList, PullRequestType, PullRequest}
-import dispatch.github.{GhPullRequest, GhIssue}
-import scala.concurrent.{Await, Future}
+import dispatch.github.{GhIssue, GhPullRequest}
+import git.{PullRequest, PullRequestDecorator, PullRequestList, PullRequestType}
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import github.GitHubProvider
 import scala.concurrent.duration.Duration
-import git.PullRequestType.PullRequestType
+import scala.concurrent.{Await, Future}
 
 /**
  * An info getter implementation for the GitHub API.

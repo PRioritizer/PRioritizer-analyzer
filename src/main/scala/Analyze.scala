@@ -1,6 +1,5 @@
 import git._
 import git.MergeResult._
-import git.decorate.{MemoryCache, PullRequestDecorator}
 import org.slf4j.LoggerFactory
 import output.JsonWriter
 import scala.concurrent.{Future, Await}

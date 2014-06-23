@@ -1,13 +1,12 @@
-package jgit.decorate
+package jgit
 
-import git.{PullRequestList, PullRequest}
-import git.decorate.PullRequestDecorator
-import jgit.JGitProvider._
+import git.{PullRequest, PullRequestDecorator, PullRequestList}
 import jgit.JGitExtensions._
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import jgit.JGitProvider._
 import org.gitective.core.CommitUtils
-import jgit.JGitProvider
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * An info getter implementation for the JGit library.

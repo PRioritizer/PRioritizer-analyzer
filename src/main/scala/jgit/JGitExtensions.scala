@@ -1,12 +1,10 @@
 package jgit
 
 import git.MergeResult._
-import jgit.merge.MemoryMerger
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
 import org.gitective.core.{CommitFinder, CommitUtils}
 import org.gitective.core.filter.commit.{DiffFileCountFilter, AllCommitFilter, DiffLineCountFilter, CommitCountFilter}
-import org.eclipse.jgit.revwalk.filter.RevFilter
 
 /**
  * Extensions for the JGit library
@@ -55,7 +53,7 @@ object JGitExtensions {
 
       try {
         // Do the actual merge here (in memory)
-        val merger = new MemoryMerger(repo)
+        val merger = new JGitMemoryMerger(repo)
         val result = merger.merge(headCommit, branchCommit)
         // merger.(getMergeResults|getFailingPaths|getUnmergedPaths)
         if (result) Merged else Conflict

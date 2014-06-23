@@ -1,11 +1,7 @@
 package ghtorrent
 
-import ghtorrent.repo.GHTorrentRepositoryProvider
 import git._
-import ghtorrent.pull.GHTorrentPullRequestProvider
-import git.decorate.PullRequestDecorator
 import scala.slick.driver.MySQLDriver.simple._
-import ghtorrent.decorate.GHTorrentDecorator
 
 /**
  * A provider implementation for GHTorrent.

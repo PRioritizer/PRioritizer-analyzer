@@ -1,15 +1,14 @@
-package jgit.merge
+package jgit
 
-import git.{PullRequestProvider, MergeProvider, PullRequest}
 import git.MergeResult._
+import git.{MergeProvider, PullRequest, PullRequestProvider}
 import jgit.JGitExtensions._
 import jgit.JGitProvider._
-
 import org.eclipse.jgit.lib.{ConfigConstants, TextProgressMonitor}
+
 import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import jgit.JGitProvider
+import scala.concurrent.Future
 
 /**
  * A merge tester implementation for the JGit library.
@@ -19,7 +18,7 @@ class JGitMergeProvider(val provider: JGitProvider) extends MergeProvider {
   val remote = "pulls"
   val git = provider.git
   val repo = provider.repository
-  val merger = new MemoryMerger(repo)
+  val merger = new JGitMemoryMerger(repo)
 
   override def fetch(provider: PullRequestProvider): Future[Unit] = {
     // Add pull requests to config

@@ -1,9 +1,8 @@
-package ghtorrent.pull
+package ghtorrent
 
-import git.PullRequest
-import git.PullRequestProvider
+import git.{PullRequest, PullRequestProvider}
+
 import scala.concurrent.Future
-import ghtorrent.GHTorrentProvider
 
 class GHTorrentPullRequestProvider(val provider: GHTorrentProvider) extends PullRequestProvider {
   val host = "github.com"

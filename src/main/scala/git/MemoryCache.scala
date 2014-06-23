@@ -1,6 +1,4 @@
-package git.decorate
-
-import git.{PullRequest, PullRequestList}
+package git
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration

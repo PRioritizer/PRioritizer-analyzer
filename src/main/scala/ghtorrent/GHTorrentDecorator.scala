@@ -1,11 +1,8 @@
-package ghtorrent.decorate
+package ghtorrent
 
-import ghtorrent.repo.GHTorrentRepositoryProvider
-import git.{PullRequestList, PullRequest}
-import git.decorate.PullRequestDecorator
-import scala.concurrent.Future
+import git.{PullRequestDecorator, PullRequest, PullRequestList}
 import scala.concurrent.ExecutionContext.Implicits.global
-import ghtorrent.GHTorrentProvider
+import scala.concurrent.Future
 import scala.slick.jdbc.StaticQuery
 
 /**

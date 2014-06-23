@@ -1,12 +1,9 @@
 package jgit
 
-import git.decorate.PullRequestDecorator
 import git._
 import java.io.File
-import jgit.merge.JGitMergeProvider
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.api.Git
-import jgit.decorate.JGitDecorator
 
 /**
  * A provider implementation for the JGit library.

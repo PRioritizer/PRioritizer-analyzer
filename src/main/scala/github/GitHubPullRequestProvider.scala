@@ -1,10 +1,10 @@
-package github.pulls
+package github
 
-import git.{PullRequestType, PullRequest, PullRequestProvider}
-import dispatch.github.GhPullRequest
-import scala.concurrent.Future
 import dispatch.Defaults._
-import github.GitHubProvider
+import dispatch.github.GhPullRequest
+import git.{PullRequest, PullRequestProvider, PullRequestType}
+
+import scala.concurrent.Future
 
 class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullRequestProvider {
   val host = "github.com"

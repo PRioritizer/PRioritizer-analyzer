@@ -1,6 +1,5 @@
 import git._
 import ghtorrent.GHTorrentProvider
-import git.decorate.PullRequestDecorator
 import github.GitHubProvider
 import jgit.JGitProvider
 import scala.concurrent.duration.Duration

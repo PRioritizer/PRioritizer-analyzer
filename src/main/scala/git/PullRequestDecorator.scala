@@ -1,8 +1,4 @@
-package git.decorate
-
-import git.{PullRequestList, PullRequest}
-
-import scala.concurrent.Future
+package git
 
 /**
  * Offers the functionality to get data about the repository.

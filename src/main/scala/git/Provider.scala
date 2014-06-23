@@ -1,7 +1,5 @@
 package git
 
-import git.decorate.PullRequestDecorator
-
 trait Provider {
   def repositoryProvider: Option[RepositoryProvider]
   def pullRequestProvider: Option[PullRequestProvider]

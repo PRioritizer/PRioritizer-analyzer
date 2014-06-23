@@ -1,6 +1,5 @@
-package ghtorrent.repo
+package ghtorrent
 
-import ghtorrent.GHTorrentProvider
 import git.RepositoryProvider
 
 import scala.slick.jdbc.StaticQuery
