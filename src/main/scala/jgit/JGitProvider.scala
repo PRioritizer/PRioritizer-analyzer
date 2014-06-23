@@ -11,7 +11,7 @@ import jgit.merge.JGitMergeProvider
  * A provider implementation for the JGit library.
  * @param repoDirectory The path to the directory of the git repository. It can either be a working directory or a bare git directory.
  */
-class JGitProvider(repoDirectory: String) extends Provider {
+class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provider {
   val dotGit = ".git"
   val gitDir = if (repoDirectory.endsWith(dotGit)) repoDirectory else repoDirectory + File.separator + dotGit
   val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
@@ -31,7 +31,8 @@ class JGitProvider(repoDirectory: String) extends Provider {
 
   override def dispose(): Unit = {
     for (m <- mergeProvider)
-      m.clean()
+      if (cleanUp)
+        m.clean()
 
     git.close()
     repository.close()

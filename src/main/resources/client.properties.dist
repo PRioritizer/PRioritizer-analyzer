@@ -25,3 +25,4 @@ github.PersonalAccessToken=123456789abcdef
 
 # JGit provider
 jgit.Directory=/path/to/local/git/repo
+jgit.Clean=true

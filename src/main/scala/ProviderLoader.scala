@@ -79,7 +79,8 @@ class ProviderLoader extends Provider {
 
   private def createJGitProvider: JGitProvider = {
     val workingDir = Settings.get("jgit.Directory").orNull
-    new JGitProvider(workingDir)
+    val clean = Settings.get("jgit.Clean").fold(false)(c => c.toBoolean)
+    new JGitProvider(workingDir, clean)
   }
 }
 
