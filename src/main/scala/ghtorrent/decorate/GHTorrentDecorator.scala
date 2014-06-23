@@ -1,7 +1,8 @@
 package ghtorrent.decorate
 
 import ghtorrent.repo.GHTorrentRepositoryProvider
-import git.{PullRequest, PullRequestDecorator}
+import git.{PullRequestList, PullRequest}
+import git.decorate.PullRequestDecorator
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import ghtorrent.GHTorrentProvider
@@ -11,7 +12,7 @@ import scala.slick.jdbc.StaticQuery
  * An info getter implementation for the GHTorrent database.
  * @param provider The GHTorrent provider.
  */
-class GHTorrentDecorator(val provider: GHTorrentProvider) extends PullRequestDecorator {
+class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider) extends PullRequestDecorator(base) {
   val owner = provider.owner
   val repo = provider.repository
   val repoId = provider.repositoryProvider match {
@@ -19,7 +20,11 @@ class GHTorrentDecorator(val provider: GHTorrentProvider) extends PullRequestDec
     case _ => -1
   }
 
-  override def decorate(pullRequest: PullRequest): Future[PullRequest] = Future {
+  override def get: Future[List[PullRequest]] = {
+    for(list <- base.get) yield list.map(decorate)
+  }
+
+  def decorate(pullRequest: PullRequest): PullRequest = {
     val (total, accepted) = getOtherPullRequests(pullRequest.author)
     pullRequest.contributedCommits = getCommitCount(pullRequest.author)
     pullRequest.totalPullRequests = total

@@ -1,5 +1,6 @@
 import git._
 import git.MergeResult._
+import git.decorate.{MemoryCache, PullRequestDecorator}
 import org.slf4j.LoggerFactory
 import output.JsonWriter
 import scala.concurrent.{Future, Await}
@@ -22,14 +23,14 @@ object Analyze {
       logger info s"Setup providers..."
       loader = new ProviderLoader
       val git: MergeProvider = loader.mergeProvider.orNull
-      val prs: PullRequestProvider = loader.pullRequestProvider.orNull
-      val data: PullRequestDecorator = loader.decorator.orNull
+      val provider: PullRequestProvider = loader.pullRequestProvider.orNull
+      val prs: PullRequestList = new MemoryCache(provider)
       logger info s"Setup done"
       timer.logLap()
 
       logger info s"Fetching pull requests..."
       logger info s"Fetching pull request meta data..."
-      val fetch: Future[Unit] = git.fetch(prs)
+      val fetch: Future[Unit] = git.fetch(provider)
       val fetchFutures = prs.get
 
       // Wait for fetch to complete
@@ -41,7 +42,8 @@ object Analyze {
 
       logger info s"Enriching pull request meta data..."
 
-      val enrichFutures = Future.sequence(pullRequests map data.decorate)
+      val data: PullRequestList = loader.getDecorator(prs).orNull
+      val enrichFutures = data.get
 
       // Wait for enrichment to complete
       pullRequests = Await.result(enrichFutures, Duration.Inf)

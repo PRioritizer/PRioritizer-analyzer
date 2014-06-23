@@ -1,5 +1,6 @@
 import git._
 import ghtorrent.GHTorrentProvider
+import git.decorate.PullRequestDecorator
 import github.GitHubProvider
 import jgit.JGitProvider
 import scala.concurrent.duration.Duration
@@ -27,14 +28,21 @@ class ProviderLoader extends Provider {
     merger <- provider.mergeProvider
   } yield merger
 
-  override val decorator: Option[PullRequestDecorator] = for {
-    name <- Settings.get("provider.PullRequestDecorators")
-  } yield new CombinedDecorator(
-      name.split(',').toList
-        .map(getProvider)
-        .flatMap(o => o)
-        .flatMap(_.decorator)
-    )
+  override def getDecorator(list: PullRequestList): Option[PullRequestList] = {
+    val providers = for { name <- Settings.get("provider.PullRequestDecorators") } yield
+      name.split(',').toList.map(getProvider).flatMap(o => o)
+
+    for (plist <- providers) yield {
+      var decorator: PullRequestList = list
+      plist.foreach { provider =>
+        provider.getDecorator(decorator) match {
+          case Some(d) => decorator = d
+          case _ => throw new Exception("Provider doesn't have the appropriate decorator")
+        }
+      }
+      decorator
+    }
+  }
 
   override def dispose(): Unit = {
     providers.values
@@ -81,16 +89,5 @@ class ProviderLoader extends Provider {
     val workingDir = Settings.get("jgit.Directory").orNull
     val clean = Settings.get("jgit.Clean").fold(false)(c => c.toBoolean)
     new JGitProvider(workingDir, clean)
-  }
-}
-
-class CombinedDecorator(providers: Traversable[PullRequestDecorator]) extends PullRequestDecorator {
-  override def decorate(pullRequest: PullRequest): Future[PullRequest] = Future {
-    // Execute multiple providers sequentially, so that later provider can skip enrichment of certain values
-    providers foreach { p =>
-      val future = p.decorate(pullRequest)
-      Await.ready(future, Duration.Inf)
-    }
-    pullRequest
   }
 }

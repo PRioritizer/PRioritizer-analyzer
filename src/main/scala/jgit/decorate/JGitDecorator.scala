@@ -1,6 +1,7 @@
 package jgit.decorate
 
-import git.{PullRequest, PullRequestDecorator}
+import git.{PullRequestList, PullRequest}
+import git.decorate.PullRequestDecorator
 import jgit.JGitProvider._
 import jgit.JGitExtensions._
 import scala.concurrent.Future
@@ -12,16 +13,18 @@ import jgit.JGitProvider
  * An info getter implementation for the JGit library.
  * @param provider The JGit provider.
  */
-class JGitDecorator(val provider: JGitProvider) extends PullRequestDecorator {
+class JGitDecorator(base: PullRequestList, val provider: JGitProvider) extends PullRequestDecorator(base) {
   val repo = provider.repository
 
-  override def decorate(pullRequest: PullRequest): Future[PullRequest] = {
-    Future {
-      if (!hasStats(pullRequest))
-        enrichStats(pullRequest)
-      else
-        pullRequest
-    }
+  override def get: Future[List[PullRequest]] = {
+    for(list <- base.get) yield list.map(decorate)
+  }
+
+  def decorate(pullRequest: PullRequest): PullRequest = {
+    if (!hasStats(pullRequest))
+      enrichStats(pullRequest)
+    else
+      pullRequest
   }
 
   private def hasStats(pullRequest: PullRequest): Boolean = pullRequest.commits > 0

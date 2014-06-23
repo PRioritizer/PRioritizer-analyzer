@@ -3,6 +3,7 @@ package ghtorrent
 import ghtorrent.repo.GHTorrentRepositoryProvider
 import git._
 import ghtorrent.pull.GHTorrentPullRequestProvider
+import git.decorate.PullRequestDecorator
 import scala.slick.driver.MySQLDriver.simple._
 import ghtorrent.decorate.GHTorrentDecorator
 
@@ -27,8 +28,8 @@ class GHTorrentProvider(val host: String, val port: Int, val user: String, val p
   override def pullRequestProvider: Option[PullRequestProvider] =
     Some(new GHTorrentPullRequestProvider(this))
   override def mergeProvider: Option[MergeProvider] = None
-  override def decorator: Option[PullRequestDecorator] =
-    Some(new GHTorrentDecorator(this))
+  override def getDecorator(list: PullRequestList): Option[PullRequestList] =
+    Some(new GHTorrentDecorator(list, this))
 
   override def dispose(): Unit = {
     Db.close()

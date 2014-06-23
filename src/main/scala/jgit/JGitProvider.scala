@@ -1,6 +1,7 @@
 package jgit
 
-import git.{RepositoryProvider, PullRequest, PullRequestProvider, Provider}
+import git.decorate.PullRequestDecorator
+import git._
 import java.io.File
 import jgit.merge.JGitMergeProvider
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
@@ -26,8 +27,8 @@ class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provi
   override def pullRequestProvider: Option[PullRequestProvider] = None
   override def mergeProvider: Option[JGitMergeProvider] =
     Some(new JGitMergeProvider(this))
-  override def decorator: Option[JGitDecorator] =
-    Some(new JGitDecorator(this))
+  override def getDecorator(list: PullRequestList): Option[PullRequestList] =
+    Some(new JGitDecorator(list, this))
 
   override def dispose(): Unit = {
     for (m <- mergeProvider)

@@ -5,7 +5,7 @@ import scala.concurrent.Future
 /**
  * Offers the functionality to get pull requests.
  */
-trait PullRequestProvider {
+trait PullRequestProvider extends PullRequestList {
   def get: Future[List[PullRequest]]
 
   def source: String

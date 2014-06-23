@@ -1,6 +1,7 @@
 package github
 
-import git.{RepositoryProvider, MergeProvider, PullRequestDecorator, Provider}
+import git.decorate.PullRequestDecorator
+import git.{PullRequestList, RepositoryProvider, MergeProvider, Provider}
 import github.pulls.GitHubPullRequestProvider
 import dispatch.github.GitHub
 import github.decorate.GitHubDecorator
@@ -19,8 +20,8 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
   override def pullRequestProvider: Option[GitHubPullRequestProvider] =
     Some(new GitHubPullRequestProvider(this))
   override def mergeProvider: Option[MergeProvider] = None
-  override def decorator: Option[PullRequestDecorator] =
-    Some(new GitHubDecorator(this))
+  override def getDecorator(list: PullRequestList): Option[PullRequestList] =
+    Some(new GitHubDecorator(list, this))
 
   override def dispose(): Unit = {
     GitHub.shutdown()

@@ -1,6 +1,7 @@
 package github.decorate
 
-import git.{PullRequestType, PullRequest, PullRequestDecorator}
+import git.decorate.PullRequestDecorator
+import git.{PullRequestList, PullRequestType, PullRequest}
 import dispatch.github.{GhPullRequest, GhIssue}
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,19 +13,21 @@ import git.PullRequestType.PullRequestType
  * An info getter implementation for the GitHub API.
  * @param provider The GitHub API provider.
  */
-class GitHubDecorator(val provider: GitHubProvider) extends PullRequestDecorator {
+class GitHubDecorator(base: PullRequestList, val provider: GitHubProvider) extends PullRequestDecorator(base) {
   val owner = provider.owner
   val repository = provider.repository
 
-  override def decorate(pullRequest: PullRequest): Future[PullRequest] = {
-    Future {
-      val pr = if (!hasStats(pullRequest))
-        enrichStats(pullRequest)
-      else
-        pullRequest
+  override def get: Future[List[PullRequest]] = {
+    for(list <- base.get) yield list.map(decorate)
+  }
 
-      enrichWithIssue(pr)
-    }
+  def decorate(pullRequest: PullRequest): PullRequest = {
+    val pr = if (!hasStats(pullRequest))
+      enrichStats(pullRequest)
+    else
+      pullRequest
+
+    enrichWithIssue(pr)
   }
 
   private def hasStats(pullRequest: PullRequest): Boolean = pullRequest.commits > 0
