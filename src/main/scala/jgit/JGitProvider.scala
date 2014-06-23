@@ -2,10 +2,10 @@ package jgit
 
 import git.{RepositoryProvider, PullRequest, PullRequestProvider, Provider}
 import java.io.File
+import jgit.merge.JGitMergeProvider
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.api.Git
-import jgit.enrich.JGitEnrichmentProvider
-import jgit.merge.JGitMergeProvider
+import jgit.decorate.JGitDecorator
 
 /**
  * A provider implementation for the JGit library.
@@ -26,8 +26,8 @@ class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provi
   override def pullRequestProvider: Option[PullRequestProvider] = None
   override def mergeProvider: Option[JGitMergeProvider] =
     Some(new JGitMergeProvider(this))
-  override def enrichmentProvider: Option[JGitEnrichmentProvider] =
-    Some(new JGitEnrichmentProvider(this))
+  override def decorator: Option[JGitDecorator] =
+    Some(new JGitDecorator(this))
 
   override def dispose(): Unit = {
     for (m <- mergeProvider)

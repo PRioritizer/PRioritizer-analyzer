@@ -1,6 +1,6 @@
-package github.enrich
+package github.decorate
 
-import git.{PullRequestType, PullRequest, EnrichmentProvider}
+import git.{PullRequestType, PullRequest, PullRequestDecorator}
 import dispatch.github.{GhPullRequest, GhIssue}
 import scala.concurrent.{Await, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -12,11 +12,11 @@ import git.PullRequestType.PullRequestType
  * An info getter implementation for the GitHub API.
  * @param provider The GitHub API provider.
  */
-class GitHubEnrichmentProvider(val provider: GitHubProvider) extends EnrichmentProvider {
+class GitHubDecorator(val provider: GitHubProvider) extends PullRequestDecorator {
   val owner = provider.owner
   val repository = provider.repository
 
-  override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
+  override def decorate(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
       val pr = if (!hasStats(pullRequest))
         enrichStats(pullRequest)

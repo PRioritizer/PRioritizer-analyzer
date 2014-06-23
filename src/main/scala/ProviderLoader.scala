@@ -27,13 +27,13 @@ class ProviderLoader extends Provider {
     merger <- provider.mergeProvider
   } yield merger
 
-  override val enrichmentProvider: Option[EnrichmentProvider] = for {
-    name <- Settings.get("provider.EnrichmentProvider")
-  } yield new CombinedEnrichmentProvider(
+  override val decorator: Option[PullRequestDecorator] = for {
+    name <- Settings.get("provider.PullRequestDecorators")
+  } yield new CombinedDecorator(
       name.split(',').toList
         .map(getProvider)
         .flatMap(o => o)
-        .flatMap(_.enrichmentProvider)
+        .flatMap(_.decorator)
     )
 
   override def dispose(): Unit = {
@@ -84,11 +84,11 @@ class ProviderLoader extends Provider {
   }
 }
 
-class CombinedEnrichmentProvider(providers: Traversable[EnrichmentProvider]) extends EnrichmentProvider {
-  override def enrich(pullRequest: PullRequest): Future[PullRequest] = Future {
+class CombinedDecorator(providers: Traversable[PullRequestDecorator]) extends PullRequestDecorator {
+  override def decorate(pullRequest: PullRequest): Future[PullRequest] = Future {
     // Execute multiple providers sequentially, so that later provider can skip enrichment of certain values
     providers foreach { p =>
-      val future = p.enrich(pullRequest)
+      val future = p.decorate(pullRequest)
       Await.ready(future, Duration.Inf)
     }
     pullRequest

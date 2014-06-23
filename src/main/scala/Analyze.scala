@@ -23,7 +23,7 @@ object Analyze {
       loader = new ProviderLoader
       val git: MergeProvider = loader.mergeProvider.orNull
       val prs: PullRequestProvider = loader.pullRequestProvider.orNull
-      val data: EnrichmentProvider = loader.enrichmentProvider.orNull
+      val data: PullRequestDecorator = loader.decorator.orNull
       logger info s"Setup done"
       timer.logLap()
 
@@ -41,7 +41,7 @@ object Analyze {
 
       logger info s"Enriching pull request meta data..."
 
-      val enrichFutures = Future.sequence(pullRequests map data.enrich)
+      val enrichFutures = Future.sequence(pullRequests map data.decorate)
 
       // Wait for enrichment to complete
       pullRequests = Await.result(enrichFutures, Duration.Inf)

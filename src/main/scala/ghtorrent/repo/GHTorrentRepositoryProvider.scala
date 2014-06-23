@@ -1,11 +1,8 @@
 package ghtorrent.repo
 
 import ghtorrent.GHTorrentProvider
-import ghtorrent.enrich.GHTorrentEnrichmentProvider
-import git.{RepositoryProvider, EnrichmentProvider, PullRequest}
+import git.RepositoryProvider
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 import scala.slick.jdbc.StaticQuery
 
 /**

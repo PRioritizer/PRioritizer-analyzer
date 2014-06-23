@@ -1,7 +1,7 @@
-package ghtorrent.enrich
+package ghtorrent.decorate
 
 import ghtorrent.repo.GHTorrentRepositoryProvider
-import git.{PullRequest, EnrichmentProvider}
+import git.{PullRequest, PullRequestDecorator}
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import ghtorrent.GHTorrentProvider
@@ -11,7 +11,7 @@ import scala.slick.jdbc.StaticQuery
  * An info getter implementation for the GHTorrent database.
  * @param provider The GHTorrent provider.
  */
-class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends EnrichmentProvider {
+class GHTorrentDecorator(val provider: GHTorrentProvider) extends PullRequestDecorator {
   val owner = provider.owner
   val repo = provider.repository
   val repoId = provider.repositoryProvider match {
@@ -19,7 +19,7 @@ class GHTorrentEnrichmentProvider(val provider: GHTorrentProvider) extends Enric
     case _ => -1
   }
 
-  override def enrich(pullRequest: PullRequest): Future[PullRequest] = Future {
+  override def decorate(pullRequest: PullRequest): Future[PullRequest] = Future {
     val (total, accepted) = getOtherPullRequests(pullRequest.author)
     pullRequest.contributedCommits = getCommitCount(pullRequest.author)
     pullRequest.totalPullRequests = total

@@ -1,6 +1,6 @@
-package jgit.enrich
+package jgit.decorate
 
-import git.{PullRequest, EnrichmentProvider}
+import git.{PullRequest, PullRequestDecorator}
 import jgit.JGitProvider._
 import jgit.JGitExtensions._
 import scala.concurrent.Future
@@ -12,10 +12,10 @@ import jgit.JGitProvider
  * An info getter implementation for the JGit library.
  * @param provider The JGit provider.
  */
-class JGitEnrichmentProvider(val provider: JGitProvider) extends EnrichmentProvider {
+class JGitDecorator(val provider: JGitProvider) extends PullRequestDecorator {
   val repo = provider.repository
 
-  override def enrich(pullRequest: PullRequest): Future[PullRequest] = {
+  override def decorate(pullRequest: PullRequest): Future[PullRequest] = {
     Future {
       if (!hasStats(pullRequest))
         enrichStats(pullRequest)
