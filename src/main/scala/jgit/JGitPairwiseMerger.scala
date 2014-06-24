@@ -13,11 +13,7 @@ import scala.concurrent.Future
 class JGitPairwiseMerger(base: PairwiseList, val provider: JGitProvider) extends PairwiseDecorator(base) {
   val repo = provider.repository
 
-  override def get: Future[List[PullRequestPair]] = {
-    for(list <- base.get) yield list.map(decorate)
-  }
-
-  def decorate(pair: PullRequestPair): PullRequestPair = {
+  override def decorate(pair: PullRequestPair): PullRequestPair = {
     val result = repo.isMergeable(pullRef(pair.pr1), pullRef(pair.pr2))
     pair.isMergeable = MergeResult.isSuccess(result)
     pair

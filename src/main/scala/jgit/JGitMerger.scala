@@ -13,11 +13,7 @@ import scala.concurrent.Future
 class JGitMerger(base: PullRequestList, val provider: JGitProvider) extends PullRequestDecorator(base) {
   val repo = provider.repository
 
-  override def get: Future[List[PullRequest]] = {
-    for(list <- base.get) yield list.map(decorate)
-  }
-
-  def decorate(pullRequest: PullRequest): PullRequest = {
+  override def decorate(pullRequest: PullRequest): PullRequest = {
     val result = repo.isMergeable(pullRef(pullRequest), targetRef(pullRequest))
     pullRequest.isMergeable = MergeResult.isSuccess(result)
     pullRequest

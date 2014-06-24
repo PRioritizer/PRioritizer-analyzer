@@ -14,22 +14,21 @@ object Analyze {
 
   def main(args: Array[String]): Unit = {
     var loader: Provider = null
-    var pullRequests: List[PullRequest] = null
+    var pullRequests: List[PullRequest] = List()
     val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
 
     try {
       timer.start()
       logger info s"Setup providers..."
       loader = new ProviderLoader
-      val provider: PullRequestProvider = loader.pullRequestProvider.orNull
-      val prs: PullRequestList = new MemoryCache(provider)
+      val prs = new ProviderCache(loader.pullRequestProvider.orNull)
       logger info s"Setup done"
       timer.logLap()
 
       logger info s"Fetching pull requests..."
       logger info s"Fetching pull request meta data..."
       val fetch: Future[Unit] = loader.init()
-      val fetchFutures = prs.get
+      val fetchFutures = prs.init()
 
       // Wait for fetch to complete
       Await.ready(fetch, Duration.Inf)
@@ -44,7 +43,7 @@ object Analyze {
       val enrichFutures = data.get
 
       // Wait for enrichment to complete
-      pullRequests = Await.result(enrichFutures, Duration.Inf)
+      pullRequests = Await.result(Future.sequence(enrichFutures), Duration.Inf)
       logger info s"Enriching done"
       timer.logLap()
 
@@ -58,7 +57,7 @@ object Analyze {
       val pairFutures = git.get
 
       // Wait for merges to complete
-      val pairResults = Await.result(pairFutures, Duration.Inf)
+      val pairResults = Await.result(Future.sequence(pairFutures), Duration.Inf)
       logger info s"Merging done"
       timer.logLap()
 

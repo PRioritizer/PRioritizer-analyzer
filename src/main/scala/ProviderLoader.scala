@@ -15,8 +15,6 @@ class ProviderLoader extends Provider {
     "Pairwise" -> Settings.get("provider.PairwiseDecorators")
   )
 
-  loadAll()
-
   override val repositoryProvider: Option[RepositoryProvider] = for {
     name <- settings.get("Repository").flatten
     provider <- getProvider(name)
@@ -56,6 +54,7 @@ class ProviderLoader extends Provider {
   }
 
   override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
+    loadAll()
     val pProvider = if (provider != null) provider else pullRequestProvider.orNull
     val future = Future.sequence(providers.values.map(p => p.init(pProvider)))
     Await.ready(future, Duration.Inf)

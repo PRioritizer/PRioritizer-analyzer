@@ -14,7 +14,7 @@ class Pairwise(pullRequests: List[PullRequest], skipDifferentTargets: Boolean = 
   val pairs = filterPairs
   val length = pairs.length
 
-  override def get: Future[List[PullRequestPair]] = Future { pairs }
+  override def get: List[Future[PullRequestPair]] = pairs map { p => Future(p) }
 
   def unpair = Pairwise.unpair(this)
 

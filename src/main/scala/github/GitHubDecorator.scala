@@ -15,11 +15,7 @@ class GitHubDecorator(base: PullRequestList, val provider: GitHubProvider) exten
   val owner = provider.owner
   val repository = provider.repository
 
-  override def get: Future[List[PullRequest]] = {
-    for(list <- base.get) yield list.map(decorate)
-  }
-
-  def decorate(pullRequest: PullRequest): PullRequest = {
+  override def decorate(pullRequest: PullRequest): PullRequest = {
     val pr = if (!hasStats(pullRequest))
       enrichStats(pullRequest)
     else

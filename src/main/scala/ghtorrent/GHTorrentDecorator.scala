@@ -17,11 +17,7 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     case _ => -1
   }
 
-  override def get: Future[List[PullRequest]] = {
-    for(list <- base.get) yield list.map(decorate)
-  }
-
-  def decorate(pullRequest: PullRequest): PullRequest = {
+  override def decorate(pullRequest: PullRequest): PullRequest = {
     val (total, accepted) = getOtherPullRequests(pullRequest.author)
     pullRequest.contributedCommits = getCommitCount(pullRequest.author)
     pullRequest.totalPullRequests = total

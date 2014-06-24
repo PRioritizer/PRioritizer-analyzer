@@ -4,7 +4,8 @@ import dispatch.Defaults._
 import dispatch.github.GhPullRequest
 import git.{PullRequest, PullRequestProvider, PullRequestType}
 
-import scala.concurrent.Future
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullRequestProvider {
   val host = "github.com"
