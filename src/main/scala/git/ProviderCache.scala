@@ -5,7 +5,8 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
 class ProviderCache(provider: PullRequestProvider) extends PullRequestDecorator(null) {
-  var cache: List[PullRequest] = _
+  private var cache: List[PullRequest] = _
+  def length = cache.length
 
   override def get: List[Future[PullRequest]] = {
     if (cache == null) {
