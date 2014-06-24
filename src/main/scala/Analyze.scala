@@ -39,6 +39,8 @@ object Analyze {
       logger info s"Merging PRs... (${simplePulls.length})"
       val pullDecorator: PullRequestList = loader.getDecorator(simplePulls)
       val decorationOfPulls = pullDecorator.get
+      monitor.total = simplePulls.length
+      attachMonitor(decorationOfPulls, monitor)
 
       // Wait for enrichment to complete
       val pullRequests = Await.result(Future.sequence(decorationOfPulls), Duration.Inf)
@@ -52,6 +54,8 @@ object Analyze {
       logger info s"Pairwise merging PRs... (${simplePairs.length})"
       logger info s"Skip too large pairs (${largePullRequests.length})"
       val decorationOfPairs = pairDecorator.get
+      monitor.total = simplePairs.length
+      attachMonitor(decorationOfPairs, monitor)
 
       // Wait for merges to complete
       val pairs = Await.result(Future.sequence(decorationOfPairs), Duration.Inf)
@@ -75,5 +79,16 @@ object Analyze {
       pullRequests filter {pr => pr.linesTotal > large}
     else
       List()
+  }
+
+  def attachMonitor[T](futures: List[Future[T]], monitor: ProgressMonitor): Unit = {
+    if (monitor == null)
+      return
+
+    futures.foreach { f =>
+      f.onComplete {
+        case _ => monitor.increment()
+      }
+    }
   }
 }
