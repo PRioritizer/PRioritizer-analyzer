@@ -19,7 +19,7 @@ object Analyze {
       timer.start()
       logger info s"Setup providers..."
       loader = new ProviderLoader
-      val simplePulls = new ProviderCache(loader.pullRequestProvider.orNull)
+      val simplePulls = new ProviderToList(loader.pullRequestProvider.orNull)
       logger info s"Setup done"
       timer.logLap()
 
