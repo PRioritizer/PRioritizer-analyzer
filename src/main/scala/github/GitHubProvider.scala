@@ -2,6 +2,8 @@ package github
 
 import git._
 import dispatch.github.GitHub
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * A provider implementation for GitHub.
@@ -10,15 +12,16 @@ import dispatch.github.GitHub
  * @param token The GitHub API access token.
  */
 class GitHubProvider(val owner: String, val repository: String, token: String) extends Provider {
-  // Set global access token
-  GitHub.accessToken = token
 
   override def repositoryProvider: Option[RepositoryProvider] = None
-  override def pullRequestProvider: Option[GitHubPullRequestProvider] =
-    Some(new GitHubPullRequestProvider(this))
-  override def mergeProvider: Option[MergeProvider] = None
-  override def getDecorator(list: PullRequestList): Option[PullRequestList] =
-    Some(new GitHubDecorator(list, this))
+  override def pullRequestProvider: Option[GitHubPullRequestProvider] = Some(new GitHubPullRequestProvider(this))
+  override def getDecorator(list: PullRequestList): PullRequestList = new GitHubDecorator(list, this)
+  override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
+
+  override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
+    // Set global access token
+    GitHub.accessToken = token
+  }
 
   override def dispose(): Unit = {
     GitHub.shutdown()

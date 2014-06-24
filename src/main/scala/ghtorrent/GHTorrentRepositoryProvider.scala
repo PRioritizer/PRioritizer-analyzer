@@ -9,8 +9,8 @@ import scala.slick.jdbc.StaticQuery
  * @param provider The GHTorrent provider.
  */
 class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends RepositoryProvider {
-  val id = getRepoId
-  val commits = getCommitCount
+  lazy val repoId = getRepoId
+  lazy val commits = getCommitCount
 
   def getRepoId: Int = {
     val owner = provider.owner
@@ -28,7 +28,7 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
 
     // Execute query
     val query = getCommitCountQuery
-    val count = query.apply(getRepoId).list(session).head
+    val count = query.apply(repoId).list(session).head
     count
   }
 

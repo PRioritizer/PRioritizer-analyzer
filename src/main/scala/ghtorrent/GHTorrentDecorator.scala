@@ -12,7 +12,7 @@ import scala.slick.jdbc.StaticQuery
 class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider) extends PullRequestDecorator(base) {
   val owner = provider.owner
   val repo = provider.repository
-  val repoId = provider.repositoryProvider match {
+  lazy val repoId = provider.repositoryProvider match {
     case Some(p: GHTorrentRepositoryProvider) => p.getRepoId
     case _ => -1
   }

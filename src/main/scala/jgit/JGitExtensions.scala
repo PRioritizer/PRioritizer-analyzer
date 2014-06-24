@@ -1,6 +1,6 @@
 package jgit
 
-import git.MergeResult._
+import jgit.MergeResult.MergeResult
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
 import org.gitective.core.{CommitFinder, CommitUtils}
@@ -26,7 +26,7 @@ object JGitExtensions {
       val headId = repo resolve head
 
       if (branchId == null || headId == null)
-        return Error
+        return MergeResult.Error
 
       isMergeable(branchId, headId)
     }
@@ -45,20 +45,20 @@ object JGitExtensions {
 
       // Check if already up-to-date
       if (revWalk.isMergedInto(branchCommit, headCommit))
-        return Merged
+        return MergeResult.Merged
 
       // Check for fast-forward
       if (revWalk.isMergedInto(headCommit, branchCommit))
-        return Merged
+        return MergeResult.Merged
 
       try {
         // Do the actual merge here (in memory)
         val merger = new JGitMemoryMerger(repo)
         val result = merger.merge(headCommit, branchCommit)
         // merger.(getMergeResults|getFailingPaths|getUnmergedPaths)
-        if (result) Merged else Conflict
+        if (result) MergeResult.Merged else MergeResult.Conflict
       } catch {
-        case _: Exception => Error
+        case _: Exception => MergeResult.Error
       }
     }
 
@@ -129,5 +129,18 @@ object JGitExtensions {
       update.setForceUpdate(true)
       update.delete
     }
+  }
+}
+
+/**
+ * An enum type for merge results.
+ */
+object MergeResult extends Enumeration {
+  type MergeResult = Value
+  val Merged, Conflict, Error = Value
+
+  def isSuccess(result: MergeResult) = result match {
+    case Merged => true
+    case _ => false
   }
 }

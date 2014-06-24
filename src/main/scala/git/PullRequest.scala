@@ -40,33 +40,3 @@ case class PullRequest( number: Int,
   override def toString: String =
     s"#$number: '$source' into '$target'"
 }
-
-/**
- * Helper functions for pull requests.
- */
-object PullRequest {
-  /**
-   * An ordering for pull requests based on their number.
-   */
-  implicit val ord = Ordering.by[PullRequest, Int](_.number)
-
-  /**
-   * Returns a list of distinct paired pull requests.
-   * @param pulls A list of pull requests.
-   * @return The list of pairs.
-   */
-  def getPairs(pulls: List[PullRequest]): List[(PullRequest, PullRequest)] = {
-    val pairs = for {
-      // Pairwise
-      x <- pulls
-      y <- pulls
-      // Normalize
-      if x.number != y.number
-      pr1 = if (x.number < y.number) x else y
-      pr2 = if (x.number < y.number) y else x
-    } yield (pr1, pr2)
-
-    // Distinct and sort
-    SortedSet(pairs: _*).toList
-  }
-}

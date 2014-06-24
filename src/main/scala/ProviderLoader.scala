@@ -8,45 +8,67 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ProviderLoader extends Provider {
   private val providers = scala.collection.mutable.Map[String,Provider]()
+  private val settings = Map(
+    "Repository" -> Settings.get("provider.RepositoryProvider"),
+    "PullRequest" -> Settings.get("provider.PullRequestProvider"),
+    "Single" -> Settings.get("provider.SingleDecorators"),
+    "Pairwise" -> Settings.get("provider.PairwiseDecorators")
+  )
+
+  loadAll()
 
   override val repositoryProvider: Option[RepositoryProvider] = for {
-    name <- Settings.get("provider.RepositoryProvider")
+    name <- settings.get("Repository").flatten
     provider <- getProvider(name)
     repo <- provider.repositoryProvider
   } yield repo
 
   override val pullRequestProvider: Option[PullRequestProvider] = for {
-    name <- Settings.get("provider.PullRequestProvider")
+    name <- settings.get("PullRequest").flatten
     provider <- getProvider(name)
     pullRequests <- provider.pullRequestProvider
   } yield pullRequests
 
-  override val mergeProvider: Option[MergeProvider] = for {
-    name <- Settings.get("provider.MergeProvider")
-    provider <- getProvider(name)
-    merger <- provider.mergeProvider
-  } yield merger
-
-  override def getDecorator(list: PullRequestList): Option[PullRequestList] = {
-    val providers = for { name <- Settings.get("provider.PullRequestDecorators") } yield
+  override def getDecorator(list: PullRequestList): PullRequestList = {
+    val providers = for { name <- settings.get("Single").flatten } yield
       name.split(',').toList.map(getProvider).flatMap(o => o)
 
-    for (plist <- providers) yield {
-      var decorator: PullRequestList = list
+    var decorator = list
+    for(plist <- providers) {
       plist.foreach { provider =>
-        provider.getDecorator(decorator) match {
-          case Some(d) => decorator = d
-          case _ => throw new Exception("Provider doesn't have the appropriate decorator")
-        }
+        decorator = provider.getDecorator(decorator)
       }
-      decorator
     }
+    decorator
+  }
+
+  override def getPairwiseDecorator(list: PairwiseList): PairwiseList = {
+    val providers = for { name <- settings.get("Pairwise").flatten } yield
+      name.split(',').toList.map(getProvider).flatMap(o => o)
+
+    var decorator = list
+    for(plist <- providers) {
+      plist.foreach { provider =>
+        decorator = provider.getPairwiseDecorator(decorator)
+      }
+    }
+    decorator
+  }
+
+  override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
+    val pProvider = if (provider != null) provider else pullRequestProvider.orNull
+    val future = Future.sequence(providers.values.map(p => p.init(pProvider)))
+    Await.ready(future, Duration.Inf)
   }
 
   override def dispose(): Unit = {
     providers.values
       .filter(p => p != null)
       .foreach(p => p.dispose())
+  }
+
+  private def loadAll(): Unit = {
+    settings.values.flatten.map { list => list.split(',').toList.map(getProvider) }
   }
 
   private def getProvider(name: String): Option[Provider] = {

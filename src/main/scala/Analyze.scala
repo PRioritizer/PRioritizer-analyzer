@@ -1,5 +1,4 @@
 import git._
-import git.MergeResult._
 import org.slf4j.LoggerFactory
 import output.JsonWriter
 import scala.concurrent.{Future, Await}
@@ -16,12 +15,12 @@ object Analyze {
   def main(args: Array[String]): Unit = {
     var loader: Provider = null
     var pullRequests: List[PullRequest] = null
+    val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
 
     try {
       timer.start()
       logger info s"Setup providers..."
       loader = new ProviderLoader
-      val git: MergeProvider = loader.mergeProvider.orNull
       val provider: PullRequestProvider = loader.pullRequestProvider.orNull
       val prs: PullRequestList = new MemoryCache(provider)
       logger info s"Setup done"
@@ -29,7 +28,7 @@ object Analyze {
 
       logger info s"Fetching pull requests..."
       logger info s"Fetching pull request meta data..."
-      val fetch: Future[Unit] = git.fetch(provider)
+      val fetch: Future[Unit] = loader.init()
       val fetchFutures = prs.get
 
       // Wait for fetch to complete
@@ -40,8 +39,8 @@ object Analyze {
       timer.logLap()
 
       logger info s"Enriching pull request meta data..."
-
-      val data: PullRequestList = loader.getDecorator(prs).orNull
+      logger info s"Merging PRs... (${pullRequests.length})"
+      val data: PullRequestList = loader.getDecorator(prs)
       val enrichFutures = data.get
 
       // Wait for enrichment to complete
@@ -50,23 +49,21 @@ object Analyze {
       timer.logLap()
 
       val largePullRequests = getLargePullRequests(pullRequests)
-      val pairs = getPairs(pullRequests.diff(largePullRequests))
+      val pairs = new Pairwise(pullRequests.diff(largePullRequests), skipDifferentTargets)
+      val git: PairwiseList = loader.getPairwiseDecorator(pairs)
 
-      logger info s"Merging PRs... (${pullRequests.length})"
       logger info s"Pairwise merging PRs... (${pairs.length})"
       logger info s"Skip too large pairs (${largePullRequests.length})"
-      monitor.total = pullRequests.length + pairs.length
-      val mergeFutures = mergePullRequests(git, pullRequests)
-      val pairFutures = mergePullRequestPairs(git, pairs)
+      //monitor.total = pullRequests.length + pairs.length
+      val pairFutures = git.get
 
       // Wait for merges to complete
-      pullRequests = Await.result(mergeFutures, Duration.Inf)
       val pairResults = Await.result(pairFutures, Duration.Inf)
       logger info s"Merging done"
       timer.logLap()
 
       logger info s"Combining results..."
-      pullRequests = combineResults(pullRequests, pairResults)
+      pullRequests = Pairwise.unpair(pairResults)
       logger info s"Combining done"
       timer.logLap()
 
@@ -86,55 +83,5 @@ object Analyze {
       pullRequests filter {pr => pr.linesTotal > large}
     else
       List()
-  }
-
-  /**
-   * Get the pull request pairs.
-   * Reduce the number of pairs by filtering out pairs with PRs that target two different branches
-   * @param pullRequests The pull requests
-   * @return Pairwise combination of the pull requests.
-   */
-  def getPairs(pullRequests: List[PullRequest]): List[(PullRequest, PullRequest)] = {
-    val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
-
-    if (skipDifferentTargets)
-      PullRequest.getPairs(pullRequests) filter { case (pr1, pr2) => pr1.target == pr2.target }
-    else
-      PullRequest.getPairs(pullRequests)
-  }
-
-  def mergePullRequests(git: MergeProvider, pullRequests: List[PullRequest]): Future[List[PullRequest]] = {
-    val results = pullRequests map { pr =>
-      val future = git merge pr
-      future.onComplete { case _ => monitor.increment() }
-      for (res <- future) yield {
-        pr.isMergeable = res == Merged
-        pr
-      }
-    }
-    Future.sequence(results)
-  }
-
-  def mergePullRequestPairs(git: MergeProvider, pairs: List[(PullRequest, PullRequest)]): Future[List[(PullRequest, PullRequest, MergeResult)]] = {
-    val results = pairs map { case (pr1, pr2) =>
-      val future = git merge (pr1, pr2)
-      future.onComplete { case _ => monitor.increment() }
-      for (res <- future)
-      yield (pr1, pr2, res)
-    }
-    Future.sequence(results)
-  }
-
-  def combineResults(pullRequests: List[PullRequest], results: List[(PullRequest, PullRequest, MergeResult)]): List[PullRequest] = {
-    pullRequests.foreach { pr =>
-      pr.conflictsWith = results filter {
-        case (pr1, pr2, res) =>
-          res != Merged && (pr1 == pr || pr2 == pr)
-      } map {
-        case (pr1, pr2, res) =>
-          if (pr1 == pr) pr2 else pr1
-      }
-    }
-    pullRequests
   }
 }
