@@ -31,7 +31,7 @@ class ProgressMonitor {
       return
 
     if (total > 0)
-      logger info s"$current/$total (${current*100/total}%)"
+      logger info f"${current*100/total}%3d%% ($current/$total)"
     else
       logger info s"$current"
 
