@@ -2,8 +2,10 @@ package git
 
 case class PullRequestPair(pr1: PullRequest,
                            pr2: PullRequest,
-                           var isMergeable: Boolean = false
+                           var isMergeable: Option[Boolean] = None
                            ) {
+
+  var dirty = false
 
   def toPair: (PullRequest, PullRequest) = (pr1, pr2)
 

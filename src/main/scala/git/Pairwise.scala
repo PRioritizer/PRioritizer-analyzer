@@ -57,10 +57,10 @@ object Pairwise {
     val pulls = distinct(pairs)
     pulls.foreach { pr =>
       pr.conflictsWith = pairs filter {
-        case PullRequestPair(pr1, pr2, mergeable) =>
+        case PullRequestPair(pr1, pr2, Some(mergeable)) =>
            !mergeable && (pr1 == pr || pr2 == pr)
       } map {
-        case PullRequestPair(pr1, pr2, res) =>
+        case PullRequestPair(pr1, pr2, _) =>
           if (pr1 == pr) pr2 else pr1
       }
     }

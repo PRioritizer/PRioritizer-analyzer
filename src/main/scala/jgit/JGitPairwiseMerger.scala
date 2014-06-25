@@ -14,8 +14,12 @@ class JGitPairwiseMerger(base: PairwiseList, val provider: JGitProvider) extends
   val repo = provider.repository
 
   override def decorate(pair: PullRequestPair): PullRequestPair = {
+    if (pair.isMergeable.isDefined)
+      return pair
+
     val result = repo.isMergeable(pullRef(pair.pr1), pullRef(pair.pr2))
-    pair.isMergeable = MergeResult.isSuccess(result)
+    pair.isMergeable = Some(MergeResult.isSuccess(result))
+    pair.dirty = true
     pair
   }
 }

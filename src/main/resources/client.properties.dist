@@ -1,8 +1,8 @@
 # Providers
 provider.RepositoryProvider=ghtorrent|github|jgit
 provider.PullRequestProvider=ghtorrent|github|jgit
-provider.SingleDecorators=ghtorrent,github,jgit
-provider.PairwiseDecorators=ghtorrent,github,jgit
+provider.SingleDecorators=cache-read,ghtorrent,github,jgit,cache-write
+provider.PairwiseDecorators=cache-read,ghtorrent,github,jgit,cache-write
 
 # Settings
 settings.large=1000

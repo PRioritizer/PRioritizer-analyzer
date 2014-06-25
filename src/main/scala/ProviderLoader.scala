@@ -1,3 +1,4 @@
+import cache.{CacheWriteProvider, CacheReadProvider}
 import git._
 import ghtorrent.GHTorrentProvider
 import github.GitHubProvider
@@ -79,6 +80,8 @@ class ProviderLoader extends Provider {
 
   private def createProvider(name: String): Option[Provider] = {
     name match {
+      case "cache-read" => Some(createCacheReadProvider)
+      case "cache-write" => Some(createCacheWriteProvider)
       case "ghtorrent" => Some(createGHTorrentProvider)
       case "github" => Some(createGitHubProvider)
       case "jgit" => Some(createJGitProvider)
@@ -86,9 +89,14 @@ class ProviderLoader extends Provider {
     }
   }
 
-  private def createCacheProvider: CacheProvider = {
+  private def createCacheReadProvider: CacheReadProvider = {
     val cacheDir = Settings.get("cache.Directory").orNull
-    new CacheProvider(cacheDir)
+    new CacheReadProvider(cacheDir)
+  }
+
+  private def createCacheWriteProvider: CacheWriteProvider = {
+    val cacheDir = Settings.get("cache.Directory").orNull
+    new CacheWriteProvider(cacheDir)
   }
 
   private def createGHTorrentProvider: GHTorrentProvider = {
