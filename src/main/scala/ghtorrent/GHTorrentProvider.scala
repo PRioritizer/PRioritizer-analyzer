@@ -4,6 +4,7 @@ import git._
 import scala.concurrent.Future
 import scala.slick.driver.MySQLDriver.simple._
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.slick.jdbc.StaticQuery
 
 /**
  * A provider implementation for GHTorrent.
@@ -12,25 +13,43 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * @param user The database user name.
  * @param password The database password.
  * @param database The database name.
- * @param owner The name of the owner.
- * @param repository The name of the repository.
  */
-class GHTorrentProvider(val host: String, val port: Int, val user: String, val password: String, val database: String, val owner: String, val repository: String) extends Provider {
+class GHTorrentProvider(val host: String, val port: Int, val user: String, val password: String, val database: String) extends Provider {
   val dbUrl = s"jdbc:mysql://$host:$port/$database"
   val dbDriver = "com.mysql.jdbc.Driver"
   lazy val Db = Database.forURL(dbUrl, user, password, driver = dbDriver).createSession()
 
+  private var _owner: String = _
+  private var _repository: String = _
+
+  def owner = _owner
+  def repository = _repository
+
   override def repositoryProvider: Option[RepositoryProvider] = Some(new GHTorrentRepositoryProvider(this))
-  override def pullRequestProvider: Option[PullRequestProvider] = Some(new GHTorrentPullRequestProvider(this))
+  override def pullRequestProvider: Option[PullRequestProvider] = None
   override def getDecorator(list: PullRequestList): PullRequestList = new GHTorrentDecorator(list, this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 
   override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
-    // Force lazy value evaluation
-    Db
+    if (provider != null) {
+      _owner = provider.owner
+      _repository = provider.repository
+    }
+
+    // Execute test query
+    test()
+  }
+
+  def test(): Boolean = {
+    val status = StaticQuery.query[Unit, String]("SHOW SESSION STATUS;").list(Db)
+    status.length > 0
   }
 
   override def dispose(): Unit = {
-    Db.close()
+    try {
+      Db.close()
+    } catch {
+      case _ :Exception =>
+    }
   }
 }

@@ -11,7 +11,7 @@ import scala.concurrent.Future
  * @param provider The JGit provider.
  */
 class JGitMerger(base: PullRequestList, val provider: JGitProvider) extends PullRequestDecorator(base) {
-  val repo = provider.repository
+  lazy val repo = provider.repository
 
   override def decorate(pullRequest: PullRequest): PullRequest = {
     val result = repo.isMergeable(pullRef(pullRequest), targetRef(pullRequest))

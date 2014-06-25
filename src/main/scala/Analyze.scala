@@ -29,8 +29,9 @@ object Analyze {
       val fetchPulls = simplePulls.init()
 
       // Wait for fetch to complete
-      Await.ready(fetchGit, Duration.Inf)
-      Await.ready(fetchPulls, Duration.Inf)
+      Await.result(fetchGit, Duration.Inf)
+      Await.result(fetchPulls, Duration.Inf)
+
       logger info s"Fetching done"
       logger info s"Got ${simplePulls.length} open pull requests"
       timer.logLap()

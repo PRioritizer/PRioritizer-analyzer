@@ -10,8 +10,8 @@ import scala.concurrent.{Await, Future}
 class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullRequestProvider {
   val host = "github.com"
   val source = "github"
-  val owner = provider.owner
-  val repository = provider.repository
+  lazy val owner = provider.owner
+  lazy val repository = provider.repository
 
   override val https: String = s"https://$host/$owner/$repository.git"
 

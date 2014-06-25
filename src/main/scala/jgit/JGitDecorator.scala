@@ -13,7 +13,7 @@ import scala.concurrent.Future
  * @param provider The JGit provider.
  */
 class JGitDecorator(base: PullRequestList, val provider: JGitProvider) extends PullRequestDecorator(base) {
-  val repo = provider.repository
+  lazy val repo = provider.repository
 
   override def decorate(pullRequest: PullRequest): PullRequest = {
     if (!hasStats(pullRequest))

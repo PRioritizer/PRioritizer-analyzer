@@ -2,8 +2,7 @@ import git._
 import ghtorrent.GHTorrentProvider
 import github.GitHubProvider
 import jgit.JGitProvider
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ProviderLoader extends Provider {
@@ -53,11 +52,11 @@ class ProviderLoader extends Provider {
     decorator
   }
 
-  override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
+  override def init(provider: PullRequestProvider = null): Future[Unit] = {
     loadAll()
     val pProvider = if (provider != null) provider else pullRequestProvider.orNull
     val future = Future.sequence(providers.values.map(p => p.init(pProvider)))
-    Await.ready(future, Duration.Inf)
+    for(f <- future) yield {}
   }
 
   override def dispose(): Unit = {
@@ -87,15 +86,18 @@ class ProviderLoader extends Provider {
     }
   }
 
+  private def createCacheProvider: CacheProvider = {
+    val cacheDir = Settings.get("cache.Directory").orNull
+    new CacheProvider(cacheDir)
+  }
+
   private def createGHTorrentProvider: GHTorrentProvider = {
     val host = Settings.get("ghtorrent.Host").orNull
     val port = Settings.get("ghtorrent.Port").fold(3306)(p => p.toInt)
     val user = Settings.get("ghtorrent.User").orNull
     val pass = Settings.get("ghtorrent.Password").orNull
     val db = Settings.get("ghtorrent.Database").orNull
-    val owner = Settings.get("github.Owner").orNull
-    val repository = Settings.get("github.Repository").orNull
-    new GHTorrentProvider(host, port, user, pass, db, owner, repository)
+    new GHTorrentProvider(host, port, user, pass, db)
   }
 
   private def createGitHubProvider: GitHubProvider = {

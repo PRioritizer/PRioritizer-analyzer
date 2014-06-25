@@ -12,8 +12,8 @@ import scala.concurrent.{Await, Future}
  * @param provider The GitHub API provider.
  */
 class GitHubDecorator(base: PullRequestList, val provider: GitHubProvider) extends PullRequestDecorator(base) {
-  val owner = provider.owner
-  val repository = provider.repository
+  lazy val owner = provider.owner
+  lazy val repository = provider.repository
 
   override def decorate(pullRequest: PullRequest): PullRequest = {
     val pr = if (!hasStats(pullRequest))
