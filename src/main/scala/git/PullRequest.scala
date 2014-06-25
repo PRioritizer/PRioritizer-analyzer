@@ -13,6 +13,7 @@ import git.PullRequestType.PullRequestType
  */
 case class PullRequest( number: Int,
                         author: String,
+                        sha: String,
                         source: String,
                         target: String,
                         var title: String = "",
