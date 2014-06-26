@@ -26,10 +26,8 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
       }
     else if (mode == CacheMode.Write)
       cachedPullOption match {
-        case Some(cachedPull) if !cachedPull.represents(pullRequest) =>
-          insert(pullRequest)
-        case None =>
-          insert(pullRequest)
+        case Some(cachedPull) if !cachedPull.represents(pullRequest) => insert(pullRequest)
+        case None => insert(pullRequest)
         case _ => // Cache already up-to-date
       }
 
@@ -43,13 +41,7 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
 
   private def insert(pullRequest: PullRequest): Unit = {
     implicit val session = Db
-
-    // Delete old record(s)
-    val query = pulls.filter(p => p.sha === pullRequest.sha)
-    query.delete
-
-    // Insert
-    pulls += CachedPullRequest(pullRequest)
+    pulls.insertOrUpdate(CachedPullRequest(pullRequest))
   }
 
   def init(): Unit = {

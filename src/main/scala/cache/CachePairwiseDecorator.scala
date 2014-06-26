@@ -26,8 +26,7 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
       }
     else if (mode == CacheMode.Write)
       cachedPairOption match {
-        case Some(cachedPair) if !cachedPair.represents(pair) =>
-          insert(pair)
+        case Some(cachedPair) if !cachedPair.represents(pair) => insert(pair)
         case None => insert(pair)
         case _ => // Cache already up-to-date
       }
@@ -46,14 +45,7 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
 
   private def insert(pair: PullRequestPair): Unit = {
     implicit val session = Db
-    val newPair = CachedPullRequestPair(pair)
-
-    // Delete old record(s)
-    val query = pairs.filter(p => p.shaOne === newPair.shaOne && p.shaTwo === newPair.shaTwo)
-    query.delete
-
-    // Insert
-    pairs += newPair
+    pairs.insertOrUpdate(CachedPullRequestPair(pair))
   }
 
   def init(): Unit = {
