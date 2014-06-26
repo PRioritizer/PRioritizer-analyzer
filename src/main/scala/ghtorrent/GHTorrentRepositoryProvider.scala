@@ -19,8 +19,12 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
 
     // Execute query
     val query = getRepoIdQuery
-    val id = query.apply(owner, repo).list(session).head
-    id
+    val id = query.apply(owner, repo).firstOption
+
+    if (!id.isDefined)
+      throw new GHTorrentException(s"Could not find the $owner/$repo repository in the GHTorrent database")
+
+    id.get
   }
 
   def getCommitCount: Long = {
