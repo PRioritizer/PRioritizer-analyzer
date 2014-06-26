@@ -3,8 +3,7 @@ package cache
 import git._
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.jdbc.meta.MTable
-import scala.slick.lifted.ProvenShape._
-import java.sql.Date
+import cache.CacheSchema.PairCache
 
 /**
  * An info getter implementation for the JGit library.
@@ -39,37 +38,27 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
 
   private def get(pair: PullRequestPair): Option[Boolean] = {
     implicit val session = Db
-
-    // Smallest sha first
-    val sha1 = if (pair.pr1.sha < pair.pr2.sha) pair.pr1.sha else pair.pr2.sha
-    val sha2 = if (pair.pr1.sha < pair.pr2.sha) pair.pr2.sha else pair.pr1.sha
+    val key: CachedPullRequestPair = CachedPullRequestPair(pair)
 
     // Select
-    val query = pairs.filter(p => p.shaOne === sha1 && p.shaTwo === sha2)
-    query.firstOption.map { q => q._4 }
+    val query = pairs.filter(p => p.shaOne === key.shaOne && p.shaTwo === key.shaTwo)
+    query.firstOption.map { q => q.mergeable }
   }
 
   private def insert(pair: PullRequestPair): Unit = {
     implicit val session = Db
-
-    // Smallest sha first
-    val sha1 = if (pair.pr1.sha < pair.pr2.sha) pair.pr1.sha else pair.pr2.sha
-    val sha2 = if (pair.pr1.sha < pair.pr2.sha) pair.pr2.sha else pair.pr1.sha
+    val newPair: CachedPullRequestPair = CachedPullRequestPair(pair)
 
     // Delete old record(s)
-    val query = pairs.filter(p => p.shaOne === sha1 && p.shaTwo === sha2)
+    val query = pairs.filter(p => p.shaOne === newPair.shaOne && p.shaTwo === newPair.shaTwo)
     query.delete
 
     // Insert
-    pairs += (now(), sha1, sha2, pair.isMergeable.getOrElse(false))
+    pairs += newPair
   }
-
-  def now(): java.sql.Date = new java.sql.Date(new java.util.Date().getTime)
 
   def init(): Unit = {
     implicit val session = Db
-
-    val test = pairs.ddl.createStatements
 
     // Create table
     if (MTable.getTables(PairCache.tableName).list.isEmpty)
@@ -83,21 +72,6 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
       case _ : Exception =>
     }
   }
-}
-
-class PairCache(tag: Tag) extends Table[(Date, String, String, Boolean)](tag, PairCache.tableName) {
-  def date = column[Date]("date")
-  def shaOne = column[String]("sha_one")
-  def shaTwo = column[String]("sha_two")
-  def mergeable = column[Boolean]("mergable")
-
-  def * = (date, shaOne, shaTwo, mergeable)
-
-  def pk = primaryKey("sha", (shaOne, shaTwo))
-}
-
-object PairCache {
-  val tableName = "pair_cache"
 }
 
 /**
