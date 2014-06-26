@@ -19,7 +19,6 @@ class JGitPairwiseMerger(base: PairwiseList, val provider: JGitProvider) extends
 
     val result = repo.isMergeable(pullRef(pair.pr1), pullRef(pair.pr2))
     pair.isMergeable = Some(MergeResult.isSuccess(result))
-    pair.dirty = true
     pair
   }
 }

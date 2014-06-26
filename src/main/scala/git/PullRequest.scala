@@ -1,7 +1,6 @@
 package git
 
-import scala.collection.immutable.SortedSet
-import org.joda.time.DateTime
+import org.joda.time.{DateTimeZone, DateTime}
 import git.PullRequestType.PullRequestType
 
 /**

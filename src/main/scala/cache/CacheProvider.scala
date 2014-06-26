@@ -10,12 +10,15 @@ import scala.concurrent.Future
  * @param cacheDirectory The path to the directory of the cache.
  */
 abstract class CacheProvider(cacheDirectory: String) extends Provider {
+  val defaultDbName = "cache.db"
   lazy val cachePath = _cachePath
+  lazy val defaultDbPath = cachePath + java.io.File.separator + defaultDbName
 
   protected var _owner: String = _
   protected var _repository: String = _
   protected var _cachePath: String = _
 
+  protected var _decorators: List[CacheDecorator] = List()
   protected var _pairwiseDecorators: List[CachePairwiseDecorator] = List()
 
   override def repositoryProvider: Option[RepositoryProvider] = None
@@ -35,8 +38,10 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
     _cachePath = file.getAbsolutePath
   }
 
-  override def dispose(): Unit =
+  override def dispose(): Unit = {
+    _decorators.foreach(_.dispose())
     _pairwiseDecorators.foreach(_.dispose())
+  }
 
   private def safeFileName(file: String): String = {
     val safe = file.replaceAll("[\\\\/:*?\"<>|]+", "-")

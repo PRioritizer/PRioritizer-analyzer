@@ -1,15 +1,23 @@
 package cache
 
-import java.sql.Date
-
 import git.PullRequestPair
 
-case class CachedPullRequestPair(date: Date, shaOne: String, shaTwo: String, mergeable: Boolean)
+case class CachedPullRequestPair(shaOne: String, shaTwo: String, isMergeable: Boolean) {
+  def fill(pair: PullRequestPair): PullRequestPair = {
+    pair.isMergeable = Some(isMergeable)
+    pair
+  }
 
-object CachedPullRequestPair extends ((Date, String, String, Boolean) => CachedPullRequestPair) {
+  def represents(pair: PullRequestPair): Boolean = {
+    this == CachedPullRequestPair(pair)
+  }
+}
+
+object CachedPullRequestPair extends ((String, String, Boolean) => CachedPullRequestPair) {
   def apply(pair: PullRequestPair): CachedPullRequestPair = {
     val key = getKey(pair)
-    CachedPullRequestPair(now, key._1, key._2, pair.isMergeable.getOrElse(false))
+    CachedPullRequestPair(key._1, key._2,
+      pair.isMergeable.getOrElse(false))
   }
 
   // Smallest sha first
@@ -19,6 +27,4 @@ object CachedPullRequestPair extends ((Date, String, String, Boolean) => CachedP
     else
       (pair.pr2.sha, pair.pr1.sha)
   }
-
-  private def now: Date = new Date(new java.util.Date().getTime)
 }

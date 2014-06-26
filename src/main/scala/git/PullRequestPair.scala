@@ -5,7 +5,6 @@ case class PullRequestPair(pr1: PullRequest,
                            var isMergeable: Option[Boolean] = None
                            ) {
 
-  var dirty = false
   def tuple: (PullRequest, PullRequest) = (pr1, pr2)
 
   override def toString: String =
