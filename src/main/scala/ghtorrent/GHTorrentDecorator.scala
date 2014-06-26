@@ -18,11 +18,18 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
   }
 
   override def decorate(pullRequest: PullRequest): PullRequest = {
-    val (total, accepted) = getOtherPullRequests(pullRequest.author)
-    pullRequest.contributedCommits = getCommitCount(pullRequest.author)
-    pullRequest.totalPullRequests = total
-    pullRequest.acceptedPullRequests = accepted
-    pullRequest.coreMember = isCoreMember(pullRequest.author)
+    if (!pullRequest.contributedCommits.isDefined)
+      pullRequest.contributedCommits = Some(getCommitCount(pullRequest.author))
+
+    if (!pullRequest.totalPullRequests.isDefined) {
+      val (total, accepted) = getOtherPullRequests(pullRequest.author)
+      pullRequest.totalPullRequests = Some(total)
+      pullRequest.acceptedPullRequests = Some(accepted)
+    }
+
+    if (!pullRequest.coreMember.isDefined)
+      pullRequest.coreMember = Some(isCoreMember(pullRequest.author))
+
     pullRequest
   }
 

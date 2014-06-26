@@ -6,8 +6,7 @@ case class PullRequestPair(pr1: PullRequest,
                            ) {
 
   var dirty = false
-
-  def toPair: (PullRequest, PullRequest) = (pr1, pr2)
+  def tuple: (PullRequest, PullRequest) = (pr1, pr2)
 
   override def toString: String =
     s"#${pr1.number}: '${pr1.source}' into #${pr2.number}: '${pr2.source}'"

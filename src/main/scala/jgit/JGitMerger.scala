@@ -14,8 +14,13 @@ class JGitMerger(base: PullRequestList, val provider: JGitProvider) extends Pull
   lazy val repo = provider.repository
 
   override def decorate(pullRequest: PullRequest): PullRequest = {
-    val result = repo.isMergeable(pullRef(pullRequest), targetRef(pullRequest))
-    pullRequest.isMergeable = MergeResult.isSuccess(result)
+    if (!hasMergeInfo(pullRequest)) {
+      val result = repo.isMergeable(pullRef(pullRequest), targetRef(pullRequest))
+      pullRequest.isMergeable = Some(MergeResult.isSuccess(result))
+    }
+
     pullRequest
   }
+
+  def hasMergeInfo(pullRequest: PullRequest): Boolean = pullRequest.isMergeable.isDefined
 }

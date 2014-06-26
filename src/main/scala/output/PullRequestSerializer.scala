@@ -1,11 +1,11 @@
 package output
 
+import org.joda.time.format.ISODateTimeFormat
 import org.json4s.CustomSerializer
 import org.json4s.JsonAST._
 import git.PullRequest
 import org.json4s.JsonDSL._
 import org.json4s.JsonAST.JString
-import org.joda.time.DateTimeZone
 
 object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
   {
@@ -21,14 +21,15 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
   },
   {
     case pr: PullRequest =>
+      val df = ISODateTimeFormat.dateTime
       ("number" -> pr.number) ~
       ("author" -> pr.author) ~
       ("sha" -> pr.sha) ~
       ("source" -> pr.source) ~
       ("target" -> pr.target) ~
       ("title" -> pr.title) ~
-      ("createdAt" -> pr.createdAt.toDateTime(DateTimeZone.UTC).toString()) ~
-      ("updatedAt" -> pr.updatedAt.toDateTime(DateTimeZone.UTC).toString()) ~
+      ("createdAt" -> pr.createdAtUtc.map(d => d.toString(df))) ~
+      ("updatedAt" -> pr.updatedAtUtc.map(d => d.toString(df))) ~
       ("linesAdded" -> pr.linesAdded) ~
       ("linesDeleted" -> pr.linesDeleted) ~
       ("filesChanged" -> pr.filesChanged) ~
@@ -36,9 +37,9 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       ("coreMember" -> pr.coreMember) ~
       ("comments" -> pr.comments) ~
       ("milestone" -> pr.milestone) ~
-      ("type" -> pr.`type`.toString) ~
+      ("type" -> pr.`type`.map(t => t.toString)) ~
       ("isMergeable" -> pr.isMergeable) ~
-      ("conflictsWith" -> pr.conflictsWith.map(_.number)) ~
+      ("conflictsWith" -> pr.conflictsWithNumbers) ~
       ("contributedCommits" -> pr.contributedCommits) ~
       ("acceptedPullRequests" -> pr.acceptedPullRequests) ~
       ("totalPullRequests" -> pr.totalPullRequests)

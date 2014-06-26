@@ -18,11 +18,11 @@ class JGitDecorator(base: PullRequestList, val provider: JGitProvider) extends P
   override def decorate(pullRequest: PullRequest): PullRequest = {
     if (!hasStats(pullRequest))
       enrichStats(pullRequest)
-    else
-      pullRequest
+
+    pullRequest
   }
 
-  private def hasStats(pullRequest: PullRequest): Boolean = pullRequest.commits > 0
+  private def hasStats(pullRequest: PullRequest): Boolean = pullRequest.commits.isDefined
 
   private def enrichStats(pullRequest: PullRequest): PullRequest = {
     val head = repo resolve pullRef(pullRequest)
@@ -32,10 +32,10 @@ class JGitDecorator(base: PullRequestList, val provider: JGitProvider) extends P
     // Check if commits are resolved
     if (head != null && base != null) {
       val Stats(added, edited, deleted, numFiles, numCommits) = repo.stats(head, base)
-      pullRequest.linesAdded = added + edited
-      pullRequest.linesDeleted = deleted + edited
-      pullRequest.filesChanged = numFiles
-      pullRequest.commits = numCommits
+      pullRequest.linesAdded = Some(added + edited)
+      pullRequest.linesDeleted = Some(deleted + edited)
+      pullRequest.filesChanged = Some(numFiles)
+      pullRequest.commits = Some(numCommits)
     }
 
     pullRequest

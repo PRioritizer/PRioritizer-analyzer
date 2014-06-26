@@ -16,15 +16,18 @@ class GitHubDecorator(base: PullRequestList, val provider: GitHubProvider) exten
   lazy val repository = provider.repository
 
   override def decorate(pullRequest: PullRequest): PullRequest = {
-    val pr = if (!hasStats(pullRequest))
+    if (!hasStats(pullRequest))
       enrichStats(pullRequest)
-    else
-      pullRequest
 
-    enrichWithIssue(pr)
+    if (!hasIssueStats(pullRequest))
+      enrichWithIssue(pullRequest)
+
+    pullRequest
   }
 
-  private def hasStats(pullRequest: PullRequest): Boolean = pullRequest.commits > 0
+  private def hasStats(pullRequest: PullRequest): Boolean = pullRequest.commits.isDefined
+
+  private def hasIssueStats(pullRequest: PullRequest): Boolean = pullRequest.`type`.isDefined
 
   private def enrichWithIssue(pullRequest: PullRequest): PullRequest = {
     val waitIssue = GhIssue.get_issue(owner, repository, pullRequest.number)
@@ -32,9 +35,9 @@ class GitHubDecorator(base: PullRequestList, val provider: GitHubProvider) exten
 
     val labels = issue.labels.map{l => l.name}.mkString(", ")
     val words = labels + ", " + issue.title
-    pullRequest.`type` = PullRequestType.parse(words) // (security fixes > bug fixes > refactoring > features > documentation)
-    pullRequest.comments = issue.comments
-    pullRequest.milestone = issue.milestone.fold(0)(m => m.number)
+    pullRequest.`type` = Some(PullRequestType.parse(words)) // (security fixes > bug fixes > refactoring > features > documentation)
+    pullRequest.comments = Some(issue.comments)
+    pullRequest.milestone = Some(issue.milestone.fold(0)(m => m.number))
     pullRequest
   }
 
@@ -42,11 +45,11 @@ class GitHubDecorator(base: PullRequestList, val provider: GitHubProvider) exten
     val waitPr = GhPullRequest.get_pull_request(owner, repository, pullRequest.number)
     val pr = Await.result(waitPr, Duration.Inf)
 
-    pullRequest.isMergeable = pr.mergeable
-    pullRequest.commits = pr.commits
-    pullRequest.linesAdded = pr.additions
-    pullRequest.linesDeleted = pr.deletions
-    pullRequest.filesChanged = pr.changed_files
+    pullRequest.isMergeable = Some(pr.mergeable)
+    pullRequest.commits = Some(pr.commits)
+    pullRequest.linesAdded = Some(pr.additions)
+    pullRequest.linesDeleted = Some(pr.deletions)
+    pullRequest.filesChanged = Some(pr.changed_files)
     pullRequest
   }
 }

@@ -9,7 +9,7 @@ class Pairwise(pullRequests: List[PullRequest], skipDifferentTargets: Boolean = 
    * An ordering for pull requests based on their number.
    */
   implicit val prOrd = Ordering.by[PullRequest, Int](_.number)
-  implicit val pairOrd = Ordering.by[PullRequestPair, (PullRequest,PullRequest)](_.toPair)
+  implicit val pairOrd = Ordering.by[PullRequestPair, (PullRequest,PullRequest)](_.tuple)
 
   val pairs = filterPairs
   val length = pairs.length
@@ -56,13 +56,14 @@ object Pairwise {
   def unpair(pairs: List[PullRequestPair]): List[PullRequest] = {
     val pulls = distinct(pairs)
     pulls.foreach { pr =>
-      pr.conflictsWith = pairs filter {
+      val list = pairs filter {
         case PullRequestPair(pr1, pr2, Some(mergeable)) =>
            !mergeable && (pr1 == pr || pr2 == pr)
       } map {
         case PullRequestPair(pr1, pr2, _) =>
           if (pr1 == pr) pr2 else pr1
       }
+      pr.conflictsWith = Some(list)
     }
     pulls
   }

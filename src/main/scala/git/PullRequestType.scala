@@ -5,7 +5,7 @@ package git
  */
 object PullRequestType extends Enumeration {
   type PullRequestType = Value
-  val Fix, Refactor, Feature, Documentation, Unknown = Value
+  val Fix, Refactor, Feature, Documentation = Value
 
   def parse(value: String): PullRequestType = {
     val words = value.toLowerCase
