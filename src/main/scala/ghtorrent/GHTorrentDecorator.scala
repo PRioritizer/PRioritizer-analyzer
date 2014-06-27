@@ -1,19 +1,18 @@
 package ghtorrent
 
 import git.{PullRequestDecorator, PullRequest, PullRequestList}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
-import scala.slick.jdbc.StaticQuery
+import scala.slick.jdbc.{StaticQuery => Q}
 
 /**
  * An info getter implementation for the GHTorrent database.
  * @param provider The GHTorrent provider.
  */
 class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider) extends PullRequestDecorator(base) {
+  implicit lazy val session = provider.Db
   lazy val owner = provider.owner
   lazy val repo = provider.repository
   lazy val repoId = provider.repositoryProvider match {
-    case Some(p: GHTorrentRepositoryProvider) => p.getRepoId
+    case Some(p: GHTorrentRepositoryProvider) => p.repoId
     case _ => -1
   }
 
@@ -33,36 +32,20 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     pullRequest
   }
 
-  def getOtherPullRequests(author: String): (Int, Int) = {
-    implicit val session = provider.Db
-
-    // Execute query
-    val query = getPullRequestCountQuery
-    val total = query.apply(repoId, author, "opened").list(session).sum
-    val accepted = query.apply(repoId, author, "merged").list(session).sum
+  private def getOtherPullRequests(author: String): (Int, Int) = {
+    val total = getPullRequestCount(repoId, author, "opened").firstOption.getOrElse(0)
+    val accepted = getPullRequestCount(repoId, author, "merged").firstOption.getOrElse(0)
     (total, accepted)
   }
 
-  def getCommitCount(author: String): Int = {
-    implicit val session = provider.Db
+  private def getCommitCount(author: String): Int =
+    getCommitCount(repoId, author).firstOption.getOrElse(0)
 
-    // Execute query
-    val query = getCommitCountQuery
-    val count = query.apply(repoId, author).list(session).head
-    count
-  }
+  private def isCoreMember(author: String): Boolean =
+    getCoreMember(repoId, author).firstOption.isDefined
 
-  def isCoreMember(author: String): Boolean = {
-    implicit val session = provider.Db
-
-    // Execute query
-    val query = getCoreMemberQuery
-    val coreMember = query.apply(repoId, author).list(session).nonEmpty
-    coreMember
-  }
-
-  def getCommitCountQuery: StaticQuery[(Int, String), Int] = {
-    StaticQuery.query[(Int, String), Int](
+  private lazy val getCommitCount: Q[(Int, String), Int] =
+    Q[(Int, String), Int] +
       """SELECT
         |COUNT(project_commits.commit_id)
         |FROM
@@ -71,11 +54,10 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
         |INNER JOIN users ON users.id = commits.author_id
         |WHERE
         |project_commits.project_id = ? AND
-        |users.login = ?""".stripMargin)
-  }
+        |users.login = ?""".stripMargin
 
-  def getPullRequestCountQuery: StaticQuery[(Int, String, String), Int] = {
-    StaticQuery.query[(Int, String, String), Int](
+  private lazy val getPullRequestCount: Q[(Int, String, String), Int] =
+    Q[(Int, String, String), Int] +
       """SELECT
         |COUNT(DISTINCT pull_requests.id)
         |FROM
@@ -87,11 +69,10 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
         |pull_requests.base_repo_id = ? AND
         |actor_history.action = 'opened' AND
         |actor.login = ? AND
-        |pull_history.action = ?""".stripMargin)
-  }
+        |pull_history.action = ?""".stripMargin
 
-  def getCoreMemberQuery: StaticQuery[(Int, String), Int] = {
-    StaticQuery.query[(Int, String), Int](
+  private lazy val getCoreMember: Q[(Int, String), Int] =
+    Q[(Int, String), Int] +
       """SELECT
         |users.id
         |FROM
@@ -99,6 +80,5 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
         |INNER JOIN users ON users.id = project_members.user_id
         |WHERE
         |project_members.repo_id = ? AND
-        |users.login = ?""".stripMargin)
-  }
+        |users.login = ?""".stripMargin
 }

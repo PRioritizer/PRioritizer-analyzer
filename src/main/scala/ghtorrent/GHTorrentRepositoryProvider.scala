@@ -1,8 +1,7 @@
 package ghtorrent
 
 import git.RepositoryProvider
-
-import scala.slick.jdbc.StaticQuery
+import scala.slick.jdbc.{StaticQuery => Q}
 
 /**
  * An info getter implementation for the GHTorrent database.
@@ -11,33 +10,25 @@ import scala.slick.jdbc.StaticQuery
 class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends RepositoryProvider {
   lazy val repoId = getRepoId
   lazy val commits = getCommitCount
+  implicit lazy val session = provider.Db
 
-  def getRepoId: Int = {
+  private def getRepoId: Int = {
     val owner = provider.owner
     val repo = provider.repository
-    implicit val session = provider.Db
 
     // Execute query
-    val query = getRepoIdQuery
-    val id = query.apply(owner, repo).firstOption
-
+    val id = getRepoIdQuery(owner, repo).firstOption
     if (!id.isDefined)
       throw new GHTorrentException(s"Could not find the $owner/$repo repository in the GHTorrent database")
 
     id.get
   }
 
-  def getCommitCount: Long = {
-    implicit val session = provider.Db
+  private def getCommitCount: Long =
+    getCommitCountQuery(repoId).firstOption.getOrElse(0).toLong
 
-    // Execute query
-    val query = getCommitCountQuery
-    val count = query.apply(repoId).list(session).head
-    count
-  }
-
-  def getRepoIdQuery: StaticQuery[(String, String), Int] = {
-    StaticQuery.query[(String, String), Int](
+  private lazy val getRepoIdQuery: Q[(String, String), Int] =
+    Q[(String, String), Int] +
       """SELECT
         |projects.id
         |FROM
@@ -45,16 +36,14 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
         |INNER JOIN users AS owners ON owners.id = projects.owner_id
         |WHERE
         |owners.login = ? AND
-        |projects.`name` = ?""".stripMargin)
-  }
+        |projects.`name` = ?""".stripMargin
 
-  def getCommitCountQuery: StaticQuery[Int, Int] = {
-    StaticQuery.query[Int, Int](
+  private lazy val getCommitCountQuery: Q[Int, Int] =
+    Q[Int, Int] +
       """SELECT
         |COUNT(project_commits.commit_id)
         |FROM
         |project_commits
         |WHERE
-        |project_commits.project_id = ?""".stripMargin)
-  }
+        |project_commits.project_id = ?""".stripMargin
 }
