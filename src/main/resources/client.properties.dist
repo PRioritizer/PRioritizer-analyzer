@@ -6,8 +6,11 @@ provider.PairwiseDecorators=cache-read,ghtorrent,github,jgit,cache-write
 
 # Settings
 settings.large=1000
-settings.pairs.skipLarge=true
+settings.pairs.skipLarge=false
 settings.pairs.skipDifferentTargets=true
+
+# Cache provider
+cache.Directory=/path/to/cache
 
 # GHTorrent provider
 ghtorrent.Host=localhost
@@ -15,8 +18,6 @@ ghtorrent.Port=3306
 ghtorrent.User=mysql-user
 ghtorrent.Password=mysql-password
 ghtorrent.Database=mysql-database
-ghtorrent.Owner=username
-ghtorrent.Repository=repository-name
 
 # GitHub provider
 github.Owner=username
