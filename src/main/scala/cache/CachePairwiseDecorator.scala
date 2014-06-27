@@ -15,6 +15,7 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
   lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
   implicit lazy val session = Db
   lazy val pairs = TableQuery[PairCache]
+  lazy val insertPair = pairs.insertInvoker
   lazy val getPairsByKey = for {
     (shaOne, shaTwo) <- Parameters[(String, String)]
     p <- pairs if p.shaOne === shaOne && p.shaTwo === shaTwo
@@ -45,7 +46,7 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
   }
 
   private def insert(pair: PullRequestPair): Unit = {
-    pairs.insertOrUpdate(CachedPullRequestPair(pair))
+    insertPair.insertOrUpdate(CachedPullRequestPair(pair))
   }
 
   def init(): Unit = {

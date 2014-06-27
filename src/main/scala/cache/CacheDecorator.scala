@@ -15,6 +15,7 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
   lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
   implicit lazy val session = Db
   lazy val pulls = TableQuery[PullRequestCache]
+  lazy val insertPull = pulls.insertInvoker
   lazy val getPullsByKey = for {
     sha <- Parameters[String]
     p <- pulls if p.sha === sha
@@ -44,7 +45,7 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
   }
 
   private def insert(pullRequest: PullRequest): Unit = {
-    pulls.insertOrUpdate(CachedPullRequest(pullRequest))
+    insertPull.insertOrUpdate(CachedPullRequest(pullRequest))
   }
 
   def init(): Unit = {
