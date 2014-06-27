@@ -36,7 +36,7 @@ object Settings {
 
     // Read properties file
     val path = Paths get resource.toURI
-    val reader = Files.newBufferedReader(path)
+    val reader = Files.newBufferedReader(path, java.nio.charset.StandardCharsets.UTF_8)
     val props = new Properties
     props.load(reader)
     props.asScala.toMap
