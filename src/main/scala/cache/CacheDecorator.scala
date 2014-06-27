@@ -13,7 +13,12 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
   val dbDriver = "org.sqlite.JDBC"
   lazy val dbUrl = s"jdbc:sqlite:${provider.defaultDbPath}"
   lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
+  implicit lazy val session = Db
   lazy val pulls = TableQuery[PullRequestCache]
+  lazy val getPullsByKey = for {
+    sha <- Parameters[String]
+    p <- pulls if p.sha === sha
+  } yield p
 
   init()
 
@@ -35,18 +40,14 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
   }
 
   private def get(pullRequest: PullRequest): Option[CachedPullRequest] = {
-    implicit val session = Db
-    pulls.filter(p => p.sha === pullRequest.sha).firstOption
+    getPullsByKey(pullRequest.sha).firstOption
   }
 
   private def insert(pullRequest: PullRequest): Unit = {
-    implicit val session = Db
     pulls.insertOrUpdate(CachedPullRequest(pullRequest))
   }
 
   def init(): Unit = {
-    implicit val session = Db
-
     // Create table
     if (MTable.getTables(PullRequestCache.tableName).list.isEmpty)
       pulls.ddl.create

@@ -13,7 +13,12 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
   val dbDriver = "org.sqlite.JDBC"
   lazy val dbUrl = s"jdbc:sqlite:${provider.defaultDbPath}"
   lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
+  implicit lazy val session = Db
   lazy val pairs = TableQuery[PairCache]
+  lazy val getPairsByKey = for {
+    (shaOne, shaTwo) <- Parameters[(String, String)]
+    p <- pairs if p.shaOne === shaOne && p.shaTwo === shaTwo
+  } yield p
 
   init()
 
@@ -35,22 +40,15 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
   }
 
   private def get(pair: PullRequestPair): Option[CachedPullRequestPair] = {
-    implicit val session = Db
     val key = CachedPullRequestPair(pair)
-
-    // Select
-    val query = pairs.filter(p => p.shaOne === key.shaOne && p.shaTwo === key.shaTwo)
-    query.firstOption
+    getPairsByKey(key.shaOne, key.shaTwo).firstOption
   }
 
   private def insert(pair: PullRequestPair): Unit = {
-    implicit val session = Db
     pairs.insertOrUpdate(CachedPullRequestPair(pair))
   }
 
   def init(): Unit = {
-    implicit val session = Db
-
     // Create table
     if (MTable.getTables(PairCache.tableName).list.isEmpty)
       pairs.ddl.create
