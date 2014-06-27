@@ -21,8 +21,8 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
   protected var _decorators: List[CacheDecorator] = List()
   protected var _pairwiseDecorators: List[CachePairwiseDecorator] = List()
 
-  override def repositoryProvider: Option[RepositoryProvider] = None
-  override def pullRequestProvider: Option[PullRequestProvider] = None
+  override val repositoryProvider: Option[RepositoryProvider] = None
+  override val pullRequestProvider: Option[PullRequestProvider] = None
 
   override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
     if (provider != null) {

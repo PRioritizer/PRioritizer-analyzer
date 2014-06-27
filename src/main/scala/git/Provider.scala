@@ -4,8 +4,8 @@ import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait Provider {
-  def repositoryProvider: Option[RepositoryProvider]
-  def pullRequestProvider: Option[PullRequestProvider]
+  val repositoryProvider: Option[RepositoryProvider]
+  val pullRequestProvider: Option[PullRequestProvider]
   def getDecorator(list: PullRequestList): PullRequestList
   def getPairwiseDecorator(list: PairwiseList): PairwiseList
 

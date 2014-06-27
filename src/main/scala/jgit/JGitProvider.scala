@@ -27,8 +27,8 @@ class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provi
   // Create git client
   lazy val git: Git = new Git(repository)
 
-  override def repositoryProvider: Option[RepositoryProvider] = None
-  override def pullRequestProvider: Option[PullRequestProvider] = None
+  override val repositoryProvider: Option[RepositoryProvider] = None
+  override val pullRequestProvider: Option[PullRequestProvider] = None
   override def getDecorator(list: PullRequestList): PullRequestList = new JGitDecorator(new JGitMerger(list, this), this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = new JGitPairwiseMerger(list, this)
 

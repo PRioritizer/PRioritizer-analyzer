@@ -13,8 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 class GitHubProvider(val owner: String, val repository: String, token: String) extends Provider {
 
-  override def repositoryProvider: Option[RepositoryProvider] = None
-  override def pullRequestProvider: Option[GitHubPullRequestProvider] = Some(new GitHubPullRequestProvider(this))
+  override val repositoryProvider: Option[RepositoryProvider] = None
+  override val pullRequestProvider: Option[GitHubPullRequestProvider] = Some(new GitHubPullRequestProvider(this))
   override def getDecorator(list: PullRequestList): PullRequestList = new GitHubDecorator(list, this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 

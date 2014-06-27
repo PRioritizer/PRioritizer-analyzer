@@ -25,8 +25,8 @@ class GHTorrentProvider(val host: String, val port: Int, val user: String, val p
   def owner = _owner
   def repository = _repository
 
-  override def repositoryProvider: Option[RepositoryProvider] = Some(new GHTorrentRepositoryProvider(this))
-  override def pullRequestProvider: Option[PullRequestProvider] = None
+  override val repositoryProvider: Option[RepositoryProvider] = Some(new GHTorrentRepositoryProvider(this))
+  override val pullRequestProvider: Option[PullRequestProvider] = None
   override def getDecorator(list: PullRequestList): PullRequestList = new GHTorrentDecorator(list, this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 
