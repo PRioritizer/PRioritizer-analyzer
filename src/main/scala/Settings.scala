@@ -1,13 +1,13 @@
+import java.io.{InputStreamReader, BufferedReader, FileNotFoundException}
 import java.util.Properties
 import scala.collection.JavaConverters._
-import java.nio.file._
 
 /**
  * Settings object that holds the client properties.
  */
 object Settings {
   val fileName = "client.properties"
-  val resource = getClass.getResource("/" + fileName)
+  val resource = getClass.getResourceAsStream("/" + fileName)
   val data = read
 
   /**
@@ -29,14 +29,12 @@ object Settings {
    * @return A map with the properties.
    */
   private def read: Map[String, String] = {
-    if (resource == null) {
-      throw new FileSystemNotFoundException(
+    if (resource == null)
+      throw new FileNotFoundException(
         s"The configuration file was not found. Please make sure you copied $fileName.dist to $fileName.")
-    }
 
     // Read properties file
-    val path = Paths get resource.toURI
-    val reader = Files.newBufferedReader(path, java.nio.charset.StandardCharsets.UTF_8)
+    val reader = new BufferedReader(new InputStreamReader(resource, java.nio.charset.StandardCharsets.UTF_8))
     val props = new Properties
     props.load(reader)
     props.readSystemOverride()
