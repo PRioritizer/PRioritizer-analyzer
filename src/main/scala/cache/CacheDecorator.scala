@@ -11,10 +11,7 @@ import cache.models.CachedPullRequest
  * @param provider The cache provider.
  */
 class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: CacheMode.CacheMode) extends PullRequestDecorator(base) {
-  val dbDriver = "org.sqlite.JDBC"
-  lazy val dbUrl = s"jdbc:sqlite:${provider.defaultDbPath}"
-  lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
-  implicit lazy val session = Db
+  implicit lazy val session = provider.Db
   lazy val insertPull = Tables.pullRequests.insertInvoker
   lazy val getPullsByKey = for {
     sha <- Parameters[String]
@@ -53,13 +50,5 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
     // Create table
     if (MTable.getTables(TableNames.pullRequests).list.isEmpty)
       Tables.pullRequests.ddl.create
-  }
-
-  def dispose(): Unit = {
-    try {
-      Db.close()
-    } catch {
-      case _ : Exception =>
-    }
   }
 }

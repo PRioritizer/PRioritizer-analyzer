@@ -4,15 +4,19 @@ import java.io.File
 import git._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.slick.driver.SQLiteDriver.simple._
 
 /**
  * A provider implementation for the disk cache.
  * @param cacheDirectory The path to the directory of the cache.
  */
 abstract class CacheProvider(cacheDirectory: String) extends Provider {
-  val defaultDbName = "cache.db"
+  val dbName = "cache.db"
+  val dbDriver = "org.sqlite.JDBC"
   lazy val cachePath = _cachePath
-  lazy val defaultDbPath = cachePath + java.io.File.separator + defaultDbName
+  lazy val dbPath = cachePath + java.io.File.separator + dbName
+  lazy val dbUrl = s"jdbc:sqlite:$dbPath"
+  lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
 
   protected var _owner: String = _
   protected var _repository: String = _
@@ -39,8 +43,11 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
   }
 
   override def dispose(): Unit = {
-    _decorators.foreach(_.dispose())
-    _pairwiseDecorators.foreach(_.dispose())
+    try {
+      Db.close()
+    } catch {
+      case _ : Exception =>
+    }
   }
 
   private def safeFileName(file: String): String = {

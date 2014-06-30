@@ -11,10 +11,7 @@ import cache.models.CachedPullRequestPair
  * @param provider The JGit provider.
  */
 class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: CacheMode.CacheMode) extends PairwiseDecorator(base) {
-  val dbDriver = "org.sqlite.JDBC"
-  lazy val dbUrl = s"jdbc:sqlite:${provider.defaultDbPath}"
-  lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
-  implicit lazy val session = Db
+  implicit lazy val session = provider.Db
   lazy val insertPair = Tables.pairs.insertInvoker
   lazy val getPairsByKey = for {
     (shaOne, shaTwo) <- Parameters[(String, String)]
@@ -55,13 +52,5 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
     // Create table
     if (MTable.getTables(TableNames.pairs).list.isEmpty)
       Tables.pairs.ddl.create
-  }
-
-  def dispose(): Unit = {
-    try {
-      Db.close()
-    } catch {
-      case _ : Exception =>
-    }
   }
 }
