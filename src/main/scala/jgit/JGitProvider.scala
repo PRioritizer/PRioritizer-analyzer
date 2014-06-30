@@ -1,7 +1,7 @@
 package jgit
 
 import git._
-import java.io.File
+import java.io.{FileNotFoundException, File}
 import jgit.JGitProvider._
 import jgit.JGitExtensions._
 import org.eclipse.jgit.lib.{TextProgressMonitor, ConfigConstants}
@@ -18,7 +18,11 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provider {
   val remote = "pulls"
   val dotGit = ".git"
-  val gitDir = if (repoDirectory.endsWith(dotGit)) repoDirectory else repoDirectory + File.separator + dotGit
+  val gitDir = if (repoDirectory != null && repoDirectory.endsWith(dotGit)) repoDirectory else repoDirectory + File.separator + dotGit
+
+  if (repoDirectory == null || repoDirectory == "" || !new File(gitDir).isDirectory)
+    throw new FileNotFoundException(s"Repository directory '$repoDirectory' not found.")
+
   lazy val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
     .readEnvironment // scan environment GIT_* variables
     .findGitDir // scan the file system tree
