@@ -14,12 +14,14 @@ object Analyze {
   def main(args: Array[String]): Unit = {
     var loader: Provider = null
     val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
+    val outputDir = Settings.get("settings.output.Directory").get
 
     try {
       timer.start()
       logger info s"Setup providers..."
       loader = new ProviderLoader
-      val simplePulls = new ProviderToList(loader.pullRequestProvider.orNull)
+      val prProvider = loader.pullRequestProvider.orNull
+      val simplePulls = new ProviderToList(prProvider)
       logger info s"Setup done"
       timer.logLap()
 
@@ -63,7 +65,7 @@ object Analyze {
 
       // Output pull requests
       val unpairedPullRequests = Pairwise.unpair(pairs)
-      JsonWriter.writePullRequests("pull-requests.json", loader, unpairedPullRequests)
+      JsonWriter.writePullRequests(outputDir, loader, unpairedPullRequests)
     } finally {
       if (loader != null)
         loader.dispose()

@@ -6,6 +6,7 @@ provider.PairwiseDecorators=cache-read,ghtorrent,github,jgit,cache-write
 
 # Settings
 settings.pairs.skipDifferentTargets=true
+settings.output.Directory=/path/to/output
 
 # Cache provider
 cache.Directory=/path/to/cache

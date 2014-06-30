@@ -5,6 +5,7 @@ import git._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.slick.driver.SQLiteDriver.simple._
+import utils.Extensions._
 
 /**
  * A provider implementation for the disk cache.
@@ -34,8 +35,8 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
       _repository = provider.repository
     }
 
-    val ownerDir = safeFileName(_owner)
-    val repoDir = safeFileName(_repository)
+    val ownerDir = _owner.safeFileName
+    val repoDir = _repository.safeFileName
     val file: File = new File(new File(cacheDirectory, ownerDir), repoDir)
     file.mkdirs()
 
@@ -49,12 +50,4 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
       case _ : Exception =>
     }
   }
-
-  private def safeFileName(file: String): String = {
-    val safe = file.replaceAll("[\\\\/:*?\"<>|]+", "-")
-    trim(safe, List(' ', '-'))
-  }
-
-  private def trim(str: String, chars: List[Char]): String =
-    str.dropWhile(c => chars.contains(c)).reverse.dropWhile(c => chars.contains(c)).reverse
 }
