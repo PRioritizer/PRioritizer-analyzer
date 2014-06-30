@@ -39,6 +39,19 @@ object Settings {
     val reader = Files.newBufferedReader(path, java.nio.charset.StandardCharsets.UTF_8)
     val props = new Properties
     props.load(reader)
+    props.readSystemOverride()
     props.asScala.toMap
+  }
+
+  implicit class RichProperties(properties: Properties) {
+    def readSystemOverride(): Unit = {
+      val keys = properties.keySet().asScala.collect({ case str: String => str })
+
+      keys.foreach(key => {
+        val propOverride = System.getProperty(key)
+        if (propOverride != null)
+          properties.put(key, propOverride)
+      })
+    }
   }
 }
