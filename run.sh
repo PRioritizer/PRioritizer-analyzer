@@ -1,8 +1,16 @@
 #!/bin/sh
 
+JAR="target/scala-2.11/analyzer-assembly-1.0.jar"
+
 OWNER=$1
 REPOSITORY=$2
 GIT_LOCATION=$3
+
+if ! [ -f "$JAR" ]; then
+  echo "JAR file does not exist." >&2
+  echo "Make sure you run \`sbt assembly\` to build the JAR executable." >&2
+  exit 1
+fi
 
 if [ "$#" -ne 3 ]; then
   echo "Wrong number of arguments, expected 3 arguments." >&2
@@ -23,4 +31,4 @@ if ! [ -d "$GIT_LOCATION" ]; then
 fi
 
 JAVA_OPTS="-Dfile.encoding=UTF8 -Dgithub.Owner=$OWNER -Dgithub.Repository=$REPOSITORY -Djgit.Directory=$GIT_LOCATION"
-sbt run $JAVA_OPTS
+java $JAVA_OPTS -jar $JAR

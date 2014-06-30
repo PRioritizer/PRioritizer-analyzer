@@ -1,31 +1,42 @@
 @echo off
+SETLOCAL
 
-set OWNER=%1
-set REPOSITORY=%2
-set GIT_LOCATION=%3
+SET JAR=target\scala-2.11\analyzer-assembly-1.0.jar
+FOR %%i in (%*) DO SET /A _argcActual+=1
 
-IF "%3"=="" GOTO InvalidArgs
-IF NOT "%4"=="" GOTO InvalidArgs
+SET OWNER=%1
+SET REPOSITORY=%2
+SET GIT_LOCATION=%3
+
+IF NOT EXIST %JAR% GOTO JarNotFound
+IF NOT %_argcActual%==3 GOTO InvalidArgs
 IF NOT %OWNER: =%==%OWNER% GOTO Whitespace
 IF NOT %REPOSITORY: =%==%REPOSITORY% GOTO Whitespace
 IF NOT %GIT_LOCATION: =%==%GIT_LOCATION% GOTO Whitespace
 IF NOT EXIST %GIT_LOCATION% GOTO DirNotFound
 GOTO ValidArgs
 
+:JarNotFound
+ECHO JAR file does not exist.
+ECHO Make sure you run `sbt assembly` to build the JAR executable.
+GOTO end
+
 :InvalidArgs
-echo Wrong number of arguments, expected 3 arguments.
-echo Usage: %0 owner_name repository_name git_location
-goto end
+ECHO Wrong number of arguments, expected 3 arguments.
+ECHO Usage: %0 owner_name repository_name git_location
+GOTO end
 
 :DirNotFound
-echo Git repository does not exist.
-goto end
+ECHO Git repository does not exist.
+GOTO end
 
 :Whitespace
-echo Whitespace is not supported.
-goto end
+ECHO Whitespace is not supported.
+GOTO end
 
 :ValidArgs
-set JAVA_OPTS=-Dfile.encoding=UTF8 -Dgithub.Owner="%OWNER%" -Dgithub.Repository="%REPOSITORY%" -Djgit.Directory="%GIT_LOCATION%"
-sbt run
+SET PROPS=-Dfile.encoding=UTF8 -Dgithub.Owner=%OWNER% -Dgithub.Repository=%REPOSITORY% -Djgit.Directory=%GIT_LOCATION%
+java %PROPS% -jar %JAR%
 :end
+
+ENDLOCAL
