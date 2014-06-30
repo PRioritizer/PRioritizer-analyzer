@@ -3,7 +3,8 @@ package cache
 import git._
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.jdbc.meta.MTable
-import cache.CacheSchema.PairCache
+import cache.CacheSchema.{Tables, TableNames}
+import cache.models.CachedPullRequestPair
 
 /**
  * An info getter implementation for the JGit library.
@@ -14,11 +15,12 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
   lazy val dbUrl = s"jdbc:sqlite:${provider.defaultDbPath}"
   lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
   implicit lazy val session = Db
-  lazy val pairs = TableQuery[PairCache]
-  lazy val insertPair = pairs.insertInvoker
+  lazy val insertPair = Tables.pairs.insertInvoker
   lazy val getPairsByKey = for {
     (shaOne, shaTwo) <- Parameters[(String, String)]
-    p <- pairs if p.shaOne === shaOne && p.shaTwo === shaTwo
+    p <- Tables.pairs
+    if p.shaOne === shaOne
+    if p.shaTwo === shaTwo
   } yield p
 
   init()
@@ -51,8 +53,8 @@ class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: 
 
   def init(): Unit = {
     // Create table
-    if (MTable.getTables(PairCache.tableName).list.isEmpty)
-      pairs.ddl.create
+    if (MTable.getTables(TableNames.pairs).list.isEmpty)
+      Tables.pairs.ddl.create
   }
 
   def dispose(): Unit = {

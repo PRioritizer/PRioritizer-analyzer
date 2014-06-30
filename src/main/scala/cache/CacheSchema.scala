@@ -1,11 +1,22 @@
 package cache
 
+import cache.models.{CachedPullRequestPair, CachedPullRequest}
+
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.lifted.ProvenShape._
 
 object CacheSchema {
-  // Table definition
-  class PairCache(tag: Tag) extends Table[CachedPullRequestPair](tag, PairCache.tableName) {
+  object Tables {
+    lazy val pairs = TableQuery[PairCache]
+    lazy val pullRequests = TableQuery[PullRequestCache]
+  }
+
+  object TableNames {
+    val pairs = "pair_cache"
+    val pullRequests = "pr_cache"
+  }
+
+  class PairCache(tag: Tag) extends Table[CachedPullRequestPair](tag, TableNames.pairs) {
     def shaOne = column[String]("sha_one")
     def shaTwo = column[String]("sha_two")
     def isMergeable = column[Boolean]("is_mergeable")
@@ -15,8 +26,7 @@ object CacheSchema {
     def pk = primaryKey("sha", (shaOne, shaTwo))
   }
 
-  // Table definition
-  class PullRequestCache(tag: Tag) extends Table[CachedPullRequest](tag, PullRequestCache.tableName) {
+  class PullRequestCache(tag: Tag) extends Table[CachedPullRequest](tag, TableNames.pullRequests) {
     def sha = column[String]("sha", O.PrimaryKey)
     def isMergeable = column[Boolean]("is_mergeable")
     def linesAdded = column[Long]("lines_added")
@@ -25,13 +35,5 @@ object CacheSchema {
     def commits = column[Long]("commits")
 
     def * = (sha, isMergeable, linesAdded, linesDeleted, filesChanged, commits) <> (CachedPullRequest.tupled, CachedPullRequest.unapply)
-  }
-
-  object PairCache {
-    val tableName = "pair_cache"
-  }
-
-  object PullRequestCache {
-    val tableName = "pr_cache"
   }
 }

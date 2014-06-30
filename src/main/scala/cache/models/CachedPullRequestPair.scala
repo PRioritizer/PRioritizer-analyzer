@@ -1,4 +1,4 @@
-package cache
+package cache.models
 
 import git.PullRequestPair
 

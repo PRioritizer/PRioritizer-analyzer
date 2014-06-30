@@ -3,7 +3,8 @@ package cache
 import git._
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.jdbc.meta.MTable
-import cache.CacheSchema.PullRequestCache
+import cache.CacheSchema.{Tables, TableNames}
+import cache.models.CachedPullRequest
 
 /**
  * An info getter implementation that read/writes from the cache.
@@ -14,11 +15,11 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
   lazy val dbUrl = s"jdbc:sqlite:${provider.defaultDbPath}"
   lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
   implicit lazy val session = Db
-  lazy val pulls = TableQuery[PullRequestCache]
-  lazy val insertPull = pulls.insertInvoker
+  lazy val insertPull = Tables.pullRequests.insertInvoker
   lazy val getPullsByKey = for {
     sha <- Parameters[String]
-    p <- pulls if p.sha === sha
+    p <- Tables.pullRequests
+    if p.sha === sha
   } yield p
 
   init()
@@ -50,8 +51,8 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: C
 
   def init(): Unit = {
     // Create table
-    if (MTable.getTables(PullRequestCache.tableName).list.isEmpty)
-      pulls.ddl.create
+    if (MTable.getTables(TableNames.pullRequests).list.isEmpty)
+      Tables.pullRequests.ddl.create
   }
 
   def dispose(): Unit = {
