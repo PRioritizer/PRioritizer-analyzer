@@ -20,6 +20,6 @@ set OWNER=%1
 set REPOSITORY=%2
 set GIT_LOCATION=%3
 
-set JAVA_OPTS=-Dgithub.Owner="%OWNER%" -Dgithub.Repository="%REPOSITORY%" -Djgit.Directory="%GIT_LOCATION%"
+set JAVA_OPTS=-Dfile.encoding=UTF8 -Dgithub.Owner="%OWNER%" -Dgithub.Repository="%REPOSITORY%" -Djgit.Directory="%GIT_LOCATION%"
 sbt run
 :end

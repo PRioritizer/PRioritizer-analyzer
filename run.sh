@@ -16,5 +16,5 @@ OWNER=$1
 REPOSITORY=$2
 GIT_LOCATION=$3
 
-JAVA_OPTS="-Dgithub.Owner=\"$OWNER\" -Dgithub.Repository=\"$REPOSITORY\" -Djgit.Directory=\"$GIT_LOCATION\""
+JAVA_OPTS="-Dfile.encoding=UTF8 -Dgithub.Owner=\"$OWNER\" -Dgithub.Repository=\"$REPOSITORY\" -Djgit.Directory=\"$GIT_LOCATION\""
 sbt run
