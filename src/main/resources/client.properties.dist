@@ -5,8 +5,6 @@ provider.SingleDecorators=cache-read,ghtorrent,github,jgit,cache-write
 provider.PairwiseDecorators=cache-read,ghtorrent,github,jgit,cache-write
 
 # Settings
-settings.large=1000
-settings.pairs.skipLarge=false
 settings.pairs.skipDifferentTargets=true
 
 # Cache provider

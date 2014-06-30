@@ -48,12 +48,10 @@ object Analyze {
       logger info s"Enriching done"
       timer.logLap()
 
-      val largePullRequests = getLargePullRequests(pullRequests)
-      val simplePairs = new Pairwise(pullRequests.diff(largePullRequests), skipDifferentTargets)
+      val simplePairs = new Pairwise(pullRequests, skipDifferentTargets)
       val pairDecorator: PairwiseList = loader.getPairwiseDecorator(simplePairs)
 
       logger info s"Pairwise merging PRs... (${simplePairs.length})"
-      logger info s"Skip too large pairs (${largePullRequests.length})"
       val decorationOfPairs = pairDecorator.get
       monitor.total = simplePairs.length
       attachMonitor(decorationOfPairs, monitor)
@@ -70,16 +68,6 @@ object Analyze {
       if (loader != null)
         loader.dispose()
     }
-  }
-
-  def getLargePullRequests(pullRequests: List[PullRequest]): List[PullRequest] = {
-    val large = Settings.get("settings.large").get.toInt
-    val skipLarge = Settings.get("settings.pairs.skipLarge").get.toBoolean
-
-    if (skipLarge)
-      pullRequests filter {pr => pr.linesTotal > large}
-    else
-      List()
   }
 
   def attachMonitor[T](futures: List[Future[T]], monitor: ProgressMonitor): Unit = {
