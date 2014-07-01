@@ -3,13 +3,18 @@ package utils
 import org.slf4j.LoggerFactory
 
 class ProgressMonitor {
-  var total = 0L
-  private var current = 0L
-
   val interval = 1000 // milliseconds
 
+  private var total = 0L
+  private var current = 0L
   private val logger = LoggerFactory.getLogger(this.getClass)
   private var lastTime = 0L
+
+  def setTotal(value: Long): Unit = {
+    this.synchronized {
+      total = value
+    }
+  }
 
   def reportProgress(value: Long): Unit = {
     this.synchronized {

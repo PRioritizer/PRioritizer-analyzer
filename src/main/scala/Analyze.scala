@@ -42,7 +42,7 @@ object Analyze {
       logger info s"Merging PRs... (${simplePulls.length})"
       val pullDecorator: PullRequestList = loader.getDecorator(simplePulls)
       val decorationOfPulls = pullDecorator.get
-      monitor.total = simplePulls.length
+      monitor.setTotal(simplePulls.length)
       attachMonitor(decorationOfPulls, monitor)
 
       // Wait for enrichment to complete
@@ -55,7 +55,7 @@ object Analyze {
 
       logger info s"Pairwise merging PRs... (${simplePairs.length})"
       val decorationOfPairs = pairDecorator.get
-      monitor.total = simplePairs.length
+      monitor.setTotal(simplePairs.length)
       attachMonitor(decorationOfPairs, monitor)
 
       // Wait for merges to complete
