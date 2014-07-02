@@ -43,7 +43,7 @@ object Analyze {
       val pullDecorator: PullRequestList = loader.getDecorator(simplePulls)
       val decorationOfPulls = pullDecorator.get
       monitor.setTotal(simplePulls.length)
-      attachMonitor(decorationOfPulls, monitor)
+      monitor.incrementWhen(decorationOfPulls)
 
       // Wait for enrichment to complete
       val pullRequests = Await.result(Future.sequence(decorationOfPulls), Duration.Inf)
@@ -55,8 +55,9 @@ object Analyze {
 
       logger info s"Pairwise merging PRs... (${simplePairs.length})"
       val decorationOfPairs = pairDecorator.get
+      monitor.reset()
       monitor.setTotal(simplePairs.length)
-      attachMonitor(decorationOfPairs, monitor)
+      monitor.incrementWhen(decorationOfPairs)
 
       // Wait for merges to complete
       val pairs = Await.result(Future.sequence(decorationOfPairs), Duration.Inf)
@@ -69,17 +70,6 @@ object Analyze {
     } finally {
       if (loader != null)
         loader.dispose()
-    }
-  }
-
-  def attachMonitor[T](futures: List[Future[T]], monitor: ProgressMonitor): Unit = {
-    if (monitor == null)
-      return
-
-    futures.foreach { f =>
-      f.onComplete {
-        case _ => monitor.increment()
-      }
     }
   }
 }
