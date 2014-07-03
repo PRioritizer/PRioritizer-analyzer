@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
-JAR="target/scala-2.11/analyzer-assembly-1.0.jar"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+JAR="$DIR/target/scala-2.11/analyzer-assembly-1.0.jar"
 
 OWNER=$1
 REPOSITORY=$2
-GIT_LOCATION=$3
+GIT_LOCATION=$(readlink -f "$3")
 
 if ! [ -f "$JAR" ]; then
   echo "JAR file does not exist." >&2

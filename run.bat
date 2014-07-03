@@ -1,12 +1,14 @@
 @echo off
 SETLOCAL
 
-SET JAR=target\scala-2.11\analyzer-assembly-1.0.jar
+SET D=%~dp0
+SET JAR=%D%\target\scala-2.11\analyzer-assembly-1.0.jar
+SET _argcActual=0
 FOR %%i in (%*) DO SET /A _argcActual+=1
 
 SET OWNER=%1
 SET REPOSITORY=%2
-SET GIT_LOCATION=%3
+SET GIT_LOCATION=%~f3
 
 IF NOT EXIST %JAR% GOTO JarNotFound
 IF NOT %_argcActual%==3 GOTO InvalidArgs
