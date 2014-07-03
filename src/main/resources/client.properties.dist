@@ -1,28 +1,28 @@
-# Providers
-provider.RepositoryProvider=ghtorrent|github|jgit
-provider.PullRequestProvider=ghtorrent|github|jgit
-provider.SingleDecorators=cache-read,ghtorrent,github,jgit,cache-write
-provider.PairwiseDecorators=cache-read,ghtorrent,github,jgit,cache-write
+# Providers / decorators
+provider.repository=ghtorrent|github|jgit
+provider.requests=ghtorrent|github|jgit
+decorators.single=cache-read,ghtorrent,github,jgit,cache-write
+decorators.pairwise=cache-read,ghtorrent,github,jgit,cache-write
 
-# Settings
-settings.pairs.skipDifferentTargets=true
-settings.output.Directory=/path/to/output
+# General
+pairs.targets.equal=true
+output.directory=/path/to/output
 
 # Cache provider
-cache.Directory=/path/to/cache
+cache.directory=/path/to/cache
 
 # GHTorrent provider
-ghtorrent.Host=localhost
-ghtorrent.Port=3306
-ghtorrent.User=mysql-user
-ghtorrent.Password=mysql-password
-ghtorrent.Database=mysql-database
+ghtorrent.host=localhost
+ghtorrent.port=3306
+ghtorrent.user=mysql-user
+ghtorrent.password=mysql-password
+ghtorrent.database=mysql-database
 
 # GitHub provider
-github.Owner=username
-github.Repository=repository-name
-github.PersonalAccessToken=123456789abcdef
+github.owner=username
+github.repository=repository-name
+github.token=123456789abcdef
 
 # JGit provider
-jgit.Directory=/path/to/local/git/repo
-jgit.Clean=true
+jgit.directory=/path/to/local/git/repo
+jgit.clean=true

@@ -13,8 +13,8 @@ object Analyze {
 
   def main(args: Array[String]): Unit = {
     var loader: Provider = null
-    val skipDifferentTargets = Settings.get("settings.pairs.skipDifferentTargets").get.toBoolean
-    val outputDir = Settings.get("settings.output.Directory").get
+    val skipDifferentTargets = Settings.get("pairs.targets.equal").get.toBoolean
+    val outputDir = Settings.get("output.directory").get
 
     try {
       timer.start()

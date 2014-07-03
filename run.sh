@@ -30,5 +30,5 @@ if ! [ -d "$GIT_LOCATION" ]; then
   exit 1
 fi
 
-JAVA_OPTS="-Dfile.encoding=UTF8 -Dgithub.Owner=$OWNER -Dgithub.Repository=$REPOSITORY -Djgit.Directory=$GIT_LOCATION"
+JAVA_OPTS="-Dfile.encoding=UTF8 -Dgithub.owner=$OWNER -Dgithub.repository=$REPOSITORY -Djgit.directory=$GIT_LOCATION"
 java $JAVA_OPTS -jar $JAR
