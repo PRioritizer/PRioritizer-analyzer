@@ -21,6 +21,7 @@ project/plugins/project/
 
 # User properties
 client.properties
+simplelogger.properties
 
 # Output
 *.json
