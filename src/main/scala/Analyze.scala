@@ -3,22 +3,21 @@ import org.slf4j.LoggerFactory
 import output.JsonWriter
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
-import utils.{ProgressMonitor, Stopwatch}
+import utils.ProgressMonitor
+import utils.Extensions._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Analyze {
-  val intervalType = Settings.get("monitor.interval.type").get
-  val intervalValue = Settings.get("monitor.interval.value").get.toInt
-  val monitor = new ProgressMonitor(intervalType, intervalValue)
   val logger = LoggerFactory.getLogger("Analyzer")
 
   def main(args: Array[String]): Unit = {
     var loader: Provider = null
-    val skipDifferentTargets = Settings.get("pairs.targets.equal").get.toBoolean
-    val outputDir = Settings.get("output.directory").get
 
     try {
       loader = new ProviderLoader
+      val monitor = newMonitor
+      val skipDifferentTargets = Settings.get("pairs.targets.equal").get.toBoolean
+      val outputDir = Settings.get("output.directory").get
       val prProvider = loader.pullRequestProvider.orNull
       val simplePulls = new ProviderToList(prProvider)
       logger info s"Setup - Done"
@@ -58,9 +57,20 @@ object Analyze {
       val unpairedPullRequests = Pairwise.unpair(pairs)
       JsonWriter.writePullRequests(outputDir, loader, unpairedPullRequests)
       logger info s"Output - Done"
+    } catch {
+      case e: Exception =>
+        logger error s"Error - ${e.getMessage}"
+        logger error s"Stace trace - Begin\n${e.stackTraceToString}"
+        logger error s"Stace trace - End"
     } finally {
       if (loader != null)
         loader.dispose()
     }
+  }
+
+  def newMonitor: ProgressMonitor = {
+    val intervalType = Settings.get("monitor.interval.type").get
+    val intervalValue = Settings.get("monitor.interval.value").get.toInt
+    new ProgressMonitor(intervalType, intervalValue)
   }
 }

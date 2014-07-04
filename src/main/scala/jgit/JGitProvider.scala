@@ -20,8 +20,9 @@ class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provi
   val dotGit = ".git"
   val gitDir = if (repoDirectory != null && repoDirectory.endsWith(dotGit)) repoDirectory else repoDirectory + File.separator + dotGit
 
-  if (repoDirectory == null || repoDirectory == "" || !new File(gitDir).isDirectory)
-    throw new FileNotFoundException(s"Repository directory '$repoDirectory' not found.")
+  // Check if directory exists
+  if (gitDir == null || gitDir == "" || !new File(gitDir).isDirectory)
+    throw new FileNotFoundException(s"Repository directory $repoDirectory not found.")
 
   lazy val repository = new FileRepositoryBuilder().setGitDir(new File(gitDir))
     .readEnvironment // scan environment GIT_* variables

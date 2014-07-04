@@ -19,8 +19,6 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
   lazy val dbUrl = s"jdbc:sqlite:$dbPath"
   lazy val Db = Database.forURL(dbUrl, driver = dbDriver).createSession()
 
-  protected var _owner: String = _
-  protected var _repository: String = _
   protected var _cachePath: String = _
 
   protected var _decorators: List[CacheDecorator] = List()
@@ -30,13 +28,11 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
   override val pullRequestProvider: Option[PullRequestProvider] = None
 
   override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
-    if (provider != null) {
-      _owner = provider.owner
-      _repository = provider.repository
-    }
+    if (provider == null)
+      throw new IllegalArgumentException("Need a pull request provider to initialize other providers.")
 
-    val ownerDir = _owner.safeFileName
-    val repoDir = _repository.safeFileName
+    val ownerDir = provider.owner.safeFileName
+    val repoDir = provider.repository.safeFileName
     val file: File = new File(new File(cacheDirectory, ownerDir), repoDir)
     file.mkdirs()
 

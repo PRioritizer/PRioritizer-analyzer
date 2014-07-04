@@ -13,9 +13,9 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
   lazy val owner = provider.owner
   lazy val repository = provider.repository
 
-  override val https: String = s"https://$host/$owner/$repository.git"
+  override lazy val https: String = s"https://$host/$owner/$repository.git"
 
-  override val ssh: String = s"git@$host:$owner/$repository.git"
+  override lazy val ssh: String = s"git@$host:$owner/$repository.git"
 
   override val remotePullHeads: String = "refs/pull/*/head"
 

@@ -47,7 +47,7 @@ class ProgressMonitor(intervalType: String = "percentage", intervalValue: Int = 
       return
 
     if (total > 0)
-      logger info f"$percentage%3d%% ($current/$total)"
+      logger info f"$percentage%% ($current/$total)"
     else
       logger info s"$current"
 
