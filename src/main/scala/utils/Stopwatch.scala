@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory
  */
 class Stopwatch {
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
+  private val logger = LoggerFactory.getLogger("Stopwatch")
   private var startTime = -1L
   private var lapTime = -1L
   private var stopTime = -1L

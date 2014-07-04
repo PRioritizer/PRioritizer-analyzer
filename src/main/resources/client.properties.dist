@@ -7,6 +7,8 @@ decorators.pairwise=cache-read,ghtorrent,github,jgit,cache-write
 # General
 pairs.targets.equal=true
 output.directory=/path/to/output
+monitor.interval.type=time|percentage|absolute
+monitor.interval.value=10
 
 # Cache provider
 cache.directory=/path/to/cache

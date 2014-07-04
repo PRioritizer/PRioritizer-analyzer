@@ -4,19 +4,17 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import org.slf4j.LoggerFactory
 import scala.concurrent.Future
 
-class ProgressMonitor {
-  val interval = 1000 // milliseconds
-
-  private val logger = LoggerFactory.getLogger(this.getClass)
+class ProgressMonitor(intervalType: String = "percentage", intervalValue: Int = 10) {
+  private val logger = LoggerFactory.getLogger("Progress")
 
   private var total = 0L
   private var current = 0L
-  private var lastTime = 0L
+  private var lastInterval = 0L
 
   def reset(): Unit = this.synchronized {
     total = 0L
     current = 0L
-    lastTime = 0L
+    lastInterval = 0L
   }
 
   def setTotal(value: Long): Unit = this.synchronized {
@@ -49,14 +47,25 @@ class ProgressMonitor {
       return
 
     if (total > 0)
-      logger info f"${current*100/total}%3d%% ($current/$total)"
+      logger info f"$percentage%3d%% ($current/$total)"
     else
       logger info s"$current"
 
-    lastTime = System.currentTimeMillis
+    lastInterval = currentInterval
   }
 
-  private def mayUpdate: Boolean = {
-    lastTime + interval < System.currentTimeMillis
+  private def percentage = (current*100/total).toInt
+
+  private def currentInterval: Long = intervalType match {
+    case "time" => System.currentTimeMillis
+    case "percentage" => percentage
+    case _ => 0L
+  }
+
+  private def mayUpdate: Boolean = intervalType match {
+    case "time" => System.currentTimeMillis - lastInterval >= intervalValue
+    case "percentage" => percentage - lastInterval >= intervalValue
+    case "absolute" => current % intervalValue == 0
+    case _ => false
   }
 }

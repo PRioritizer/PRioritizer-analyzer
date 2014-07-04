@@ -5,19 +5,20 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 
 class ProviderToList(provider: PullRequestProvider) extends PullRequestList {
-  private var list: List[PullRequest] = _
-  def length = list.length
+  private var _list: List[PullRequest] = _
+  def length = _list.length
+  def list = _list
 
   override def get: List[Future[PullRequest]] = {
-    if (list == null) {
+    if (_list == null) {
       throw new Exception("List not initialized. Call init() before using.")
     }
 
-    list map { pr => Future {pr} }
+    _list map { pr => Future {pr} }
   }
 
   def init(): Future[List[PullRequest]] = Future {
-    list = Await.result(provider.get, Duration.Inf)
-    list
+    _list = Await.result(provider.get, Duration.Inf)
+    _list
   }
 }
