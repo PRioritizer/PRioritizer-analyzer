@@ -1,8 +1,11 @@
 @echo off
 SETLOCAL
 
+SET NAME=analyzer
+SET VERSION=1.0
+SET SCALA_VERSION=2.11
 SET D=%~dp0
-SET JAR=%D%\target\scala-2.11\analyzer-assembly-1.0.jar
+SET JAR=%D%\target\scala-%SCALA_VERSION%\%NAME%-assembly-%VERSION%.jar
 SET _argcActual=0
 FOR %%i in (%*) DO SET /A _argcActual+=1
 
