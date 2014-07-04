@@ -12,7 +12,7 @@ object Extensions {
       str.dropWhile(c => chars.contains(c)).reverse.dropWhile(c => chars.contains(c)).reverse
   }
 
-  implicit class EnrichException(ex: Exception) {
+  implicit class EnrichException(ex: Throwable) {
     def stackTraceToString: String = {
       val output = new ByteArrayOutputStream()
       val stream = new PrintStream(output)
