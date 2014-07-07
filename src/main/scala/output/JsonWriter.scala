@@ -42,13 +42,14 @@ object JsonWriter {
   }
 
   private def getFileMap(dir: File): Array[Map[String, String]] = {
-    val jsonFilter = (file: File) => file.getName.endsWith(".json")
+    val ext = ".json"
+    val jsonFilter = (file: File) => file.getName.endsWith(ext)
     val dirs = dir.listFiles.filter(_.isDirectory)
     val owners = dirs.map(o => new {
       var name = o.getName
-      var repos = o.listFiles.filter(jsonFilter).map(f => f.getName)
+      var repos = o.listFiles.filter(jsonFilter).map(f => f.getName.dropRight(ext.length))
     })
-    owners.flatMap(owner => owner.repos.map(r => Map("owner" -> owner.name, "repo" -> r)))
+    owners.flatMap(owner => owner.repos.map(r => Map("owner" -> owner.name, "repo" -> r, "file" -> s"${owner.name}/$r$ext")))
   }
 
   private def getFile(dir: String, provider: PullRequestProvider): File = {
