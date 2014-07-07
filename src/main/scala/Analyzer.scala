@@ -7,7 +7,7 @@ import utils.ProgressMonitor
 import utils.Extensions._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object Analyze {
+object Analyzer {
   val logger = LoggerFactory.getLogger("Analyzer")
 
   def main(args: Array[String]): Unit = {
