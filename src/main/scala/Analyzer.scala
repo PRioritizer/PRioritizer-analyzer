@@ -18,6 +18,7 @@ object Analyzer {
       val monitor = newMonitor
       val skipDifferentTargets = Settings.get("pairs.targets.equal").get.toBoolean
       val outputDir = Settings.get("output.directory").get
+      val outputIndex = Settings.get("output.index").get.toBoolean
       val prProvider = loader.pullRequestProvider.orNull
       val simplePulls = new ProviderToList(prProvider)
       logger info s"Setup - Done"
@@ -56,6 +57,8 @@ object Analyzer {
       // Output pull requests
       val unpairedPullRequests = Pairwise.unpair(pairs)
       JsonWriter.writePullRequests(outputDir, loader, unpairedPullRequests)
+      if (outputIndex)
+        JsonWriter.writeIndex(outputDir)
       logger info s"Output - Done"
     } catch {
       case e: Exception =>
