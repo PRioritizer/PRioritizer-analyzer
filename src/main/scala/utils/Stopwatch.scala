@@ -64,31 +64,31 @@ class Stopwatch {
 
   def print() = println(toString)
 
-  def log() = logger info toString
+  def printLap() = println(toLapString)
 
   def printMinutes() = println(toStringInMinutes)
 
+  def printLapMinutes() = println(toLapStringInMinutes)
+
+  def log() = logger info toString
+
+  def logLap() = logger info toLapString
+
   def logMinutes() = logger info toStringInMinutes
 
-  def printLap() = {
-    print()
-    printMinutes()
-    lap()
-  }
+  def logLapMinutes() = logger info toLapStringInMinutes
 
-  def logLap() = {
-    log()
-    logMinutes()
-    lap()
-  }
+  override def toString: String = f"Total: $getElapsedTime%6d ms"
 
-  override def toString: String = f"Lap: $getLapTime%6d ms Total: $getElapsedTime%6d ms"
+  def toLapString: String = f"Lap: $getLapTime%6d ms $toString"
+
+  def toStringInMinutes: String = f"Total: ${msToMin(getElapsedTime)}s"
+
+  def toLapStringInMinutes: String = f"Lap: ${msToMin(getLapTime)}s $toStringInMinutes"
 
   private def msToMin(milliseconds: Long): String = {
     val minutes = milliseconds / 60000
     val seconds = (milliseconds % 60000) / 1000
     f"$minutes:$seconds%02d"
   }
-
-  def toStringInMinutes: String = f"Lap: ${msToMin(getLapTime)}%6s    Total: ${msToMin(getElapsedTime)}%6s"
 }

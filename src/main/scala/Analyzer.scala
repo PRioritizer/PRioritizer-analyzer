@@ -3,17 +3,19 @@ import org.slf4j.LoggerFactory
 import output.JsonWriter
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
-import utils.ProgressMonitor
+import utils.{Stopwatch, ProgressMonitor}
 import utils.Extensions._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object Analyzer {
   val logger = LoggerFactory.getLogger("Analyzer")
+  val stopwatch = new Stopwatch
 
   def main(args: Array[String]): Unit = {
     var loader: Provider = null
 
     try {
+      stopwatch.start()
       loader = new ProviderLoader
       val monitor = newMonitor
       val skipDifferentTargets = Settings.get("pairs.targets.equal").get.toBoolean
@@ -55,11 +57,13 @@ object Analyzer {
       logger info s"Pairwise - End"
 
       // Output pull requests
+      logger info s"Write - Start"
       val unpairedPullRequests = Pairwise.unpair(pairs)
       JsonWriter.writePullRequests(outputDir, loader, unpairedPullRequests)
       if (outputIndex)
         JsonWriter.writeIndex(outputDir)
-      logger info s"Output - Done"
+      logger info s"Write - End"
+      stopwatch.logMinutes()
     } catch {
       case e: Exception =>
         logger error s"Error - ${e.getMessage}"
