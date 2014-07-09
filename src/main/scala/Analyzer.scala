@@ -67,8 +67,8 @@ object Analyzer {
     } catch {
       case e: Exception =>
         logger error s"Error - ${e.getMessage}"
-        logger error s"Stace trace - Begin\n${e.stackTraceToString}"
-        logger error s"Stace trace - End"
+        logger error s"Stack trace - Begin\n${e.stackTraceToString}"
+        logger error s"Stack trace - End"
     } finally {
       if (loader != null)
         loader.dispose()
