@@ -30,6 +30,12 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     if (!pullRequest.coreMember.isDefined)
       pullRequest.coreMember = Some(isCoreMember(pullRequest.author))
 
+    if (!pullRequest.comments.isDefined)
+      pullRequest.comments = Some(getCommentCount(pullRequest.number))
+
+    if (!pullRequest.reviewComments.isDefined)
+      pullRequest.reviewComments = Some(getReviewCommentCount(pullRequest.number))
+
     pullRequest
   }
 
@@ -44,6 +50,44 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
 
   private def isCoreMember(author: String): Boolean =
     queryCoreMember(repoId, author).firstOption.isDefined
+
+  private def getCommentCount(number: Int): Int =
+    queryCommentCount(repoId, number).run
+
+  private def getReviewCommentCount(number: Int): Int =
+    queryReviewCommentCount(repoId, number).run
+
+  private lazy val queryCommentCount = {
+    def commentCount(repoId: Column[Int], prNumber: Column[Int]) =
+      (for {
+        p <- Tables.pullRequests
+        i <- Tables.issues
+        c <- Tables.comments
+        // Join
+        if p.id === i.pullRequestId
+        if i.id === c.issueId
+        // Where
+        if p.baseRepoId === repoId
+        if p.number === prNumber
+      } yield c.id).length
+
+    Compiled(commentCount _)
+  }
+
+  private lazy val queryReviewCommentCount = {
+    def commentCount(repoId: Column[Int], prNumber: Column[Int]) =
+      (for {
+        p <- Tables.pullRequests
+        c <- Tables.reviewComments
+        // Join
+        if p.id === c.pullRequestId
+        // Where
+        if p.baseRepoId === repoId
+        if p.number === prNumber
+      } yield c.id).length
+
+    Compiled(commentCount _)
+  }
 
   private lazy val queryCommitCount = {
     def commitCount(repoId: Column[Int], userLogin: Column[String]) =

@@ -37,6 +37,7 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       ("avatar" -> pr.avatar) ~
       ("coreMember" -> pr.coreMember) ~
       ("comments" -> pr.comments) ~
+      ("reviewComments" -> pr.reviewComments) ~
       ("milestone" -> pr.milestone) ~
       ("type" -> pr.`type`.map(t => t.toString)) ~
       ("isMergeable" -> pr.isMergeable) ~

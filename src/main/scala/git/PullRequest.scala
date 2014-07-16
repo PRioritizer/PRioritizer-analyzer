@@ -25,6 +25,7 @@ case class PullRequest( number: Int,
                         var avatar: Option[String] = None,
                         var coreMember: Option[Boolean] = None,
                         var comments: Option[Long] = None,
+                        var reviewComments: Option[Long] = None,
                         var milestone: Option[Long] = None,
                         var `type`: Option[PullRequestType] = None,
                         var isMergeable: Option[Boolean] = None,
@@ -43,6 +44,8 @@ case class PullRequest( number: Int,
   def updatedAtUtc: Option[DateTime] = updatedAt.map(date => date.toDateTime(DateTimeZone.UTC))
 
   def conflictsWithNumbers: Option[List[Int]] = conflictsWith.map(list => list.map(pr => pr.number))
+
+  def hasReviewComments: Option[Boolean] = reviewComments.map(n => n > 0)
 
   override def toString: String =
     s"#$number: '$source' into '$target'"
