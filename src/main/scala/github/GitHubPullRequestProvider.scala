@@ -1,11 +1,9 @@
 package github
 
 import dispatch.Defaults._
-import dispatch.github.GhPullRequest
+import dispatch.github.{GhAuthor, GhPullRequest}
 import git.{PullRequest, PullRequestProvider, PullRequestType}
-
-import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
+import scala.concurrent.Future
 
 class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullRequestProvider {
   val host = "github.com"
@@ -30,12 +28,13 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
     } yield for {
       pr <- list
     } yield {
-      val user = if (pr.user != null) pr.user.login else "Unknown user"
-      val p = PullRequest(pr.number, user, pr.head.sha, pr.head.label, pr.base.ref)
+      val user = if (pr.user != null) pr.user else GhAuthor(null, null, "Unknown user", null, -1)
+      val p = PullRequest(pr.number, user.login, pr.head.sha, pr.head.label, pr.base.ref)
       p.title = Some(pr.title)
       p.`type` = Some(PullRequestType.parse(pr.title))
       p.createdAt = Some(pr.created_at)
       p.updatedAt = Some(pr.updated_at)
+      p.avatar = Option(user.avatar_url)
       p
     }
   }

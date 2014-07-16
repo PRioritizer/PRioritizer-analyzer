@@ -34,6 +34,7 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       ("linesDeleted" -> pr.linesDeleted) ~
       ("filesChanged" -> pr.filesChanged) ~
       ("commits" -> pr.commits) ~
+      ("avatar" -> pr.avatar) ~
       ("coreMember" -> pr.coreMember) ~
       ("comments" -> pr.comments) ~
       ("milestone" -> pr.milestone) ~
