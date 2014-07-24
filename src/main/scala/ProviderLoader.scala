@@ -3,28 +3,11 @@ import git._
 import ghtorrent.GHTorrentProvider
 import github.GitHubProvider
 import jgit.JGitProvider
+import settings._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ProviderLoader extends Provider {
-  object ProviderSettings {
-    lazy val repository = Settings.get("provider.repository")
-    lazy val pullRequests = Settings.get("provider.requests")
-
-    lazy val single = Settings.get("decorators.single") match {
-      case Some(list) => list.split(',').toList; case _ => List()
-    }
-
-    lazy val pairwise = Settings.get("decorators.pairwise") match {
-      case Some(list) => list.split(',').toList; case _ => List()
-    }
-
-    lazy val all = List(
-      repository match { case Some(p) => List(p); case _ => List() },
-      pullRequests match { case Some(p) => List(p); case _ => List() },
-      single, pairwise).flatten
-  }
-
   private val providers = scala.collection.mutable.Map[String, Provider]()
 
   override val repositoryProvider: Option[RepositoryProvider] = for {
@@ -96,34 +79,35 @@ class ProviderLoader extends Provider {
   }
 
   private def createCacheReadProvider: CacheReadProvider = {
-    val cacheDir = Settings.get("cache.directory").orNull
-    new CacheReadProvider(cacheDir)
+    new CacheReadProvider(CacheSettings.directory)
   }
 
   private def createCacheWriteProvider: CacheWriteProvider = {
-    val cacheDir = Settings.get("cache.directory").orNull
-    new CacheWriteProvider(cacheDir)
+    new CacheWriteProvider(CacheSettings.directory)
   }
 
   private def createGHTorrentProvider: GHTorrentProvider = {
-    val host = Settings.get("ghtorrent.host").orNull
-    val port = Settings.get("ghtorrent.port").fold(3306)(p => p.toInt)
-    val user = Settings.get("ghtorrent.user").orNull
-    val pass = Settings.get("ghtorrent.password").orNull
-    val db = Settings.get("ghtorrent.database").orNull
-    new GHTorrentProvider(host, port, user, pass, db)
+    new GHTorrentProvider(
+      GHTorrentSettings.host,
+      GHTorrentSettings.port,
+      GHTorrentSettings.username,
+      GHTorrentSettings.password,
+      GHTorrentSettings.database
+    )
   }
 
   private def createGitHubProvider: GitHubProvider = {
-    val owner = Settings.get("github.owner").orNull
-    val repository = Settings.get("github.repository").orNull
-    val token = Settings.get("github.token").orNull
-    new GitHubProvider(owner, repository, token)
+    new GitHubProvider(
+      GitHubSettings.owner,
+      GitHubSettings.repository,
+      GitHubSettings.token
+    )
   }
 
   private def createJGitProvider: JGitProvider = {
-    val workingDir = Settings.get("jgit.directory").orNull
-    val clean = Settings.get("jgit.clean").fold(false)(c => c.toBoolean)
-    new JGitProvider(workingDir, clean)
+    new JGitProvider(
+      JGitSettings.directory,
+      JGitSettings.clean
+    )
   }
 }

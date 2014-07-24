@@ -20,7 +20,7 @@ project/plugins/project/
 .idea
 
 # User properties
-client.properties
+settings.properties
 simplelogger.properties
 
 # Output

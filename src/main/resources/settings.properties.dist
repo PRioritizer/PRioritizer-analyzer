@@ -17,7 +17,7 @@ cache.directory=/path/to/cache
 # GHTorrent provider
 ghtorrent.host=localhost
 ghtorrent.port=3306
-ghtorrent.user=mysql-user
+ghtorrent.username=mysql-user
 ghtorrent.password=mysql-password
 ghtorrent.database=mysql-database
 

@@ -1,6 +1,7 @@
 import git._
 import org.slf4j.LoggerFactory
 import output.JsonWriter
+import settings.{GeneralSettings, Settings}
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
 import utils.{Stopwatch, ProgressMonitor}
@@ -17,10 +18,7 @@ object Analyzer {
     try {
       stopwatch.start()
       loader = new ProviderLoader
-      val monitor = newMonitor
-      val skipDifferentTargets = Settings.get("pairs.targets.equal").get.toBoolean
-      val outputDir = Settings.get("output.directory").get
-      val outputIndex = Settings.get("output.index").get.toBoolean
+      val monitor = new ProgressMonitor(GeneralSettings.monitorIntervalType, GeneralSettings.monitorIntervalValue)
       val prProvider = loader.pullRequestProvider.orNull
       val simplePulls = new ProviderToList(prProvider)
       logger info s"Setup - Done"
@@ -45,7 +43,7 @@ object Analyzer {
       logger info s"Single - End"
 
       logger info s"Pairwise - Start"
-      val simplePairs = new Pairwise(pullRequests, skipDifferentTargets)
+      val simplePairs = new Pairwise(pullRequests, GeneralSettings.pairTargetsEqual)
       val pairDecorator: PairwiseList = loader.getPairwiseDecorator(simplePairs)
       val decorationOfPairs = pairDecorator.get
       monitor.reset()
@@ -59,9 +57,9 @@ object Analyzer {
       // Output pull requests
       logger info s"Write - Start"
       val unpairedPullRequests = Pairwise.unpair(pairs)
-      JsonWriter.writePullRequests(outputDir, loader, unpairedPullRequests)
-      if (outputIndex)
-        JsonWriter.writeIndex(outputDir)
+      JsonWriter.writePullRequests(GeneralSettings.outputDirectory, loader, unpairedPullRequests)
+      if (GeneralSettings.outputIndex)
+        JsonWriter.writeIndex(GeneralSettings.outputDirectory)
       logger info s"Write - End"
       stopwatch.logMinutes()
     } catch {
@@ -73,11 +71,5 @@ object Analyzer {
       if (loader != null)
         loader.dispose()
     }
-  }
-
-  def newMonitor: ProgressMonitor = {
-    val intervalType = Settings.get("monitor.interval.type").get
-    val intervalValue = Settings.get("monitor.interval.value").get.toInt
-    new ProgressMonitor(intervalType, intervalValue)
   }
 }
