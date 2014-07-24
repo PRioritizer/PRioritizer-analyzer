@@ -6,6 +6,7 @@ import java.util.Properties
 import scala.collection.JavaConverters._
 
 object GeneralSettings {
+  lazy val updateInterval = Settings.get("update.interval").map(p => p.toInt).getOrElse(120)
   lazy val pairTargetsEqual = Settings.get("pairs.targets.equal").map(c => c.toBoolean).getOrElse(true)
   lazy val outputDirectory = Settings.get("output.directory").getOrElse("")
   lazy val outputIndex = Settings.get("output.index").map(c => c.toBoolean).getOrElse(false)

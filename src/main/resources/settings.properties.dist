@@ -5,6 +5,7 @@ decorators.single=cache-read,ghtorrent,github,jgit,cache-write
 decorators.pairwise=cache-read,ghtorrent,github,jgit,cache-write
 
 # General
+update.interval=120
 pairs.targets.equal=true
 output.directory=/path/to/output
 output.index=false

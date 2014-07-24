@@ -1,4 +1,5 @@
 import git._
+import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import output.JsonWriter
 import settings.{GeneralSettings, Settings}
@@ -22,6 +23,13 @@ object Analyzer {
       val prProvider = loader.pullRequestProvider.orNull
       val simplePulls = new ProviderToList(prProvider)
       logger info s"Setup - Done"
+
+      // Check for update interval
+      val file = JsonWriter.getFile(GeneralSettings.outputDirectory, prProvider)
+      if (DateTime.now.getMillis < file.lastModified + GeneralSettings.updateInterval * 1000) {
+        logger warn s"Check - Already recently updated"
+        return
+      }
 
       logger info s"Fetch - Start"
       val fetchGit: Future[Unit] = loader.init()

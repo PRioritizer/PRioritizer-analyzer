@@ -41,6 +41,15 @@ object JsonWriter {
     writeToFile(outputFile, json)
   }
 
+  def getFile(dir: String, provider: PullRequestProvider): File = {
+    val ownerDir = provider.owner.safeFileName
+    val repoDir: File = new File(dir, ownerDir)
+    val repoFile = provider.repository.safeFileName + ".json"
+    repoDir.mkdirs()
+
+    new File(repoDir, repoFile)
+  }
+
   private def getFileMap(dir: File): Array[Map[String, String]] = {
     val ext = ".json"
     val jsonFilter = (file: File) => file.getName.endsWith(ext)
@@ -50,15 +59,6 @@ object JsonWriter {
       var repos = o.listFiles.filter(jsonFilter).map(f => f.getName.dropRight(ext.length))
     })
     owners.flatMap(owner => owner.repos.map(r => Map("owner" -> owner.name, "repo" -> r, "file" -> s"${owner.name}/$r$ext")))
-  }
-
-  private def getFile(dir: String, provider: PullRequestProvider): File = {
-    val ownerDir = provider.owner.safeFileName
-    val repoDir: File = new File(dir, ownerDir)
-    val repoFile = provider.repository.safeFileName + ".json"
-    repoDir.mkdirs()
-
-    new File(repoDir, repoFile)
   }
 
   private def writeToFile(file: File, contents: String): Unit = {
