@@ -27,7 +27,7 @@ object Analyzer {
       // Check for update interval
       val file = JsonWriter.getFile(GeneralSettings.outputDirectory, prProvider)
       if (DateTime.now.getMillis < file.lastModified + GeneralSettings.updateInterval * 1000) {
-        logger warn s"Check - Already recently updated"
+        logger warn s"Skip - Already recently updated"
         return
       }
 
