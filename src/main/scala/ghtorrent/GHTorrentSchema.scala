@@ -15,6 +15,8 @@ object GHTorrentSchema {
     val projectMembers = TableQuery[ProjectMembers]
     val comments = TableQuery[Comments]
     val reviewComments = TableQuery[ReviewComments]
+    val issueLabels = TableQuery[IssueLabels]
+    val repoLabels = TableQuery[RepoLabels]
   }
 
   object TableNames {
@@ -27,6 +29,8 @@ object GHTorrentSchema {
     val projectMembers = "project_members"
     val comments = "issue_comments"
     val reviewComments = "pull_request_comments"
+    val issueLabels = "issue_labels"
+    val repoLabels = "repo_labels"
   }
 
   class PullRequests(tag: Tag) extends Table[PullRequest](tag, TableNames.pullRequests) {
@@ -66,19 +70,19 @@ object GHTorrentSchema {
     def * = (pullRequestId, userId, action) <> (PullRequestAction.tupled, PullRequestAction.unapply)
   }
 
-  class ProjectCommits(tag: Tag) extends Table[ProjectCommit](tag, TableNames.projectCommits) {
+  class ProjectCommits(tag: Tag) extends Table[(Int, Int)](tag, TableNames.projectCommits) {
     def projectId = column[Int]("project_id")
     def commitId = column[Int]("commit_id")
 
-    def * = (projectId, commitId) <> (ProjectCommit.tupled, ProjectCommit.unapply)
+    def * = (projectId, commitId)
     def pk = primaryKey("key", (projectId, commitId))
   }
 
-  class ProjectMembers(tag: Tag) extends Table[ProjectMember](tag, TableNames.projectMembers) {
+  class ProjectMembers(tag: Tag) extends Table[(Int, Int)](tag, TableNames.projectMembers) {
     def repoId = column[Int]("repo_id")
     def userId = column[Int]("user_id")
 
-    def * = (repoId, userId) <> (ProjectMember.tupled, ProjectMember.unapply)
+    def * = (repoId, userId)
     def pk = primaryKey("key", (repoId, userId))
   }
 
@@ -89,10 +93,26 @@ object GHTorrentSchema {
     def * = (id, issueId) <> (Comment.tupled, Comment.unapply)
   }
 
-  class ReviewComments(tag: Tag) extends Table[ReviewComment](tag, TableNames.reviewComments) {
+  class ReviewComments(tag: Tag) extends Table[Comment](tag, TableNames.reviewComments) {
     def id = column[Int]("comment_id", O.PrimaryKey)
     def pullRequestId = column[Int]("pull_request_id")
 
-    def * = (id, pullRequestId) <> (ReviewComment.tupled, ReviewComment.unapply)
+    def * = (id, pullRequestId) <> (Comment.tupled, Comment.unapply)
+  }
+
+  class IssueLabels(tag: Tag) extends Table[(Int, Int)](tag, TableNames.issueLabels) {
+    def labelId = column[Int]("label_id")
+    def issueId = column[Int]("issue_id")
+
+    def * = (labelId, issueId)
+    def pk = primaryKey("key", (labelId, issueId))
+  }
+
+  class RepoLabels(tag: Tag) extends Table[Label](tag, TableNames.repoLabels) {
+    def id = column[Int]("id", O.PrimaryKey)
+    def repoId = column[Int]("repo_id")
+    def name = column[String]("name")
+
+    def * = (id, name) <> (Label.tupled, Label.unapply)
   }
 }

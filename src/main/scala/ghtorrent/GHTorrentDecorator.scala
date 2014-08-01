@@ -36,6 +36,9 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     if (!pullRequest.reviewComments.isDefined)
       pullRequest.reviewComments = Some(getReviewCommentCount(pullRequest.number))
 
+    if (!pullRequest.labels.isDefined)
+      pullRequest.labels = Some(getLabels(pullRequest.number))
+
     pullRequest
   }
 
@@ -56,6 +59,9 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
 
   private def getReviewCommentCount(number: Int): Int =
     queryReviewCommentCount(repoId, number).run
+
+  private def getLabels(number: Int): List[String] =
+    queryLabels(repoId, number).run.toList
 
   private lazy val queryCommentCount = {
     def commentCount(repoId: Column[Int], prNumber: Column[Int]) =
@@ -137,4 +143,23 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     if p.repoId === repoId
     if u.login === userLogin
   } yield u.id
+
+  private lazy val queryLabels = {
+    def commentCount(repoId: Column[Int], prNumber: Column[Int]) =
+      for {
+        p <- Tables.pullRequests
+        i <- Tables.issues
+        il <- Tables.issueLabels
+        l <- Tables.repoLabels
+        // Join
+        if p.id === i.pullRequestId
+        if i.id === il.issueId
+        if l.id === il.labelId
+        // Where
+        if p.baseRepoId === repoId
+        if p.number === prNumber
+      } yield l.name
+
+    Compiled(commentCount _)
+  }
 }
