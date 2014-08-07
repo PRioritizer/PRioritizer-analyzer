@@ -57,6 +57,10 @@ object JGitSettings {
   val clean = Settings.get("jgit.clean").map(c => c.toBoolean).getOrElse(false)
 }
 
+object PredictorSettings {
+  val command = Settings.get("predictor.command").getOrElse("")
+}
+
 /**
  * Settings object that holds the client properties.
  */

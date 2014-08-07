@@ -3,6 +3,7 @@ import git._
 import ghtorrent.GHTorrentProvider
 import github.GitHubProvider
 import jgit.JGitProvider
+import predictor.PredictorProvider
 import settings._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -74,6 +75,7 @@ class ProviderLoader extends Provider {
       case "ghtorrent" => Some(createGHTorrentProvider)
       case "github" => Some(createGitHubProvider)
       case "jgit" => Some(createJGitProvider)
+      case "predictor" => Some(createPredictorProvider)
       case _ => None
     }
   }
@@ -109,5 +111,9 @@ class ProviderLoader extends Provider {
       JGitSettings.directory,
       JGitSettings.clean
     )
+  }
+
+  private def createPredictorProvider: PredictorProvider = {
+    new PredictorProvider(PredictorSettings.command)
   }
 }

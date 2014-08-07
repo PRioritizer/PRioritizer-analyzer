@@ -30,3 +30,6 @@ github.token=123456789abcdef
 # JGit provider
 jgit.directory=/path/to/local/git/repo
 jgit.clean=true
+
+# Predictor provider
+predictor.command=/path/to/predictor $action $owner $repository
