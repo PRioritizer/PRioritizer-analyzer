@@ -2,7 +2,7 @@ import git._
 import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import output.JsonWriter
-import settings.{GeneralSettings, Settings}
+import settings.GeneralSettings
 import scala.concurrent.{Future, Await}
 import scala.concurrent.duration.Duration
 import utils.{Stopwatch, ProgressMonitor}
@@ -26,7 +26,8 @@ object Analyzer {
 
       // Check for update interval
       val file = JsonWriter.getFile(GeneralSettings.outputDirectory, prProvider)
-      if (DateTime.now.getMillis < file.lastModified + GeneralSettings.updateInterval * 1000) {
+      val expires = new DateTime(file.lastModified).plusSeconds(GeneralSettings.updateInterval)
+      if (DateTime.now.isBefore(expires)) {
         logger warn s"Skip - Already recently updated"
         return
       }
