@@ -10,8 +10,9 @@ import cache.models.CachedPullRequestPair
  * An info getter implementation for the JGit library.
  * @param provider The JGit provider.
  */
-class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider, mode: CacheMode.CacheMode) extends PairwiseDecorator(base) {
+class CachePairwiseDecorator(base: PairwiseList, provider: CacheProvider) extends PairwiseDecorator(base) {
   implicit lazy val session = provider.Db
+  lazy val mode = provider.mode
   lazy val insertPair = Tables.pairs.insertInvoker
   lazy val getPairsByKey = for {
     (shaOne, shaTwo) <- Parameters[(String, String)]

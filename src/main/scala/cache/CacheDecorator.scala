@@ -10,8 +10,9 @@ import cache.models.CachedPullRequest
  * An info getter implementation that read/writes from the cache.
  * @param provider The cache provider.
  */
-class CacheDecorator(base: PullRequestList, val provider: CacheProvider, mode: CacheMode.CacheMode) extends PullRequestDecorator(base) {
+class CacheDecorator(base: PullRequestList, val provider: CacheProvider) extends PullRequestDecorator(base) {
   implicit lazy val session = provider.Db
+  lazy val mode = provider.mode
   lazy val insertPull = Tables.pullRequests.insertInvoker
   lazy val getPullsByKey = for {
     sha <- Parameters[String]

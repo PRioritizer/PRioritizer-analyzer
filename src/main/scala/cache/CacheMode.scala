@@ -5,5 +5,5 @@ package cache
  */
 object CacheMode extends Enumeration {
   type CacheMode = Value
-  val Read, Write = Value
+  val None, Read, Write = Value
 }

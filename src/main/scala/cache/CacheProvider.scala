@@ -14,6 +14,7 @@ import utils.Extensions._
 abstract class CacheProvider(cacheDirectory: String) extends Provider {
   val dbName = "cache.db"
   val dbDriver = "org.sqlite.JDBC"
+  val mode = CacheMode.None
   lazy val cachePath = _cachePath
   lazy val dbPath = cachePath + java.io.File.separator + dbName
   lazy val dbUrl = s"jdbc:sqlite:$dbPath"
