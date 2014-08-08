@@ -33,3 +33,4 @@ jgit.clean=true
 
 # Predictor provider
 predictor.command=/path/to/predictor $action $owner $repository
+model.directory=/path/to/models

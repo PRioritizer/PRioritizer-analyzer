@@ -1,5 +1,6 @@
 package predictor
 
+import java.io.{File, PrintWriter, ByteArrayOutputStream}
 import git._
 import sys.process._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -8,8 +9,9 @@ import scala.concurrent.Future
 /**
  * A provider implementation for the predictor.
  * @param command The location of the predictor script.
+ * @param directory The location of the models.
  */
-class PredictorProvider(val command: String) extends Provider {
+class PredictorProvider(val command: String, val directory: String) extends Provider {
 
   if (command == null || command == "")
     throw new IllegalArgumentException("Invalid predictor configuration.")
@@ -19,6 +21,7 @@ class PredictorProvider(val command: String) extends Provider {
 
   def owner = _owner
   def repository = _repository
+  def modelDirectory = new File(new File(directory, owner), repository).getPath
 
   override val repositoryProvider: Option[RepositoryProvider] = None
   override val pullRequestProvider: Option[PullRequestProvider] = None
@@ -31,8 +34,20 @@ class PredictorProvider(val command: String) extends Provider {
       _repository = provider.repository
 
       // Make sure the model is trained
-      trainCommand.!
+      train
     }
+  }
+
+  def train = trainCommand.!
+
+  def predict: Future[List[Boolean]] = Future {
+    val (result, output, _) = runWithOutput(trainCommand)
+
+    // Parse output
+    if (result)
+      output.trim.split('\n').map(b => b.trim.toBoolean).toList
+    else
+      List()
   }
 
   private def trainCommand = parseCommand("train")
@@ -43,4 +58,17 @@ class PredictorProvider(val command: String) extends Provider {
     .replace("$action", action)
     .replace("$owner", owner)
     .replace("$repository", repository)
+
+  private def runWithOutput(command: String): (Boolean, String, String) = {
+    val stdout = new ByteArrayOutputStream
+    val stderr = new ByteArrayOutputStream
+    val stdoutWriter = new PrintWriter(stdout)
+    val stderrWriter = new PrintWriter(stderr)
+
+    // Start process
+    val exitValue = command ! ProcessLogger(stdoutWriter.println, stderrWriter.println)
+    stdoutWriter.close()
+    stderrWriter.close()
+    (exitValue == 0, stdout.toString, stderr.toString)
+  }
 }

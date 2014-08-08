@@ -45,6 +45,7 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       ("conflictsWith" -> pr.conflictsWithNumbers) ~
       ("contributedCommits" -> pr.contributedCommits) ~
       ("acceptedPullRequests" -> pr.acceptedPullRequests) ~
-      ("totalPullRequests" -> pr.totalPullRequests)
+      ("totalPullRequests" -> pr.totalPullRequests) ~
+      ("important" -> pr.important)
   }
 ))

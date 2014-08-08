@@ -114,6 +114,6 @@ class ProviderLoader extends Provider {
   }
 
   private def createPredictorProvider: PredictorProvider = {
-    new PredictorProvider(PredictorSettings.command)
+    new PredictorProvider(PredictorSettings.command, PredictorSettings.directory)
   }
 }

@@ -1,6 +1,6 @@
 package git
 
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.{Minutes, DateTimeZone, DateTime}
 import git.PullRequestType.PullRequestType
 
 /**
@@ -33,12 +33,15 @@ case class PullRequest( number: Int,
                         var conflictsWith: Option[List[PullRequest]] = None,
                         var contributedCommits: Option[Int] = None,
                         var acceptedPullRequests: Option[Int] = None,
-                        var totalPullRequests: Option[Int] = None
+                        var totalPullRequests: Option[Int] = None,
+                        var important: Option[Boolean] = None
                         ) {
   /**
    * @return The total number of added/edited/deleted lines.
    */
   def linesTotal: Long = linesAdded.getOrElse(0L) + linesDeleted.getOrElse(0L)
+
+  def age: Int = createdAt.map(date => Minutes.minutesBetween(date, DateTime.now).getMinutes).getOrElse(0) // minutes
 
   def createdAtUtc: Option[DateTime] = createdAt.map(date => date.toDateTime(DateTimeZone.UTC))
 
@@ -47,6 +50,10 @@ case class PullRequest( number: Int,
   def conflictsWithNumbers: Option[List[Int]] = conflictsWith.map(list => list.map(pr => pr.number))
 
   def hasReviewComments: Option[Boolean] = reviewComments.map(n => n > 0)
+
+  def contributedCommitRatio: Double = 0D // contributedCommits.map(commits => commits.toDouble / repository.commits.toDouble).getOrElse(0D)
+
+  def pullRequestAcceptRatio: Double = acceptedPullRequests.map(pulls => pulls.toDouble / totalPullRequests.get.toDouble).getOrElse(0D)
 
   override def toString: String =
     s"#$number: '$source' into '$target'"
