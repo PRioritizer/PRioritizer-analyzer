@@ -25,7 +25,7 @@ class PredictorProvider(val command: String, val directory: String) extends Prov
 
   override val repositoryProvider: Option[RepositoryProvider] = None
   override val pullRequestProvider: Option[PullRequestProvider] = None
-  override def getDecorator(list: PullRequestList): PullRequestList = list
+  override def getDecorator(list: PullRequestList): PullRequestList = new PredictorDecorator(list, this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 
   override def init(provider: Provider): Future[Unit] = Future {
@@ -38,37 +38,12 @@ class PredictorProvider(val command: String, val directory: String) extends Prov
     }
   }
 
-  def train = trainCommand.!
+  def train = Future(parseCommand("train").! == 0)
 
-  def predict: Future[List[Boolean]] = Future {
-    val (result, output, _) = runWithOutput(trainCommand)
-
-    // Parse output
-    if (result)
-      output.trim.split('\n').map(b => b.trim.toBoolean).toList
-    else
-      List()
-  }
-
-  private def trainCommand = parseCommand("train")
-
-  private def predictCommand = parseCommand("predict")
+  def predict = Future(parseCommand("predict").! == 0)
 
   private def parseCommand(action: String) = command
     .replace("$action", action)
     .replace("$owner", owner)
     .replace("$repository", repository)
-
-  private def runWithOutput(command: String): (Boolean, String, String) = {
-    val stdout = new ByteArrayOutputStream
-    val stderr = new ByteArrayOutputStream
-    val stdoutWriter = new PrintWriter(stdout)
-    val stderrWriter = new PrintWriter(stderr)
-
-    // Start process
-    val exitValue = command ! ProcessLogger(stdoutWriter.println, stderrWriter.println)
-    stdoutWriter.close()
-    stderrWriter.close()
-    (exitValue == 0, stdout.toString, stderr.toString)
-  }
 }

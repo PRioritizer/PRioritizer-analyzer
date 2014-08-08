@@ -13,6 +13,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 class PredictorDecorator(base: PullRequestList, val provider: PredictorProvider) extends PullRequestDecorator(base) {
   val inputFile = "input.csv"
+  val outputFile = "output.csv"
 
   // Don't invoke the process for every PR, but for the whole list at once
   override def get: List[Future[PullRequest]] = {
@@ -33,8 +34,12 @@ class PredictorDecorator(base: PullRequestList, val provider: PredictorProvider)
 
   private def getImportance(pulls: List[Future[PullRequest]]): List[Future[Boolean]] = {
     val importance = Future.sequence(pulls) map { list =>
-      CsvWriter.write(new File(provider.directory, inputFile), list)
-      Await.result(provider.predict, Duration.Inf)
+      Csv.write(new File(provider.modelDirectory, inputFile), list)
+      Await.ready(provider.predict, Duration.Inf)
+      val data = Csv.readAsBoolean(new File(provider.modelDirectory, outputFile))
+
+      // Select first column
+      data map { r => r(0) }
     }
 
     toListOfFutures(importance, pulls.length)

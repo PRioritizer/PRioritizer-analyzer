@@ -52,9 +52,9 @@ case class PullRequest( repository: RepositoryProvider,
 
   def hasReviewComments: Option[Boolean] = reviewComments.map(n => n > 0)
 
-  def contributedCommitRatio: Double = contributedCommits.map(commits => commits.toDouble / repository.commits.toDouble).getOrElse(0D)
+  def contributedCommitRatio: Option[Double] = contributedCommits.map(commits => commits.toDouble / repository.commits.toDouble)
 
-  def pullRequestAcceptRatio: Double = acceptedPullRequests.map(pulls => pulls.toDouble / totalPullRequests.get.toDouble).getOrElse(0D)
+  def pullRequestAcceptRatio: Option[Double] = acceptedPullRequests.map(pulls => pulls.toDouble / totalPullRequests.get.toDouble)
 
   override def toString: String =
     s"#$number: '$source' into '$target'"

@@ -2,7 +2,9 @@ package predictor
 
 import java.io.File
 import git.PullRequest
-object CsvWriter {
+import utils.Extensions._
+
+object Csv {
 
   private val escapeChars = Map("\"" -> "\"\"", "\r" -> "\\r", "\n" -> "\\n")
   private val nf = java.text.NumberFormat.getInstance(java.util.Locale.ROOT)
@@ -33,22 +35,32 @@ object CsvWriter {
       pr <- data
     } yield List(
         pr.age,
-        pr.title,
+        pr.title.getOrElse(""),
         pr.target,
         pr.author,
-        pr.coreMember,
-        pr.contributedCommitRatio,
-        pr.pullRequestAcceptRatio,
-        pr.comments,
-        pr.reviewComments,
-        pr.linesAdded,
-        pr.linesDeleted,
-        pr.commits,
-        pr.filesChanged,
+        pr.coreMember.getOrElse(false),
+        pr.contributedCommitRatio.getOrElse(0D),
+        pr.pullRequestAcceptRatio.getOrElse(0D),
+        pr.comments.getOrElse(0L),
+        pr.reviewComments.getOrElse(0L),
+        pr.linesAdded.getOrElse(0L),
+        pr.linesDeleted.getOrElse(0L),
+        pr.commits.getOrElse(0L),
+        pr.filesChanged.getOrElse(0L),
         false)
 
     val contents = header :: rows
     writeData(file, contents)
+  }
+
+  def readAsBoolean(file: File): List[List[Boolean]] = read(file).map(r => r.map(f => f.toBoolean))
+
+  def read(file: String): List[List[String]] = read(new File(file))
+
+  def read(file: File): List[List[String]] = {
+    val data = scala.io.Source.fromFile(file).mkString
+    val rows = data.split("\n").map(r => r.trim).toList
+    rows.map(r => r.split(",").map(f => f.trim.trim(List('"'))).toList)
   }
 
   def writeData(file: File, data: List[List[Any]]): Unit = {
