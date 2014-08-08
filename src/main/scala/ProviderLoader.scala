@@ -75,6 +75,7 @@ class ProviderLoader extends Provider {
       case "github" => Some(createGitHubProvider)
       case "jgit" => Some(createJGitProvider)
       case "predictor" => Some(createPredictorProvider)
+      case "none" => Some(createEmptyProvider)
       case _ => None
     }
   }
@@ -114,5 +115,9 @@ class ProviderLoader extends Provider {
 
   private def createPredictorProvider: PredictorProvider = {
     new PredictorProvider(PredictorSettings.command, PredictorSettings.directory)
+  }
+
+  private def createEmptyProvider: EmptyProvider = {
+    new EmptyProvider
   }
 }
