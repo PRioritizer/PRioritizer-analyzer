@@ -17,7 +17,7 @@ object PullRequestSerializer extends CustomSerializer[PullRequest]( format => (
       JField("target", JString(target)) ::
       Nil
     ) =>
-      PullRequest(number.toInt, sha, author, source, target)
+      PullRequest(null, number.toInt, sha, author, source, target)
   },
   {
     case pr: PullRequest =>

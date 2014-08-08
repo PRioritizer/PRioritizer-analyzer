@@ -10,7 +10,8 @@ import git.PullRequestType.PullRequestType
  * @param source The source branch name.
  * @param target The target branch name.
  */
-case class PullRequest( number: Int,
+case class PullRequest( repository: RepositoryProvider,
+                        number: Int,
                         author: String,
                         sha: String,
                         source: String,
@@ -51,7 +52,7 @@ case class PullRequest( number: Int,
 
   def hasReviewComments: Option[Boolean] = reviewComments.map(n => n > 0)
 
-  def contributedCommitRatio: Double = 0D // contributedCommits.map(commits => commits.toDouble / repository.commits.toDouble).getOrElse(0D)
+  def contributedCommitRatio: Double = contributedCommits.map(commits => commits.toDouble / repository.commits.toDouble).getOrElse(0D)
 
   def pullRequestAcceptRatio: Double = acceptedPullRequests.map(pulls => pulls.toDouble / totalPullRequests.get.toDouble).getOrElse(0D)
 
