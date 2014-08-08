@@ -37,10 +37,10 @@ class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provi
   override def getDecorator(list: PullRequestList): PullRequestList = new JGitDecorator(new JGitMerger(list, this), this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = new JGitPairwiseMerger(list, this)
 
-  override def init(provider: PullRequestProvider = null): Future[Unit] = {
+  override def init(provider: Provider): Future[Unit] = {
     // Force lazy value evaluation
     git
-    fetch(provider)
+    fetch(provider.pullRequestProvider.orNull)
   }
 
   override def dispose(): Unit = {

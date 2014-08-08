@@ -9,6 +9,6 @@ trait Provider {
   def getDecorator(list: PullRequestList): PullRequestList
   def getPairwiseDecorator(list: PairwiseList): PairwiseList
 
-  def init(provider: PullRequestProvider = null): Future[Unit] = Future {}
+  def init(provider: Provider): Future[Unit] = Future {}
   def dispose(): Unit = {}
 }

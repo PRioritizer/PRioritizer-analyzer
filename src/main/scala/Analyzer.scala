@@ -14,7 +14,7 @@ object Analyzer {
   val stopwatch = new Stopwatch
 
   def main(args: Array[String]): Unit = {
-    var loader: Provider = null
+    var loader: ProviderLoader = null
 
     try {
       stopwatch.start()

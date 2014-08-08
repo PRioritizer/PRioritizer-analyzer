@@ -43,10 +43,9 @@ class ProviderLoader extends Provider {
     decorator
   }
 
-  override def init(provider: PullRequestProvider = null): Future[Unit] = {
+  override def init(provider: Provider = null): Future[Unit] = {
     loadAll()
-    val pProvider = if (provider != null) provider else pullRequestProvider.orNull
-    val future = Future.sequence(providers.values.map(p => p.init(pProvider)))
+    val future = Future.sequence(providers.values.map(p => p.init(this)))
     for(f <- future) yield {}
   }
 

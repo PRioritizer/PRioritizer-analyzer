@@ -21,7 +21,7 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
   override def getDecorator(list: PullRequestList): PullRequestList = new GitHubDecorator(list, this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 
-  override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
+  override def init(provider: Provider): Future[Unit] = Future {
     // Set global access token
     GitHub.accessToken = token
   }

@@ -28,12 +28,12 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
   override val repositoryProvider: Option[RepositoryProvider] = None
   override val pullRequestProvider: Option[PullRequestProvider] = None
 
-  override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
-    if (provider == null)
+  override def init(provider: Provider): Future[Unit] = Future {
+    if (provider == null || provider.pullRequestProvider.orNull == null)
       throw new IllegalArgumentException("Need a pull request provider to initialize other providers.")
 
-    val ownerDir = provider.owner.safeFileName
-    val repoDir = provider.repository.safeFileName
+    val ownerDir = provider.pullRequestProvider.get.owner.safeFileName
+    val repoDir = provider.pullRequestProvider.get.repository.safeFileName
     val file: File = new File(new File(cacheDirectory, ownerDir), repoDir)
     file.mkdirs()
 

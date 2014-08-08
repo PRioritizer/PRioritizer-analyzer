@@ -38,10 +38,10 @@ class GHTorrentProvider(val host: String, val port: Int, val user: String, val p
   override def getDecorator(list: PullRequestList): PullRequestList = new GHTorrentDecorator(list, this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 
-  override def init(provider: PullRequestProvider = null): Future[Unit] = Future {
-    if (provider != null) {
-      _owner = provider.owner
-      _repository = provider.repository
+  override def init(provider: Provider): Future[Unit] = Future {
+    if (provider != null && provider.pullRequestProvider.orNull != null) {
+      _owner = provider.pullRequestProvider.get.owner
+      _repository = provider.pullRequestProvider.get.repository
     }
 
     // Execute test query
