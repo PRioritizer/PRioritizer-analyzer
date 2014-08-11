@@ -4,38 +4,36 @@ import java.io.File
 import git.{Provider, PullRequestProvider, PullRequest}
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTimeZone, DateTime}
-import org.json4s.JsonAST.{JInt, JString, JObject}
-import org.json4s.{Extraction, JField, Formats, DefaultFormats}
-import org.json4s.native.Serialization
-import org.json4s.ext.JodaTimeSerializers
+import spray.json._
+import JsonProtocol._
 import utils.Extensions._
 
 object JsonWriter {
   val indexFile = "index.json"
-  implicit val formats: Formats = DefaultFormats ++ JodaTimeSerializers.all + PullRequestSerializer
 
   def writePullRequests(dir: String, provider: Provider, pullRequests: List[PullRequest]): Unit = {
     val prProvider = provider.pullRequestProvider.orNull
     val repoProvider = provider.repositoryProvider.orNull
 
     val df = ISODateTimeFormat.dateTime
-    val jsonObject = JObject(List(
-      JField("source", JString(prProvider.source)),
-      JField("owner", JString(prProvider.owner)),
-      JField("repository", JString(prProvider.repository)),
-      JField("commits", JInt(repoProvider.commits)),
-      JField("date", JString(DateTime.now.toDateTime(DateTimeZone.UTC).toString(df))),
-      JField("pullRequests", Extraction.decompose(pullRequests))
-    ))
 
-    val json = Serialization.writePrettyOld(jsonObject)
+    val jsonAst = JsObject(
+      "source" -> prProvider.source.toJson,
+      "owner" -> prProvider.owner.toJson,
+      "repository" -> prProvider.repository.toJson,
+      "commits" -> repoProvider.commits.toJson,
+      "date" -> DateTime.now.toDateTime(DateTimeZone.UTC).toString(df).toJson,
+      "pullRequests" -> pullRequests.toJson
+    )
+
+    val json = jsonAst.prettyPrint // or .compactPrint
     val file = getFile(dir, prProvider)
     writeToFile(file, json)
   }
 
   def writeIndex(dir: String): Unit = {
     val files = getFileMap(new File(dir))
-    val json = Serialization.writePrettyOld(files)
+    val json = files.toJson.prettyPrint // or .compactPrint
 
     val outputFile = new File(dir, indexFile)
     writeToFile(outputFile, json)
