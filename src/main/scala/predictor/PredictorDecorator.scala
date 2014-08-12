@@ -12,8 +12,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * @param provider The cache provider.
  */
 class PredictorDecorator(base: PullRequestList, val provider: PredictorProvider) extends PullRequestDecorator(base) {
-  val inputFile = "input.csv"
-  val outputFile = "output.csv"
+  val inputFileName = "input.csv"
+  val outputFileName = "output.csv"
 
   // Don't invoke the process for every PR, but for the whole list at once
   override def get: List[Future[PullRequest]] = {
@@ -33,12 +33,21 @@ class PredictorDecorator(base: PullRequestList, val provider: PredictorProvider)
   }
 
   private def getImportance(pulls: List[Future[PullRequest]]): List[Future[Boolean]] = {
+    val inputFile = new File(provider.modelDirectory, inputFileName)
+    val outputFile = new File(provider.modelDirectory, outputFileName)
+
     val importance = Future.sequence(pulls) map { list =>
-      Csv.write(new File(provider.modelDirectory, inputFile), list)
+      Csv.write(inputFile, list)
       Await.ready(provider.predict, Duration.Inf)
-      val data = Csv.readAsBoolean(new File(provider.modelDirectory, outputFile))
+      inputFile.delete
+
+      // Something went wrong, return false
+      if (!outputFile.exists)
+        return pulls map { p => Future(false) }
 
       // Select first column
+      val data = Csv.readAsBoolean(outputFile)
+      outputFile.delete
       data map { r => r(0) }
     }
 
