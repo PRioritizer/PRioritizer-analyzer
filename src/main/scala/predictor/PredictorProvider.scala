@@ -28,14 +28,14 @@ class PredictorProvider(val command: String, val directory: String) extends Prov
   override def getDecorator(list: PullRequestList): PullRequestList = new PredictorDecorator(list, this)
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 
-  override def init(provider: Provider): Future[Unit] = Future {
+  override def init(provider: Provider): Future[Unit] = {
     if (provider != null && provider.pullRequestProvider.orNull != null) {
       _owner = provider.pullRequestProvider.get.owner
       _repository = provider.pullRequestProvider.get.repository
-
-      // Make sure the model is trained
-      train
     }
+
+    // Make sure the model is trained
+    train map { _ => }
   }
 
   def train = Future(parseCommand("train").! == 0)
