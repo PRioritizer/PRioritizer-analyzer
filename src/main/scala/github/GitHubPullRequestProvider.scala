@@ -28,13 +28,13 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
     } yield for {
       pr <- list
     } yield {
-      val user = pr.user.getOrElse(GhAuthor(null, null, "Unknown user", null, -1))
+      val user = if (pr.user != null) pr.user else GhAuthor(null, null, "Unknown user", null, -1)
       val p = PullRequest(provider.loadedRepositoryProvider, pr.number, user.login, pr.head.sha, pr.head.label, pr.base.ref)
       p.title = Some(pr.title)
       p.`type` = Some(PullRequestType.parse(pr.title))
       p.createdAt = Some(pr.created_at)
       p.updatedAt = Some(pr.updated_at)
-      p.avatar = user.avatar_url
+      p.avatar = Option(user.avatar_url)
       p
     }
   }
