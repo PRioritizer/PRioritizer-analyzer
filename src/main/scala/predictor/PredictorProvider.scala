@@ -1,10 +1,12 @@
 package predictor
 
-import java.io.{File, PrintWriter, ByteArrayOutputStream}
+import java.io.File
+
 import git._
-import sys.process._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.sys.process._
 
 /**
  * A provider implementation for the predictor.

@@ -1,9 +1,10 @@
 package ghtorrent
 
 import git._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.slick.driver.MySQLDriver.simple._
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.slick.jdbc.StaticQuery
 
 /**

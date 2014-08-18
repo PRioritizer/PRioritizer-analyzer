@@ -1,15 +1,17 @@
 package jgit
 
+import java.io.{File, FileNotFoundException}
+
 import git._
-import java.io.{FileNotFoundException, File}
-import jgit.JGitProvider._
 import jgit.JGitExtensions._
-import org.eclipse.jgit.lib.{TextProgressMonitor, ConfigConstants}
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+import jgit.JGitProvider._
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.{ConfigConstants, TextProgressMonitor}
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+
 import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * A provider implementation for the JGit library.

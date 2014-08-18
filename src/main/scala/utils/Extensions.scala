@@ -1,6 +1,6 @@
 package utils
 
-import java.io.{PrintStream, ByteArrayOutputStream}
+import java.io.{ByteArrayOutputStream, PrintStream}
 
 object Extensions {
   implicit class EnrichString(str: String) {

@@ -1,7 +1,7 @@
 package git
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * Offers the functionality to get data about the repository.

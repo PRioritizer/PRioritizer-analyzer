@@ -1,7 +1,8 @@
 package utils
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import org.slf4j.LoggerFactory
+
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class ProgressMonitor(intervalType: String = "percentage", intervalValue: Int = 10) {

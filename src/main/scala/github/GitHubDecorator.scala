@@ -3,9 +3,8 @@ package github
 import dispatch.github.{GhIssue, GhPullRequest}
 import git.{PullRequest, PullRequestDecorator, PullRequestList, PullRequestType}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
 
 /**
  * An info getter implementation for the GitHub API.

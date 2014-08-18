@@ -1,7 +1,7 @@
 package git
 
-import org.joda.time.{Minutes, DateTimeZone, DateTime}
 import git.PullRequestType.PullRequestType
+import org.joda.time.{DateTime, DateTimeZone, Minutes}
 
 /**
  * An object that holds information about the pull request.

@@ -3,11 +3,12 @@ import org.joda.time.DateTime
 import org.slf4j.LoggerFactory
 import output.JsonWriter
 import settings.GeneralSettings
-import scala.concurrent.{Future, Await}
-import scala.concurrent.duration.Duration
-import utils.{Stopwatch, ProgressMonitor}
 import utils.Extensions._
+import utils.{ProgressMonitor, Stopwatch}
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 object Analyzer {
   val logger = LoggerFactory.getLogger("Analyzer")

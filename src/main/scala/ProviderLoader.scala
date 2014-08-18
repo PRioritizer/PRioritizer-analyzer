@@ -1,12 +1,13 @@
-import cache.{CacheWriteProvider, CacheReadProvider}
-import git._
+import cache.{CacheReadProvider, CacheWriteProvider}
 import ghtorrent.GHTorrentProvider
+import git._
 import github.GitHubProvider
 import jgit.JGitProvider
 import predictor.PredictorProvider
 import settings._
-import scala.concurrent.Future
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class ProviderLoader extends Provider {
   private val providers = scala.collection.mutable.Map[String, Provider]()

@@ -1,9 +1,10 @@
 package github
 
-import git._
 import dispatch.github.GitHub
-import scala.concurrent.Future
+import git._
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
  * A provider implementation for GitHub.

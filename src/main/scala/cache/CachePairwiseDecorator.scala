@@ -1,10 +1,11 @@
 package cache
 
+import cache.CacheSchema.{TableNames, Tables}
+import cache.models.CachedPullRequestPair
 import git._
+
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.jdbc.meta.MTable
-import cache.CacheSchema.{Tables, TableNames}
-import cache.models.CachedPullRequestPair
 
 /**
  * An info getter implementation for the JGit library.

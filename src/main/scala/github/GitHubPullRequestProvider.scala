@@ -3,6 +3,7 @@ package github
 import dispatch.Defaults._
 import dispatch.github.{GhAuthor, GhPullRequest}
 import git.{PullRequest, PullRequestProvider, PullRequestType}
+
 import scala.concurrent.Future
 
 class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullRequestProvider {

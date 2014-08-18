@@ -1,7 +1,8 @@
 package ghtorrent
 
 import ghtorrent.GHTorrentSchema.Tables
-import git.{PullRequestDecorator, PullRequest, PullRequestList}
+import git.{PullRequest, PullRequestDecorator, PullRequestList}
+
 import scala.slick.driver.MySQLDriver.simple._
 
 /**

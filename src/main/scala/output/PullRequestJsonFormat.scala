@@ -2,8 +2,8 @@ package output
 
 import git.PullRequest
 import org.joda.time.format.ISODateTimeFormat
+import output.JsonProtocol._
 import spray.json._
-import JsonProtocol._
 
 object PullRequestJsonFormat extends RootJsonFormat[PullRequest] {
   def write(pr: PullRequest) = {

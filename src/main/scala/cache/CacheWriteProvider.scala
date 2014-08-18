@@ -1,11 +1,6 @@
 package cache
 
-import java.io.File
-
 import git._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /**
  * A provider implementation for the disk cache.

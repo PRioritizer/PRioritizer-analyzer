@@ -1,8 +1,8 @@
 package git
 
 import scala.collection.SortedSet
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class Pairwise(pullRequests: List[PullRequest], skipDifferentTargets: Boolean = true) extends PairwiseList {
   /**

@@ -1,6 +1,6 @@
 package cache
 
-import cache.models.{CachedPullRequestPair, CachedPullRequest}
+import cache.models.{CachedPullRequest, CachedPullRequestPair}
 
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.lifted.ProvenShape._

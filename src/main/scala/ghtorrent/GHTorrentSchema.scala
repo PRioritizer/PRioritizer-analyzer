@@ -1,6 +1,7 @@
 package ghtorrent
 
 import ghtorrent.models._
+
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.lifted.ProvenShape._
 

@@ -1,7 +1,7 @@
 package git
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class EmptyProvider extends Provider {
   override val repositoryProvider: Option[RepositoryProvider] = Some(new EmptyRepositoryProvider)

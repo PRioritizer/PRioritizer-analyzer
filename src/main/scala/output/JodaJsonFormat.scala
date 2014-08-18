@@ -1,6 +1,6 @@
 package output
 
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.{DateTime, DateTimeZone}
 import spray.json._
 
 object JodaJsonFormat extends RootJsonFormat[DateTime] {

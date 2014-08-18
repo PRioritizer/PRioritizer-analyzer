@@ -3,8 +3,6 @@ package jgit
 import git._
 import jgit.JGitExtensions._
 import jgit.JGitProvider._
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /**
  * An info getter implementation for the JGit library.

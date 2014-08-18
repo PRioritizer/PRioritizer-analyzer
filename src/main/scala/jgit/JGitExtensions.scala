@@ -3,8 +3,8 @@ package jgit
 import jgit.MergeResult.MergeResult
 import org.eclipse.jgit.lib._
 import org.eclipse.jgit.revwalk.{RevCommit, RevWalk}
+import org.gitective.core.filter.commit.{AllCommitFilter, CommitCountFilter, DiffFileCountFilter, DiffLineCountFilter}
 import org.gitective.core.{CommitFinder, CommitUtils}
-import org.gitective.core.filter.commit.{DiffFileCountFilter, AllCommitFilter, DiffLineCountFilter, CommitCountFilter}
 
 /**
  * Extensions for the JGit library

@@ -3,9 +3,10 @@ package predictor
 import java.io.File
 
 import git._
-import scala.concurrent.{Await, Future}
-import scala.concurrent.duration.Duration
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 /**
  * An predictor implementation that asks an external program to predict the importance.

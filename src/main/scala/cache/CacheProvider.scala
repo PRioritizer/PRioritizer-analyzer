@@ -1,11 +1,13 @@
 package cache
 
 import java.io.File
+
 import git._
+import utils.Extensions._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.slick.driver.SQLiteDriver.simple._
-import utils.Extensions._
 
 /**
  * A provider implementation for the disk cache.

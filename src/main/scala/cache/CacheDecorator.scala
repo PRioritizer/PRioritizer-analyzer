@@ -1,10 +1,11 @@
 package cache
 
+import cache.CacheSchema.{TableNames, Tables}
+import cache.models.CachedPullRequest
 import git._
+
 import scala.slick.driver.SQLiteDriver.simple._
 import scala.slick.jdbc.meta.MTable
-import cache.CacheSchema.{Tables, TableNames}
-import cache.models.CachedPullRequest
 
 /**
  * An info getter implementation that read/writes from the cache.

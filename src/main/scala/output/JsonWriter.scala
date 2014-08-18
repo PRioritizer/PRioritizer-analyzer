@@ -1,11 +1,12 @@
 package output
 
 import java.io.File
-import git.{Provider, PullRequestProvider, PullRequest}
+
+import git.{Provider, PullRequest, PullRequestProvider}
 import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.{DateTime, DateTimeZone}
+import output.JsonProtocol._
 import spray.json._
-import JsonProtocol._
 import utils.Extensions._
 
 object JsonWriter {

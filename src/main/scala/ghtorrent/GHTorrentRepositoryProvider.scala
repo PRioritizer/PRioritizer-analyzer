@@ -1,6 +1,7 @@
 package ghtorrent
 
 import git.RepositoryProvider
+
 import scala.slick.jdbc.{StaticQuery => Q}
 
 /**
