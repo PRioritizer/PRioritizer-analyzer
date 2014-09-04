@@ -10,8 +10,7 @@ import org.joda.time.{DateTime, DateTimeZone, Minutes}
  * @param source The source branch name.
  * @param target The target branch name.
  */
-case class PullRequest( repository: RepositoryProvider,
-                        number: Int,
+case class PullRequest( number: Int,
                         author: String,
                         sha: String,
                         source: String,
@@ -37,6 +36,9 @@ case class PullRequest( repository: RepositoryProvider,
                         var totalPullRequests: Option[Int] = None,
                         var important: Option[Boolean] = None
                         ) {
+
+  var repository: Option[RepositoryProvider] = None
+
   /**
    * @return The total number of added/edited/deleted lines.
    */
@@ -52,7 +54,10 @@ case class PullRequest( repository: RepositoryProvider,
 
   def hasReviewComments: Option[Boolean] = reviewComments.map(n => n > 0)
 
-  def contributedCommitRatio: Option[Double] = contributedCommits.map(commits => commits.toDouble / repository.commits.toDouble)
+  def contributedCommitRatio: Option[Double] = for {
+    commits <- contributedCommits
+    repo <- repository
+  } yield commits.toDouble / repo.commits.toDouble
 
   def pullRequestAcceptRatio: Option[Double] = acceptedPullRequests.map(pulls => pulls.toDouble / totalPullRequests.get.toDouble)
 
