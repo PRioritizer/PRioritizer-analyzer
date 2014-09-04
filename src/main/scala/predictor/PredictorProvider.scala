@@ -23,10 +23,7 @@ class PredictorProvider extends Provider {
   def repository = _repository
   def modelDirectory = new File(new File(PredictorSettings.directory, owner), repository).getPath
 
-  override val repositoryProvider: Option[RepositoryProvider] = None
-  override val pullRequestProvider: Option[PullRequestProvider] = None
   override def getDecorator(list: PullRequestList): PullRequestList = new PredictorDecorator(list, this)
-  override def getPairwiseDecorator(list: PairwiseList): PairwiseList = list
 
   override def init(provider: Provider): Future[Unit] = {
     if (provider != null && provider.pullRequestProvider.orNull != null) {

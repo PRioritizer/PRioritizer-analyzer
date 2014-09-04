@@ -26,9 +26,6 @@ abstract class CacheProvider extends Provider {
   protected var _decorators: List[CacheDecorator] = List()
   protected var _pairwiseDecorators: List[CachePairwiseDecorator] = List()
 
-  override val repositoryProvider: Option[RepositoryProvider] = None
-  override val pullRequestProvider: Option[PullRequestProvider] = None
-
   override def init(provider: Provider): Future[Unit] = Future {
     if (provider == null || provider.pullRequestProvider.orNull == null)
       throw new IllegalArgumentException("Need a pull request provider to initialize other providers.")
