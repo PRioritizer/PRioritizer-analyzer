@@ -19,6 +19,7 @@ class GHTorrentProvider extends Provider {
     throw new IllegalArgumentException("Invalid GHTorrent configuration.")
 
   lazy val Db = Database.forURL(dbUrl, GHTorrentSettings.username, GHTorrentSettings.password, driver = dbDriver).createSession()
+  lazy val mongoDb = new GHTorrentMongoDb(GHTorrentMongoSettings.host, GHTorrentMongoSettings.port, GHTorrentMongoSettings.username, GHTorrentMongoSettings.password, GHTorrentMongoSettings.database)
 
   private var _owner: String = _
   private var _repository: String = _
@@ -39,6 +40,9 @@ class GHTorrentProvider extends Provider {
 
     // Execute test query
     test()
+
+    // Open MongoDb
+    mongoDb.open()
   }
 
   def test(): Boolean = {
@@ -49,6 +53,7 @@ class GHTorrentProvider extends Provider {
   override def dispose(): Unit = {
     try {
       Db.close()
+      mongoDb.close()
     } catch {
       case _ :Exception =>
     }
