@@ -17,40 +17,33 @@ class PredictorTotalDecorator(base: TotalList, val provider: PredictorProvider) 
   val outputFileName = "output.csv"
 
   // Don't invoke the process for every PR, but for the whole list at once
-  override def get: Future[List[PullRequest]] = {
-    val pulls = base.get
-    val importance = getImportance(pulls)
-    val paired = pulls.zip(importance)
+  override def get: Future[List[PullRequest]] = base.get.map { list =>
+    val importance = getImportance(list)
+    val paired = list.zip(importance)
 
-    paired.map { case (prFuture, iFuture) =>
-      for {
-        pr <- prFuture
-        i <- iFuture
-      } yield {
-        pr.important = Some(i)
-        pr
-      }
+    paired.map { case (pr, i) =>
+      pr.important = Some(i)
+      pr
     }
+    list
   }
 
-  private def getImportance(pulls: Future[List[PullRequest]]): Future[List[Boolean]] = {
+  private def getImportance(pulls: List[PullRequest]): List[Boolean] = {
     val inputFile = new File(provider.modelDirectory, inputFileName)
     val outputFile = new File(provider.modelDirectory, outputFileName)
 
-    val importance = pulls map { list =>
-      Csv.write(inputFile, list)
-      Await.ready(provider.predict, Duration.Inf)
-      inputFile.delete
+    Csv.write(inputFile, pulls)
+    Await.ready(provider.predict, Duration.Inf)
+    inputFile.delete
 
-      // Something went wrong, return false
-      if (!outputFile.exists)
-        return pulls map { list => list.map { p => false } }
+    // Something went wrong, return false
+    if (!outputFile.exists)
+      return pulls map { p => false }
 
-      // Select first column
-      val data = Csv.readAsBoolean(outputFile)
-      outputFile.delete
-      data map { r => r(0) }
-    }
+    // Select first column
+    val data = Csv.readAsBoolean(outputFile)
+    outputFile.delete
+    val importance = data map { r => r(0) }
 
     importance
   }
