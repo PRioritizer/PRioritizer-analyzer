@@ -52,8 +52,18 @@ object Analyzer {
       val pullRequests = Await.result(Future.sequence(decorationOfPulls), Duration.Inf)
       logger info s"Single - End"
 
+      logger info s"Total - Start"
+      // Apply other set of decorators on the complete list
+      val total = new Total(pullRequests)
+      val totalDecorator: TotalList = loader.getTotalDecorator(total)
+      val decorationOfTotal = totalDecorator.get
+
+      // Wait for decoration to complete
+      val totalPullRequests = Await.result(decorationOfTotal, Duration.Inf)
+      logger info s"Total - End"
+
       logger info s"Pairwise - Start"
-      val simplePairs = new Pairwise(pullRequests, GeneralSettings.pairTargetsEqual)
+      val simplePairs = new Pairwise(totalPullRequests, GeneralSettings.pairTargetsEqual)
       val pairDecorator: PairwiseList = loader.getPairwiseDecorator(simplePairs)
       val decorationOfPairs = pairDecorator.get
       monitor.reset()

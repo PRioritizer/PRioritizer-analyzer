@@ -22,6 +22,10 @@ object ProviderSettings {
     case Some(list) => list.split(',').toList; case _ => List()
   }
 
+  lazy val total = Settings.get("decorators.total") match {
+    case Some(list) => list.split(',').toList; case _ => List()
+  }
+
   lazy val pairwise = Settings.get("decorators.pairwise") match {
     case Some(list) => list.split(',').toList; case _ => List()
   }
@@ -29,7 +33,10 @@ object ProviderSettings {
   lazy val all = List(
     repository match { case Some(p) => List(p); case _ => List() },
     pullRequests match { case Some(p) => List(p); case _ => List() },
-    single, pairwise).flatten
+    single,
+    total,
+    pairwise
+  ).flatten
 }
 
 /**

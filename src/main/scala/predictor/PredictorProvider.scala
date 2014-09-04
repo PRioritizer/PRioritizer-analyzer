@@ -23,7 +23,7 @@ class PredictorProvider extends Provider {
   def repository = _repository
   def modelDirectory = new File(new File(PredictorSettings.directory, owner), repository).getPath
 
-  override def getDecorator(list: PullRequestList): PullRequestList = new PredictorDecorator(list, this)
+  override def getTotalDecorator(list: TotalList): TotalList = new PredictorTotalDecorator(list, this)
 
   override def init(provider: Provider): Future[Unit] = {
     if (provider != null && provider.pullRequestProvider.orNull != null) {

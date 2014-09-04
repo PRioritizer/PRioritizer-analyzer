@@ -34,6 +34,16 @@ class ProviderLoader extends Provider {
     decorator
   }
 
+  override def getTotalDecorator(list: TotalList): TotalList = {
+    val providers = ProviderSettings.total.map(getProvider).flatMap(o => o)
+
+    var decorator = list
+    providers.foreach { provider =>
+      decorator = provider.getTotalDecorator(decorator)
+    }
+    decorator
+  }
+
   override def getPairwiseDecorator(list: PairwiseList): PairwiseList = {
     val providers = ProviderSettings.pairwise.map(getProvider).flatMap(o => o)
 

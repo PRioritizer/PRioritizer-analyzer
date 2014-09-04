@@ -12,12 +12,12 @@ import scala.concurrent.{Await, Future}
  * An predictor implementation that asks an external program to predict the importance.
  * @param provider The cache provider.
  */
-class PredictorDecorator(base: PullRequestList, val provider: PredictorProvider) extends PullRequestDecorator(base) {
+class PredictorTotalDecorator(base: TotalList, val provider: PredictorProvider) extends TotalDecorator(base) {
   val inputFileName = "input.csv"
   val outputFileName = "output.csv"
 
   // Don't invoke the process for every PR, but for the whole list at once
-  override def get: List[Future[PullRequest]] = {
+  override def get: Future[List[PullRequest]] = {
     val pulls = base.get
     val importance = getImportance(pulls)
     val paired = pulls.zip(importance)
@@ -33,18 +33,18 @@ class PredictorDecorator(base: PullRequestList, val provider: PredictorProvider)
     }
   }
 
-  private def getImportance(pulls: List[Future[PullRequest]]): List[Future[Boolean]] = {
+  private def getImportance(pulls: Future[List[PullRequest]]): Future[List[Boolean]] = {
     val inputFile = new File(provider.modelDirectory, inputFileName)
     val outputFile = new File(provider.modelDirectory, outputFileName)
 
-    val importance = Future.sequence(pulls) map { list =>
+    val importance = pulls map { list =>
       Csv.write(inputFile, list)
       Await.ready(provider.predict, Duration.Inf)
       inputFile.delete
 
       // Something went wrong, return false
       if (!outputFile.exists)
-        return pulls map { p => Future(false) }
+        return pulls map { list => list.map { p => false } }
 
       // Select first column
       val data = Csv.readAsBoolean(outputFile)
@@ -52,12 +52,6 @@ class PredictorDecorator(base: PullRequestList, val provider: PredictorProvider)
       data map { r => r(0) }
     }
 
-    toListOfFutures(importance, pulls.length)
-  }
-
-  private def toListOfFutures[T](list: Future[List[T]], count: Int): List[Future[T]] = {
-    (1 to count).toList map { i =>
-      list map (_.apply(i-1))
-    }
+    importance
   }
 }
