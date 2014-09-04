@@ -5,4 +5,5 @@ package git
  */
 trait RepositoryProvider {
   def commits: Long
+  def defaultBranch: String
 }

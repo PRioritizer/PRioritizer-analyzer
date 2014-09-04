@@ -23,6 +23,7 @@ object JsonWriter {
       "owner" -> prProvider.owner.toJson,
       "repository" -> prProvider.repository.toJson,
       "commits" -> repoProvider.commits.toJson,
+      "defaultBranch" -> repoProvider.defaultBranch.toJson,
       "date" -> DateTime.now.toDateTime(DateTimeZone.UTC).toString(df).toJson,
       "pullRequests" -> pullRequests.toJson
     )

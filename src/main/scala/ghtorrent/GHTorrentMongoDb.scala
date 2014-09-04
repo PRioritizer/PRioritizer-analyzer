@@ -35,10 +35,8 @@ class GHTorrentMongoDb(host: String, port: Int, username: String, password: Stri
     this
   }
 
-  def getByKey(collectionName: String, key: (String, Any), select: List[String]) : Map[String, Any] = {
-    val (name, _) = key
-
-    if (name == "")
+  def getByKey(collectionName: String, key: List[(String, Any)], select: List[String]) : Map[String, Any] = {
+    if (key.exists { case (k, v) => k == null || k == "" })
       return Map()
 
     val query = MongoDBObject(key)
@@ -49,7 +47,7 @@ class GHTorrentMongoDb(host: String, port: Int, username: String, password: Stri
     val collection = database.getCollection(collectionName)
     val result = collection.findOne(query, fields)
     select
-      .map(f => getField(result, f).map(v => (f, v)))
+      .map(f => getField[Any](result, f).map(v => (f, v)))
       .flatten
       .toMap
   }

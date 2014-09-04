@@ -11,6 +11,7 @@ import scala.slick.jdbc.{StaticQuery => Q}
 class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends RepositoryProvider {
   lazy val repoId = getRepoId
   lazy val commits = getCommitCount
+  lazy val defaultBranch = getDefaultBranch
   implicit lazy val session = provider.Db
 
   private def getRepoId: Int = {
@@ -23,6 +24,13 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
       throw new GHTorrentException(s"Could not find the $owner/$repo repository in the GHTorrent database")
 
     id.get
+  }
+
+  private def getDefaultBranch: String = {
+    val key = List("name" -> provider.repository, "owner.login" -> provider.owner)
+    val select = List("default_branch", "master_branch")
+    val result = provider.mongoDb.getByKey(GHTorrentMongoSettings.collection, key, select)
+    result.getOrElse(select(0), result.getOrElse(select(1), "master")).asInstanceOf[String]
   }
 
   private def getCommitCount: Long =
