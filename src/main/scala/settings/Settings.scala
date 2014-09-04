@@ -32,36 +32,6 @@ object ProviderSettings {
     single, pairwise).flatten
 }
 
-object CacheSettings {
-  val directory = Settings.get("cache.directory").getOrElse("")
-}
-
-object GHTorrentSettings {
-  val host = Settings.get("ghtorrent.host").getOrElse("")
-  val port = Settings.get("ghtorrent.port").map(p => p.toInt).getOrElse(3306)
-  val username = Settings.get("ghtorrent.username").getOrElse("")
-  val password = Settings.get("ghtorrent.password").getOrElse("")
-  val database = Settings.get("ghtorrent.database").getOrElse("")
-
-}
-
-object GitHubSettings {
-  val owner = Settings.get("github.owner").getOrElse("")
-  val repository = Settings.get("github.repository").getOrElse("")
-  val token = Settings.get("github.token").getOrElse("")
-
-}
-
-object JGitSettings {
-  val directory = Settings.get("jgit.directory").getOrElse("")
-  val clean = Settings.get("jgit.clean").map(c => c.toBoolean).getOrElse(false)
-}
-
-object PredictorSettings {
-  val command = Settings.get("predictor.command").getOrElse("")
-  val directory = Settings.get("model.directory").getOrElse("")
-}
-
 /**
  * Settings object that holds the client properties.
  */

@@ -4,9 +4,8 @@ import git._
 
 /**
  * A provider implementation for the disk cache.
- * @param cacheDirectory The path to the directory of the cache.
  */
-class CacheWriteProvider(cacheDirectory: String) extends CacheProvider(cacheDirectory) {
+class CacheWriteProvider extends CacheProvider {
   override val mode = CacheMode.Write
 
   override def getDecorator(list: PullRequestList): PullRequestList = {

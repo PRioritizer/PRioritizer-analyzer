@@ -15,12 +15,20 @@ monitor.interval.value=10
 # Cache provider
 cache.directory=/path/to/cache
 
-# GHTorrent provider
+# GHTorrent provider (MySQL)
 ghtorrent.host=localhost
 ghtorrent.port=3306
 ghtorrent.username=mysql-user
 ghtorrent.password=mysql-password
 ghtorrent.database=mysql-database
+
+# GHTorrent provider (MongoDB)
+ghtorrent.mongodb.host=localhost
+ghtorrent.mongodb.port=27017
+ghtorrent.mongodb.username=mongo-user
+ghtorrent.mongodb.password=mongo-password
+ghtorrent.mongodb.database=mongo-database
+ghtorrent.mongodb.collection.repositories=repositories-collection
 
 # GitHub provider
 github.owner=username

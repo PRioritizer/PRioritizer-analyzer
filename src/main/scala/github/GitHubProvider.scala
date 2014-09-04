@@ -8,14 +8,13 @@ import scala.concurrent.Future
 
 /**
  * A provider implementation for GitHub.
- * @param owner The name of the owner.
- * @param repository The name of the repository.
- * @param token The GitHub API access token.
  */
-class GitHubProvider(val owner: String, val repository: String, token: String) extends Provider {
-
-  if (owner == null || owner == "" || repository == null || repository == "" || token == null || token == "")
+class GitHubProvider extends Provider {
+  if (!GitHubSettings.validate)
     throw new IllegalArgumentException("Invalid GitHub configuration.")
+
+  lazy val owner = GitHubSettings.owner
+  lazy val repository = GitHubSettings.repository
 
   override val repositoryProvider: Option[RepositoryProvider] = None
   override val pullRequestProvider: Option[GitHubPullRequestProvider] = Some(new GitHubPullRequestProvider(this))
@@ -27,7 +26,7 @@ class GitHubProvider(val owner: String, val repository: String, token: String) e
 
   override def init(provider: Provider): Future[Unit] = Future {
     // Set global access token
-    GitHub.accessToken = token
+    GitHub.accessToken = GitHubSettings.token
     _loadedRepositoryProvider = provider.repositoryProvider.orNull
   }
 

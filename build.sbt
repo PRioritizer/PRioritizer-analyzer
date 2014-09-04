@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "2.1.0",
   "mysql" % "mysql-connector-java" % "5.1.30",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",
+  "org.mongodb" %% "casbah" % "2.7.2",
   "org.slf4j" % "slf4j-api" % "1.7.5",
   "org.slf4j" % "slf4j-simple" % "1.7.5"
 )

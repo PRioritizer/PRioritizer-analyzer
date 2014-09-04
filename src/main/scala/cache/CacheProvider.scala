@@ -11,9 +11,8 @@ import scala.slick.driver.SQLiteDriver.simple._
 
 /**
  * A provider implementation for the disk cache.
- * @param cacheDirectory The path to the directory of the cache.
  */
-abstract class CacheProvider(cacheDirectory: String) extends Provider {
+abstract class CacheProvider extends Provider {
   val dbName = "cache.db"
   val dbDriver = "org.sqlite.JDBC"
   val mode = CacheMode.None
@@ -36,7 +35,7 @@ abstract class CacheProvider(cacheDirectory: String) extends Provider {
 
     val ownerDir = provider.pullRequestProvider.get.owner.safeFileName
     val repoDir = provider.pullRequestProvider.get.repository.safeFileName
-    val file: File = new File(new File(cacheDirectory, ownerDir), repoDir)
+    val file: File = new File(new File(CacheSettings.directory, ownerDir), repoDir)
     file.mkdirs()
 
     _cachePath = file.getAbsolutePath

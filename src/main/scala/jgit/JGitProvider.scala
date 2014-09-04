@@ -15,12 +15,16 @@ import scala.concurrent.Future
 
 /**
  * A provider implementation for the JGit library.
- * @param repoDirectory The path to the directory of the git repository. It can either be a working directory or a bare git directory.
  */
-class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provider {
+class JGitProvider extends Provider {
   val remote = "pulls"
   val dotGit = ".git"
+  val repoDirectory = JGitSettings.directory
   val gitDir = if (repoDirectory != null && repoDirectory.endsWith(dotGit)) repoDirectory else repoDirectory + File.separator + dotGit
+
+  // Check if directory exists
+  if (!JGitSettings.validate)
+    throw new IllegalArgumentException("Invalid jgit configuration.")
 
   // Check if directory exists
   if (gitDir == null || gitDir == "" || !new File(gitDir).isDirectory)
@@ -46,7 +50,7 @@ class JGitProvider(repoDirectory: String, cleanUp: Boolean = true) extends Provi
   }
 
   override def dispose(): Unit = {
-    if (cleanUp)
+    if (JGitSettings.clean)
       clean()
 
     git.close()

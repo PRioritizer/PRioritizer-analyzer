@@ -10,12 +10,10 @@ import scala.sys.process._
 
 /**
  * A provider implementation for the predictor.
- * @param command The location of the predictor script.
- * @param directory The location of the models.
  */
-class PredictorProvider(val command: String, val directory: String) extends Provider {
+class PredictorProvider extends Provider {
 
-  if (command == null || command == "")
+  if (!PredictorSettings.validate)
     throw new IllegalArgumentException("Invalid predictor configuration.")
 
   private var _owner: String = _
@@ -23,7 +21,7 @@ class PredictorProvider(val command: String, val directory: String) extends Prov
 
   def owner = _owner
   def repository = _repository
-  def modelDirectory = new File(new File(directory, owner), repository).getPath
+  def modelDirectory = new File(new File(PredictorSettings.directory, owner), repository).getPath
 
   override val repositoryProvider: Option[RepositoryProvider] = None
   override val pullRequestProvider: Option[PullRequestProvider] = None
@@ -44,7 +42,7 @@ class PredictorProvider(val command: String, val directory: String) extends Prov
 
   def predict = Future(parseCommand("predict").! == 0)
 
-  private def parseCommand(action: String) = command
+  private def parseCommand(action: String) = PredictorSettings.command
     .replace("$action", action)
     .replace("$owner", owner)
     .replace("$repository", repository)

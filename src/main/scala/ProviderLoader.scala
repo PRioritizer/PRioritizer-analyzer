@@ -70,55 +70,14 @@ class ProviderLoader extends Provider {
 
   private def createProvider(name: String): Option[Provider] = {
     name match {
-      case "cache-read" => Some(createCacheReadProvider)
-      case "cache-write" => Some(createCacheWriteProvider)
-      case "ghtorrent" => Some(createGHTorrentProvider)
-      case "github" => Some(createGitHubProvider)
-      case "jgit" => Some(createJGitProvider)
-      case "predictor" => Some(createPredictorProvider)
-      case "none" => Some(createEmptyProvider)
+      case "cache-read" => Some(new CacheReadProvider)
+      case "cache-write" => Some(new CacheWriteProvider)
+      case "ghtorrent" => Some(new GHTorrentProvider)
+      case "github" => Some(new GitHubProvider)
+      case "jgit" => Some(new JGitProvider)
+      case "predictor" => Some(new PredictorProvider)
+      case "none" => Some(new EmptyProvider)
       case _ => None
     }
-  }
-
-  private def createCacheReadProvider: CacheReadProvider = {
-    new CacheReadProvider(CacheSettings.directory)
-  }
-
-  private def createCacheWriteProvider: CacheWriteProvider = {
-    new CacheWriteProvider(CacheSettings.directory)
-  }
-
-  private def createGHTorrentProvider: GHTorrentProvider = {
-    new GHTorrentProvider(
-      GHTorrentSettings.host,
-      GHTorrentSettings.port,
-      GHTorrentSettings.username,
-      GHTorrentSettings.password,
-      GHTorrentSettings.database
-    )
-  }
-
-  private def createGitHubProvider: GitHubProvider = {
-    new GitHubProvider(
-      GitHubSettings.owner,
-      GitHubSettings.repository,
-      GitHubSettings.token
-    )
-  }
-
-  private def createJGitProvider: JGitProvider = {
-    new JGitProvider(
-      JGitSettings.directory,
-      JGitSettings.clean
-    )
-  }
-
-  private def createPredictorProvider: PredictorProvider = {
-    new PredictorProvider(PredictorSettings.command, PredictorSettings.directory)
-  }
-
-  private def createEmptyProvider: EmptyProvider = {
-    new EmptyProvider
   }
 }

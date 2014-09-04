@@ -9,24 +9,16 @@ import scala.slick.jdbc.StaticQuery
 
 /**
  * A provider implementation for GHTorrent.
- * @param host The database host.
- * @param port The database port number.
- * @param user The database user name.
- * @param password The database password.
- * @param database The database name.
  */
-class GHTorrentProvider(val host: String, val port: Int, val user: String, val password: String, val database: String) extends Provider {
-  val dbUrl = s"jdbc:mysql://$host:$port/$database"
+class GHTorrentProvider extends Provider {
+
+  val dbUrl = s"jdbc:mysql://${GHTorrentSettings.host}:${GHTorrentSettings.port}/${GHTorrentSettings.database}"
   val dbDriver = "com.mysql.jdbc.Driver"
 
-  if (host == null || host == "" ||
-      port == 0 ||
-      user == null || user == "" ||
-      password == null || password == "" ||
-      database == null || database == "" )
+  if (!GHTorrentSettings.validate)
     throw new IllegalArgumentException("Invalid GHTorrent configuration.")
 
-  lazy val Db = Database.forURL(dbUrl, user, password, driver = dbDriver).createSession()
+  lazy val Db = Database.forURL(dbUrl, GHTorrentSettings.username, GHTorrentSettings.password, driver = dbDriver).createSession()
 
   private var _owner: String = _
   private var _repository: String = _
