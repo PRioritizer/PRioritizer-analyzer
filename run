@@ -8,7 +8,7 @@ JAR="$DIR/target/scala-$SCALA_VERSION/$NAME-assembly-$VERSION.jar"
 
 OWNER=$1
 REPOSITORY=$2
-GIT_LOCATION=$(readlink -f "$3")
+GIT_LOCATION="$( cd "$3" && pwd )"
 
 if ! [ -f "$JAR" ]; then
   echo "JAR file does not exist." >&2
