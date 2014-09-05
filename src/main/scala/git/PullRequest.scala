@@ -16,6 +16,7 @@ case class PullRequest( number: Int,
                         source: String,
                         target: String,
                         var title: Option[String] = None,
+                        var intraBranch: Option[Boolean] = None,
                         var createdAt: Option[DateTime] = None,
                         var updatedAt: Option[DateTime] = None,
                         var linesAdded: Option[Long] = None,
@@ -26,6 +27,7 @@ case class PullRequest( number: Int,
                         var coreMember: Option[Boolean] = None,
                         var comments: Option[Long] = None,
                         var reviewComments: Option[Long] = None,
+                        var lastCommentMention: Option[Boolean] = None,
                         var labels: Option[List[String]] = None,
                         var milestone: Option[Long] = None,
                         var `type`: Option[PullRequestType] = None,
@@ -60,6 +62,8 @@ case class PullRequest( number: Int,
   } yield commits.toDouble / repo.commits.toDouble
 
   def pullRequestAcceptRatio: Option[Double] = acceptedPullRequests.map(pulls => pulls.toDouble / totalPullRequests.get.toDouble)
+
+  def containsFix = title.map(t => t.toLowerCase.contains("fix"))
 
   override def toString: String =
     s"#$number: '$source' into '$target'"

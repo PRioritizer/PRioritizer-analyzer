@@ -19,6 +19,9 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
   }
 
   override def decorate(pullRequest: PullRequest): PullRequest = {
+    if (!pullRequest.intraBranch.isDefined)
+      pullRequest.intraBranch = Some(getIntraBranch(pullRequest.number))
+
     if (!pullRequest.contributedCommits.isDefined)
       pullRequest.contributedCommits = Some(getCommitCount(pullRequest.author))
 
@@ -49,6 +52,9 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     (total, accepted)
   }
 
+  private def getIntraBranch(number: Int): Boolean =
+    queryIntraBranch(repoId, number).run == 1
+
   private def getCommitCount(author: String): Int =
     queryCommitCount(repoId, author).run
 
@@ -63,6 +69,14 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
 
   private def getLabels(number: Int): List[String] =
     queryLabels(repoId, number).run.toList
+
+  private lazy val queryIntraBranch = for {
+    (repoId, prNumber) <- Parameters[(Int, Int)]
+     p <- Tables.pullRequests
+     // Where
+     if p.baseRepoId === repoId
+     if p.number === prNumber
+  } yield p.intraBranch
 
   private lazy val queryCommentCount = {
     def commentCount(repoId: Column[Int], prNumber: Column[Int]) =

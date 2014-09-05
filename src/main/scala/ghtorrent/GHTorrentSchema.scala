@@ -38,6 +38,7 @@ object GHTorrentSchema {
     def id = column[Int]("id", O.PrimaryKey)
     def baseRepoId = column[Int]("base_repo_id")
     def number = column[Int]("pullreq_id")
+    def intraBranch = column[Int]("intra_branch")
 
     def * = (id, number, baseRepoId) <> (PullRequest.tupled, PullRequest.unapply)
   }

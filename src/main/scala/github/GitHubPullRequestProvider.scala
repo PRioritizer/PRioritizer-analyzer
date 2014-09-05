@@ -37,6 +37,9 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
       p.createdAt = Some(pr.created_at)
       p.updatedAt = Some(pr.updated_at)
       p.avatar = Option(user.avatar_url)
+      p.intraBranch = Some(pr.base != null && pr.head != null &&
+                           pr.base.repo != null && pr.head.repo != null &&
+                           pr.base.repo.id == pr.head.repo.id)
       p
     }
   }
