@@ -29,7 +29,7 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
   private def getDefaultBranch: String = {
     val key = List("name" -> provider.repository, "owner.login" -> provider.owner)
     val select = List("default_branch", "master_branch")
-    val result = provider.mongoDb.getByKey(GHTorrentMongoSettings.collection, key, select)
+    val result = provider.mongoDb.getByKey(GHTorrentMongoSettings.repositoriesCollection, key, select)
     result.getOrElse(select(0), result.getOrElse(select(1), "master")).asInstanceOf[String]
   }
 

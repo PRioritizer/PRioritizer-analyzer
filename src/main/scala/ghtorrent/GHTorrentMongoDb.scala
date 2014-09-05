@@ -2,6 +2,7 @@ package ghtorrent
 
 import com.mongodb._
 import com.mongodb.casbah.commons.MongoDBObject
+import org.bson.types.ObjectId
 
 class GHTorrentMongoDb(host: String, port: Int, username: String, password: String, databaseName: String) {
   private var client: MongoClient = _
@@ -33,6 +34,14 @@ class GHTorrentMongoDb(host: String, port: Int, username: String, password: Stri
     connected = true
 
     this
+  }
+
+  def getById(collectionName: String, objectId: String, select: List[String]) : Map[String, Any] = {
+    if (objectId == "")
+      return Map()
+
+    val res = getByKey(collectionName, List("_id" -> new ObjectId(objectId)), select)
+    res
   }
 
   def getByKey(collectionName: String, key: List[(String, Any)], select: List[String]) : Map[String, Any] = {

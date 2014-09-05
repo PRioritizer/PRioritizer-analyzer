@@ -26,7 +26,9 @@ object GHTorrentMongoSettings {
   val username = Settings.get("ghtorrent.mongodb.username").getOrElse("")
   val password = Settings.get("ghtorrent.mongodb.password").getOrElse("")
   val database = Settings.get("ghtorrent.mongodb.database").getOrElse("")
-  val collection = Settings.get("ghtorrent.mongodb.collection.repositories").getOrElse("")
+  val repositoriesCollection = Settings.get("ghtorrent.mongodb.collection.repositories").getOrElse("")
+  val issueCommentsCollection = Settings.get("ghtorrent.mongodb.collection.issue.comments").getOrElse("")
+  val reviewCommentCollection = Settings.get("ghtorrent.mongodb.collection.pullrequest.comments").getOrElse("")
 
   def validate = host != null &&
     host != "" &&
@@ -37,6 +39,10 @@ object GHTorrentMongoSettings {
     password != "" &&
     database != null &&
     database != "" &&
-    collection != null &&
-    collection != ""
+    repositoriesCollection != null &&
+    repositoriesCollection != "" &&
+    issueCommentsCollection != null &&
+    issueCommentsCollection != "" &&
+    reviewCommentCollection != null &&
+    reviewCommentCollection != ""
 }

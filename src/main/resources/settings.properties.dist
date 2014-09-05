@@ -30,6 +30,8 @@ ghtorrent.mongodb.username=mongo-user
 ghtorrent.mongodb.password=mongo-password
 ghtorrent.mongodb.database=mongo-database
 ghtorrent.mongodb.collection.repositories=repositories-collection
+ghtorrent.mongodb.collection.issue.comments=issue-comments-collection
+ghtorrent.mongodb.collection.pullrequest.comments=pull-request-comments-collection
 
 # GitHub provider
 github.owner=username

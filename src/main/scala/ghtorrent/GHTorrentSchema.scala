@@ -1,5 +1,7 @@
 package ghtorrent
 
+import java.sql.Timestamp
+
 import ghtorrent.models._
 
 import scala.slick.driver.SQLiteDriver.simple._
@@ -91,6 +93,8 @@ object GHTorrentSchema {
   class Comments(tag: Tag) extends Table[Comment](tag, TableNames.comments) {
     def id = column[Int]("comment_id", O.PrimaryKey)
     def issueId = column[Int]("issue_id")
+    def createdAt = column[Timestamp]("created_at")
+    def extRefId = column[String]("ext_ref_id")
 
     def * = (id, issueId) <> (Comment.tupled, Comment.unapply)
   }
@@ -98,6 +102,8 @@ object GHTorrentSchema {
   class ReviewComments(tag: Tag) extends Table[Comment](tag, TableNames.reviewComments) {
     def id = column[Int]("comment_id", O.PrimaryKey)
     def pullRequestId = column[Int]("pull_request_id")
+    def createdAt = column[Timestamp]("created_at")
+    def extRefId = column[String]("ext_ref_id")
 
     def * = (id, pullRequestId) <> (Comment.tupled, Comment.unapply)
   }

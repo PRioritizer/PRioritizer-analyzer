@@ -43,6 +43,9 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     if (!pullRequest.labels.isDefined)
       pullRequest.labels = Some(getLabels(pullRequest.number))
 
+    if (!pullRequest.lastCommentMention.isDefined)
+      pullRequest.lastCommentMention = Some(getLastCommentMention(pullRequest.number))
+
     pullRequest
   }
 
@@ -70,12 +73,29 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
   private def getLabels(number: Int): List[String] =
     queryLabels(repoId, number).run.toList
 
+  private def getLastCommentMention(number: Int): Boolean = {
+    val extRefIds = List[Option[(String, String)]](
+      queryLastIssueComment(repoId,  number).firstOption.map(id => (GHTorrentMongoSettings.issueCommentsCollection, id)),
+      queryLastReviewComment(repoId, number).firstOption.map(id => (GHTorrentMongoSettings.reviewCommentCollection, id))
+    )
+    val body = extRefIds.flatten map { case (collection, id) => getCommentBody(collection, id) }
+    val regex = "(?:\\s|^)@[a-zA-Z0-9]+".r
+    body != null && regex.findFirstMatchIn(body.mkString(" ")).isDefined
+  }
+
+  private def getCommentBody(collection: String, extRefId: String): String = {
+    val fields = List("body")
+
+    val obj = provider.mongoDb.getById(collection, extRefId, fields)
+    obj.getOrElse("body", "").asInstanceOf[String]
+  }
+
   private lazy val queryIntraBranch = for {
     (repoId, prNumber) <- Parameters[(Int, Int)]
-     p <- Tables.pullRequests
-     // Where
-     if p.baseRepoId === repoId
-     if p.number === prNumber
+    p <- Tables.pullRequests
+    // Where
+    if p.baseRepoId === repoId
+    if p.number === prNumber
   } yield p.intraBranch
 
   private lazy val queryCommentCount = {
@@ -177,4 +197,28 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
 
     Compiled(commentCount _)
   }
+
+  private lazy val queryLastIssueComment = for {
+    (repoId, prNumber) <- Parameters[(Int, Int)]
+    p <- Tables.pullRequests
+    i <- Tables.issues
+    c <- Tables.comments
+    // Join
+    if p.id === i.pullRequestId
+    if i.id === c.issueId
+    // Where
+    if p.baseRepoId === repoId
+    if p.number === prNumber
+  } yield c.extRefId
+
+  private lazy val queryLastReviewComment = for {
+    (repoId, prNumber) <- Parameters[(Int, Int)]
+    p <- Tables.pullRequests
+    c <- Tables.reviewComments
+    // Join
+    if p.id === c.pullRequestId
+    // Where
+    if p.baseRepoId === repoId
+    if p.number === prNumber
+  } yield c.extRefId
 }
