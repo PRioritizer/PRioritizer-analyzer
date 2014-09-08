@@ -1,5 +1,8 @@
 package ghtorrent
 
+import java.sql.Timestamp
+import java.sql.Date
+
 import ghtorrent.GHTorrentSchema.Tables
 import git.{PullRequest, PullRequestDecorator, PullRequestList}
 
@@ -74,13 +77,19 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     queryLabels(repoId, number).run.toList
 
   private def getLastCommentMention(number: Int): Boolean = {
-    val extRefIds = List[Option[(String, String)]](
-      queryLastIssueComment(repoId,  number).firstOption.map(id => (GHTorrentMongoSettings.issueCommentsCollection, id)),
-      queryLastReviewComment(repoId, number).firstOption.map(id => (GHTorrentMongoSettings.reviewCommentCollection, id))
+    val extRefIds = List[Option[(String, String, Timestamp)]](
+      queryLastIssueComment(repoId,  number).firstOption.map { case (id, date) => (GHTorrentMongoSettings.issueCommentsCollection, id, date) },
+      queryLastReviewComment(repoId, number).firstOption.map { case (id, date) => (GHTorrentMongoSettings.reviewCommentCollection, id, date) }
     )
-    val body = extRefIds.flatten map { case (collection, id) => getCommentBody(collection, id) }
+
+    val comments = extRefIds.flatten
+    if (comments.isEmpty)
+      return false
+
+    val (collection, cid, _) = comments.maxBy { case (_, _, date) => date.getTime }
+    val body = getCommentBody(collection, cid)
     val regex = "(?:\\s|^)@[a-zA-Z0-9]+".r
-    body != null && regex.findFirstMatchIn(body.mkString(" ")).isDefined
+    body != null && regex.findFirstMatchIn(body).isDefined
   }
 
   private def getCommentBody(collection: String, extRefId: String): String = {
@@ -209,7 +218,7 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     // Where
     if p.baseRepoId === repoId
     if p.number === prNumber
-  } yield c.extRefId
+  } yield (c.extRefId, c.createdAt)
 
   private lazy val queryLastReviewComment = for {
     (repoId, prNumber) <- Parameters[(Int, Int)]
@@ -220,5 +229,5 @@ class GHTorrentDecorator(base: PullRequestList, val provider: GHTorrentProvider)
     // Where
     if p.baseRepoId === repoId
     if p.number === prNumber
-  } yield c.extRefId
+  } yield (c.extRefId, c.createdAt)
 }
