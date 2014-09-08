@@ -31,6 +31,8 @@ class Pairwise(pullRequests: List[PullRequest], skipDifferentTargets: Boolean = 
    * @return The list of pairs.
    */
   private def getPairs(pulls: List[PullRequest]): List[PullRequestPair] = {
+    val singles = pulls.groupBy(p => p.target).filter { case (_, group) => group.length == 1 }.map(_._2(0))
+
     val pairs = for {
     // Pairwise
       x <- pulls
@@ -41,8 +43,10 @@ class Pairwise(pullRequests: List[PullRequest], skipDifferentTargets: Boolean = 
       pr2 = if (x.number < y.number) y else x
     } yield PullRequestPair(pr1, pr2)
 
+    val pairsWithSingles = pairs ++ singles.map(p => PullRequestPair(p,p))
+
     // Distinct and sort
-    SortedSet(pairs: _*).toList
+    SortedSet(pairsWithSingles: _*).toList
   }
 }
 
