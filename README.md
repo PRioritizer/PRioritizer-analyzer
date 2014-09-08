@@ -16,4 +16,4 @@ The analyzer is written for the [GHTorrent](http://ghtorrent.org/) project, howe
 
 Machine learning (optional)
 ---------------------------
-To predict which pull requests require more attention (high priority) the [Predictor](https://github.com/erikvdv1/PRioritizer-predictor) can be used as extra decorator.
+To predict which pull requests require more attention (high priority) the [predictor](https://github.com/erikvdv1/PRioritizer-predictor) can be used as extra decorator.
