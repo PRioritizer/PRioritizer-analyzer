@@ -1,6 +1,8 @@
 PRioritizer analyzer
 ====================
 
+[![Build Status](https://magnum.travis-ci.com/erikvdv1/PRioritizer-analyzer.svg?token=wgtEsFC7Tpxoy7U9Y5p1&branch=master)](https://magnum.travis-ci.com/erikvdv1/PRioritizer-analyzer)
+
 A pull request prioritizer written in Scala.
 
 Follow the steps below to prioritize your pull requests.
