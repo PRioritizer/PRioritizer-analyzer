@@ -16,6 +16,7 @@ class GitHubProvider extends Provider {
   lazy val owner = GitHubSettings.owner
   lazy val repository = GitHubSettings.repository
 
+  override val repositoryProvider: Option[RepositoryProvider] = Some(new GitHubRepositoryProvider(this))
   override val pullRequestProvider: Option[GitHubPullRequestProvider] = Some(new GitHubPullRequestProvider(this))
   override def getDecorator(list: PullRequestList): PullRequestList = new GitHubDecorator(list, this)
 
