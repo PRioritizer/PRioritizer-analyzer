@@ -10,7 +10,7 @@ resolvers += "spray" at "http://repo.spray.io/"
 
 libraryDependencies ++= Seq(
   "com.github.nscala-time" %% "nscala-time" % "1.2.0",
-  "org.eclipse.jgit" % "org.eclipse.jgit" % "3.3.2.201404171909-r",
+  "org.eclipse.jgit" % "org.eclipse.jgit" % "3.5.0.201409260305-r",
   "org.gitective" % "gitective-core" % "0.9.9",
   "io.spray" %%  "spray-json" % "1.2.6",
   "com.typesafe.slick" %% "slick" % "2.1.0",
