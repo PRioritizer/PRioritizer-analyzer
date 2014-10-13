@@ -10,7 +10,6 @@ import scala.slick.jdbc.{StaticQuery => Q}
  */
 class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends RepositoryProvider {
   lazy val repoId = getRepoId
-  lazy val commits = getCommitCount
   lazy val defaultBranch = getDefaultBranch
   implicit lazy val session = provider.Db
 
@@ -33,9 +32,6 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
     result.getOrElse(select(0), result.getOrElse(select(1), "master")).asInstanceOf[String]
   }
 
-  private def getCommitCount: Long =
-    getCommitCountQuery(repoId).firstOption.getOrElse(0).toLong
-
   private lazy val getRepoIdQuery: Q[(String, String), Int] =
     Q[(String, String), Int] +
       """SELECT
@@ -46,13 +42,4 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
         |WHERE
         |owners.login = ? AND
         |projects.`name` = ?""".stripMargin
-
-  private lazy val getCommitCountQuery: Q[Int, Int] =
-    Q[Int, Int] +
-      """SELECT
-        |COUNT(project_commits.commit_id)
-        |FROM
-        |project_commits
-        |WHERE
-        |project_commits.project_id = ?""".stripMargin
 }

@@ -5,6 +5,7 @@ import scala.concurrent.Future
 
 trait Provider {
   val repositoryProvider: Option[RepositoryProvider] = None
+  val commitProvider: Option[CommitProvider] = None
   val pullRequestProvider: Option[PullRequestProvider] = None
   def getDecorator(list: PullRequestList): PullRequestList = list
   def getTotalDecorator(list: TotalList): TotalList = list

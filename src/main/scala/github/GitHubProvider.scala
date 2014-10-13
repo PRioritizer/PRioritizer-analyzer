@@ -22,10 +22,14 @@ class GitHubProvider extends Provider {
   private var _loadedRepositoryProvider: RepositoryProvider = _
   def loadedRepositoryProvider = _loadedRepositoryProvider
 
+  private var _loadedCommitProvider: CommitProvider = _
+  def loadedCommitProvider = _loadedCommitProvider
+
   override def init(provider: Provider): Future[Unit] = Future {
     // Set global access token
     GitHub.accessToken = GitHubSettings.token
     _loadedRepositoryProvider = provider.repositoryProvider.orNull
+    _loadedCommitProvider = provider.commitProvider.orNull
   }
 
   override def dispose(): Unit = {

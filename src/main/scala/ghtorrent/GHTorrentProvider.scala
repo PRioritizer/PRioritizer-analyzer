@@ -28,6 +28,7 @@ class GHTorrentProvider extends Provider {
   def repository = _repository
 
   override val repositoryProvider: Option[RepositoryProvider] = Some(new GHTorrentRepositoryProvider(this))
+  override val commitProvider: Option[CommitProvider] = Some(new GHTorrentCommitProvider(this))
   override def getDecorator(list: PullRequestList): PullRequestList = new GHTorrentDecorator(list, this)
 
   override def init(provider: Provider): Future[Unit] = Future {

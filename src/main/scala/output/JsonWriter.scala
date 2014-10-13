@@ -15,6 +15,7 @@ object JsonWriter {
   def writePullRequests(dir: String, provider: Provider, pullRequests: List[PullRequest]): Unit = {
     val prProvider = provider.pullRequestProvider.orNull
     val repoProvider = provider.repositoryProvider.orNull
+    val commitProvider = provider.commitProvider.orNull
 
     val df = ISODateTimeFormat.dateTime
 
@@ -22,7 +23,7 @@ object JsonWriter {
       "source" -> prProvider.source.toJson,
       "owner" -> prProvider.owner.toJson,
       "repository" -> prProvider.repository.toJson,
-      "commits" -> repoProvider.commits.toJson,
+      "commits" -> commitProvider.commits.toJson,
       "defaultBranch" -> repoProvider.defaultBranch.toJson,
       "date" -> DateTime.now.toDateTime(DateTimeZone.UTC).toString(df).toJson,
       "pullRequests" -> pullRequests.toJson

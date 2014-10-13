@@ -16,6 +16,7 @@ object GeneralSettings {
 
 object ProviderSettings {
   lazy val repository = Settings.get("provider.repository")
+  lazy val commits = Settings.get("provider.commits")
   lazy val pullRequests = Settings.get("provider.requests")
 
   lazy val single = Settings.get("decorators.single") match {
@@ -32,6 +33,7 @@ object ProviderSettings {
 
   lazy val all = List(
     repository match { case Some(p) => List(p); case _ => List() },
+    commits match { case Some(p) => List(p); case _ => List() },
     pullRequests match { case Some(p) => List(p); case _ => List() },
     single,
     total,

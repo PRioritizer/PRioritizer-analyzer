@@ -31,7 +31,7 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
     } yield {
       val user = if (pr.user != null) pr.user else GhAuthor(null, null, "Unknown user", null, -1)
       val p = PullRequest(pr.number, user.login, pr.head.sha, pr.head.label, pr.base.ref)
-      p.repository = Some(provider.loadedRepositoryProvider)
+      p.commitProvider = Some(provider.loadedCommitProvider)
       p.title = Some(pr.title)
       p.`type` = Some(PullRequestType.parse(pr.title))
       p.createdAt = Some(pr.created_at)

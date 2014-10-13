@@ -39,7 +39,7 @@ case class PullRequest( number: Int,
                         var important: Option[Boolean] = None
                         ) {
 
-  var repository: Option[RepositoryProvider] = None
+  var commitProvider: Option[CommitProvider] = None
 
   /**
    * @return The total number of added/edited/deleted lines.
@@ -58,8 +58,8 @@ case class PullRequest( number: Int,
 
   def contributedCommitRatio: Option[Double] = for {
     commits <- contributedCommits
-    repo <- repository
-  } yield commits.toDouble / repo.commits.toDouble
+    allCommits <- commitProvider
+  } yield commits.toDouble / allCommits.commits.toDouble
 
   def pullRequestAcceptRatio: Option[Double] = acceptedPullRequests.map(pulls => pulls.toDouble / totalPullRequests.get.toDouble)
 

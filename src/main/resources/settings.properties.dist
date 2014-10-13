@@ -1,5 +1,6 @@
 # Providers / decorators
 provider.repository=ghtorrent|github|jgit|none
+provider.commits=ghtorrent|github|jgit|none
 provider.requests=ghtorrent|github|jgit|none
 decorators.single=cache-read,ghtorrent,github,jgit,cache-write
 decorators.total=predictor

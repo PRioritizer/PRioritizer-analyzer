@@ -18,6 +18,12 @@ class ProviderLoader extends Provider {
     repo <- provider.repositoryProvider
   } yield repo
 
+  override val commitProvider: Option[CommitProvider] = for {
+    name <- ProviderSettings.commits
+    provider <- getProvider(name)
+    repo <- provider.commitProvider
+  } yield repo
+
   override val pullRequestProvider: Option[PullRequestProvider] = for {
     name <- ProviderSettings.pullRequests
     provider <- getProvider(name)
