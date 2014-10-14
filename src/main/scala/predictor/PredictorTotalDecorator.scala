@@ -34,7 +34,7 @@ class PredictorTotalDecorator(base: TotalList, val provider: PredictorProvider) 
 
     Csv.write(inputFile, pulls)
     Await.ready(provider.predict, Duration.Inf)
-    inputFile.delete
+    //inputFile.delete
 
     // Something went wrong, return false
     if (!outputFile.exists)
@@ -42,7 +42,7 @@ class PredictorTotalDecorator(base: TotalList, val provider: PredictorProvider) 
 
     // Select first column
     val data = Csv.readAsBoolean(outputFile)
-    outputFile.delete
+    //outputFile.delete
     val importance = data map { r => r(0) }
 
     importance
