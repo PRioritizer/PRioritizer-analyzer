@@ -71,7 +71,7 @@ object Csv {
   }
 
   def writeData(file: File, data: List[List[Any]]): Unit = {
-    val contents = data.map(row => row.map(v => format(v)).mkString(",")).mkString("\n")
+    val contents = data.map(row => row.map(v => format(v)).mkString(",")).mkString("\n") + "\n"
     writeToFile(file, contents)
   }
 
