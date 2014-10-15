@@ -62,6 +62,8 @@ object Csv {
 
   def readAsBoolean(file: File): List[List[Boolean]] = read(file).map(r => r.map(f => f.toBoolean))
 
+  def readAsDouble(file: File): List[List[Double]] = read(file).map(r => r.map(f => f.toDouble))
+
   def read(file: String): List[List[String]] = read(new File(file))
 
   def read(file: File): List[List[String]] = {

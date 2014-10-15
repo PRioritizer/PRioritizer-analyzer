@@ -36,7 +36,7 @@ case class PullRequest( number: Int,
                         var contributedCommits: Option[Int] = None,
                         var acceptedPullRequests: Option[Int] = None,
                         var totalPullRequests: Option[Int] = None,
-                        var important: Option[Boolean] = None
+                        var important: Option[Double] = None
                         ) {
 
   var commitProvider: Option[CommitProvider] = None

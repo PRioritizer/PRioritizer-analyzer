@@ -28,7 +28,7 @@ class PredictorTotalDecorator(base: TotalList, val provider: PredictorProvider) 
     list
   }
 
-  private def getImportance(pulls: List[PullRequest]): List[Boolean] = {
+  private def getImportance(pulls: List[PullRequest]): List[Double] = {
     val inputFile = new File(provider.modelDirectory, inputFileName)
     val outputFile = new File(provider.modelDirectory, outputFileName)
 
@@ -38,10 +38,10 @@ class PredictorTotalDecorator(base: TotalList, val provider: PredictorProvider) 
 
     // Something went wrong, return false
     if (!outputFile.exists)
-      return pulls map { p => false }
+      return pulls map { p => 0D }
 
     // Select first column
-    val data = Csv.readAsBoolean(outputFile)
+    val data = Csv.readAsDouble(outputFile)
     //outputFile.delete
     val importance = data map { r => r(0) }
 
