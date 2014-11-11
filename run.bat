@@ -12,9 +12,10 @@ FOR %%i in (%*) DO SET /A _argcActual+=1
 SET OWNER=%1
 SET REPOSITORY=%2
 SET GIT_LOCATION=%~f3
+SET TIMESTAMP=%4
 
 IF NOT EXIST %JAR% GOTO JarNotFound
-IF NOT %_argcActual%==3 GOTO InvalidArgs
+IF NOT %_argcActual%==3 IF NOT %_argcActual%==4 GOTO InvalidArgs
 IF NOT %OWNER: =%==%OWNER% GOTO Whitespace
 IF NOT %REPOSITORY: =%==%REPOSITORY% GOTO Whitespace
 IF NOT %GIT_LOCATION: =%==%GIT_LOCATION% GOTO Whitespace
@@ -27,8 +28,8 @@ ECHO Make sure you run `sbt assembly` to build the JAR executable.
 GOTO end
 
 :InvalidArgs
-ECHO Wrong number of arguments, expected 3 arguments.
-ECHO Usage: %0 owner_name repository_name git_location
+ECHO Wrong number of arguments, expected 3 or 4 arguments.
+ECHO Usage: %0 owner_name repository_name git_location [timestamp]
 GOTO end
 
 :DirNotFound
@@ -40,7 +41,7 @@ ECHO Whitespace is not supported.
 GOTO end
 
 :ValidArgs
-SET PROPS=-Dfile.encoding=UTF8 -Dgithub.owner=%OWNER% -Dgithub.repository=%REPOSITORY% -Djgit.directory=%GIT_LOCATION%
+SET PROPS=-Dfile.encoding=UTF8 -Dgithub.owner=%OWNER% -Dgithub.repository=%REPOSITORY% -Djgit.directory=%GIT_LOCATION% -Dupdate.timestamp=%TIMESTAMP%
 java %PROPS% -jar %JAR%
 :end
 

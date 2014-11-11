@@ -2,6 +2,8 @@ package utils
 
 import java.io.{ByteArrayOutputStream, PrintStream}
 
+import scala.util.{Success, Try}
+
 object Extensions {
   implicit class EnrichString(str: String) {
 
@@ -10,6 +12,10 @@ object Extensions {
 
     def trim(chars: List[Char]): String =
       str.dropWhile(c => chars.contains(c)).reverse.dropWhile(c => chars.contains(c)).reverse
+
+    def toOptionInt: Option[Int] = Try(str.toInt).toOption
+
+    def toOptionLong: Option[Long] = Try(str.toLong).toOption
   }
 
   implicit class EnrichException(ex: Throwable) {

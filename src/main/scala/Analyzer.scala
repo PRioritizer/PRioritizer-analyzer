@@ -27,9 +27,13 @@ object Analyzer {
 
       // Check for update interval
       val file = JsonWriter.getFile(GeneralSettings.outputDirectory, prProvider)
-      val expires = new DateTime(file.lastModified).plusSeconds(GeneralSettings.updateInterval)
+      val fileMod = new DateTime(file.lastModified)
+      val expires = fileMod.plusSeconds(GeneralSettings.updateInterval)
       if (DateTime.now.isBefore(expires)) {
         logger warn s"Skip - Already recently updated"
+        return
+      } else if (GeneralSettings.updateTimestamp > 0 && fileMod.isAfter(GeneralSettings.updateTimestamp * 1000)) {
+        logger warn s"Skip - Already up-to-date with respect to the provided timestamp"
         return
       }
 
