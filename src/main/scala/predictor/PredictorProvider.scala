@@ -3,6 +3,7 @@ package predictor
 import java.io.File
 
 import git._
+import utils.Extensions._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -21,7 +22,11 @@ class PredictorProvider extends Provider {
 
   def owner = _owner
   def repository = _repository
-  def modelDirectory = new File(new File(PredictorSettings.directory, owner), repository).getPath
+  def modelDirectory = {
+    val ownerDir = owner.toLowerCase.safeFileName
+    val repoDir = repository.toLowerCase.safeFileName
+    new File(new File(PredictorSettings.directory, ownerDir), repoDir).getPath
+  }
 
   override def getTotalDecorator(list: TotalList): TotalList = new PredictorTotalDecorator(list, this)
 
