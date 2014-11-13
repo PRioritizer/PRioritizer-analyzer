@@ -87,24 +87,27 @@ object JGitExtensions {
      * @param otherId The other end of the chain.
      * @return The number of added/edited/deleted lines.
      */
-    def stats(objectId: ObjectId, otherId: ObjectId): Stats = {
+    def stats(objectId: ObjectId, otherId: ObjectId, detectRenames: Boolean = true): Stats = {
       val base = CommitUtils.getBase(repo, objectId, otherId)
-      val detectRenames = true
       val diffCount = new DiffLineCountFilter(detectRenames)
       val fileCount = new DiffFileCountFilter(detectRenames)
       val commitCount = new CommitCountFilter()
       val filter = new AllCommitFilter(diffCount, fileCount, commitCount)
       val finder = new CommitFinder(repo).setFilter(filter)
 
-      finder.findBetween(objectId, base)
-      val stats = Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
-      filter.reset()
+      try {
+        finder.findBetween(objectId, base)
+        val statistics = Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
 
-      if (otherId == base)
-        return stats
+        if (otherId == base)
+          return statistics
 
-      finder.findBetween(otherId, base)
-      stats + Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
+        filter.reset()
+        finder.findBetween(otherId, base)
+        statistics + Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
+      } catch {
+        case e: Throwable if detectRenames => stats(objectId, otherId, detectRenames = false)
+      }
     }
   }
 
