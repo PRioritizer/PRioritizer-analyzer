@@ -30,8 +30,8 @@ abstract class CacheProvider extends Provider {
     if (provider == null || provider.pullRequestProvider.orNull == null)
       throw new IllegalArgumentException("Need a pull request provider to initialize other providers.")
 
-    val ownerDir = provider.pullRequestProvider.get.owner.safeFileName
-    val repoDir = provider.pullRequestProvider.get.repository.safeFileName
+    val ownerDir = provider.pullRequestProvider.get.owner.toLowerCase.safeFileName
+    val repoDir = provider.pullRequestProvider.get.repository.toLowerCase.safeFileName
     val file: File = new File(new File(CacheSettings.directory, ownerDir), repoDir)
     file.mkdirs()
 
