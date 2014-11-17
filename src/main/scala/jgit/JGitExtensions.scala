@@ -90,32 +90,32 @@ object JGitExtensions {
     def stats(objectId: ObjectId, otherId: ObjectId, detectRenames: Boolean = true): Stats = {
       val base = CommitUtils.getBase(repo, objectId, otherId)
       val diffCount = new DiffLineCountFilter(detectRenames)
-      val fileCount = new DiffFileCountFilter(detectRenames)
+      val fileNames = new DiffFileNameFilter(detectRenames)
       val commitCount = new CommitCountFilter()
-      val filter = new AllCommitFilter(diffCount, fileCount, commitCount)
+      val filter = new AllCommitFilter(diffCount, fileNames, commitCount)
       val finder = new CommitFinder(repo).setFilter(filter)
 
       try {
         finder.findBetween(objectId, base)
-        val statistics = Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
+        val statistics = Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileNames.getFiles, commitCount.getCount)
 
         if (otherId == base)
           return statistics
 
         filter.reset()
         finder.findBetween(otherId, base)
-        statistics + Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileCount.getTotal, commitCount.getCount)
+        statistics + Stats(diffCount.getAdded, diffCount.getEdited, diffCount.getDeleted, fileNames.getFiles, commitCount.getCount)
       } catch {
         case e: Throwable if detectRenames => stats(objectId, otherId, detectRenames = false)
       }
     }
   }
 
-  case class Stats(addedLines: Long, editedLines: Long, deletedLines: Long, numFiles: Long, numCommits: Long) {
+  case class Stats(addedLines: Long, editedLines: Long, deletedLines: Long, files: List[String], numCommits: Long) {
     def +(other: Stats) = Stats(addedLines + other.addedLines,
                                 editedLines + other.editedLines,
                                 deletedLines + other.deletedLines,
-                                numFiles + other.numFiles,
+                                files ++ other.files,
                                 numCommits + other.numCommits)
   }
 

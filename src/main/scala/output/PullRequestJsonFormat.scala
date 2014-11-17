@@ -34,6 +34,7 @@ object PullRequestJsonFormat extends RootJsonFormat[PullRequest] {
       "contributedCommits" -> pr.contributedCommits.toJson,
       "acceptedPullRequests" -> pr.acceptedPullRequests.toJson,
       "totalPullRequests" -> pr.totalPullRequests.toJson,
+      "hasTestCode" -> pr.hasTestCode.toJson,
       "important" -> pr.important.toJson
     )
     jsonAst

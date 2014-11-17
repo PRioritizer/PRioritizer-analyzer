@@ -49,8 +49,15 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider) extends
   }
 
   def init(): Unit = {
-    // Create table
-    if (MTable.getTables(TableNames.pullRequests).list.isEmpty)
-      Tables.pullRequests.ddl.create
+    val table = MTable.getTables(TableNames.pullRequests).list.headOption
+
+    // (Re)create table
+    table match {
+      case Some(t) => if (CacheSchema.ColumnCount.pullRequests != t.getColumns.list.length) {
+          Tables.pullRequests.ddl.drop
+          Tables.pullRequests.ddl.create
+        }
+      case None => Tables.pullRequests.ddl.create
+    }
   }
 }

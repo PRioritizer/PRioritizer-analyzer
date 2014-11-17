@@ -33,6 +33,7 @@ object Csv {
       "deletions",
       "commits",
       "files",
+      "hasTestCode",
       "important")
 
     val rows = for {
@@ -54,6 +55,7 @@ object Csv {
         pr.linesDeleted.getOrElse(0L),
         pr.commits.getOrElse(0L),
         pr.filesChanged.getOrElse(0L),
+        pr.hasTestCode.getOrElse(false),
         false)
 
     val contents = header :: rows
