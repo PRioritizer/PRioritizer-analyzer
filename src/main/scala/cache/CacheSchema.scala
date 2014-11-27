@@ -22,8 +22,8 @@ object CacheSchema {
   }
 
   class PairCache(tag: Tag) extends Table[CachedPullRequestPair](tag, TableNames.pairs) {
-    def shaOne = column[String]("sha_one")
-    def shaTwo = column[String]("sha_two")
+    def shaOne = column[String]("sha_one", O.Length(40, varying = false))
+    def shaTwo = column[String]("sha_two", O.Length(40, varying = false))
     def isMergeable = column[Boolean]("is_mergeable")
 
     def * = (shaOne, shaTwo, isMergeable) <> (CachedPullRequestPair.tupled, CachedPullRequestPair.unapply)
@@ -32,7 +32,7 @@ object CacheSchema {
   }
 
   class PullRequestCache(tag: Tag) extends Table[CachedPullRequest](tag, TableNames.pullRequests) {
-    def sha = column[String]("sha", O.PrimaryKey)
+    def sha = column[String]("sha", O.PrimaryKey, O.Length(40, varying = false))
     def isMergeable = column[Boolean]("is_mergeable")
     def linesAdded = column[Long]("lines_added")
     def linesDeleted = column[Long]("lines_deleted")
