@@ -7,12 +7,15 @@ import org.joda.time.{DateTime, DateTimeZone, Minutes}
  * An object that holds information about the pull request.
  * @param number The number of the pull request.
  * @param author The author name.
+ * @param sha The SHA of the source tip.
+ * @param shaTarget The SHA of the target tip.
  * @param source The source branch name.
  * @param target The target branch name.
  */
 case class PullRequest( number: Int,
                         author: String,
                         sha: String,
+                        shaTarget: String,
                         source: String,
                         target: String,
                         var title: Option[String] = None,

@@ -12,6 +12,7 @@ import scala.concurrent.Await
  */
 class GitHubRepositoryProvider(val provider: GitHubProvider) extends RepositoryProvider {
   lazy val defaultBranch = getDefaultBranch
+  lazy val branchTips = getBranchTips
   lazy val repo = getRepository
 
   private def getDefaultBranch: String = repo.default_branch
@@ -19,5 +20,12 @@ class GitHubRepositoryProvider(val provider: GitHubProvider) extends RepositoryP
   private def getRepository: GhRepository = {
     val repository = GhRepository.get_repository(provider.owner, provider.repository)
     Await.result(repository, Duration.Inf)
+  }
+
+  private def getBranchTips: Map[String, String] = {
+    val req = GhRepository.get_branches(provider.owner, provider.repository)
+    val branches = Await.result(req, Duration.Inf)
+    val tmp = branches map { b => (b.name, b.commit.sha) }
+    tmp.toMap
   }
 }

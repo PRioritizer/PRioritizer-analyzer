@@ -5,4 +5,5 @@ package git
  */
 trait RepositoryProvider {
   def defaultBranch: String
+  def branchTips: Map[String, String] // name -> sha
 }

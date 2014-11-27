@@ -16,9 +16,9 @@ object CacheSchema {
     val pullRequests = "pr_cache"
   }
 
-  object ColumnCount {
-    val pairs = 3
-    val pullRequests = 7
+  object ColumnNames {
+    val pairs = List("sha_one", "sha_two", "is_mergeable")
+    val pullRequests = List("sha", "lines_added", "lines_deleted", "files_changed", "commits", "has_test_code")
   }
 
   class PairCache(tag: Tag) extends Table[CachedPullRequestPair](tag, TableNames.pairs) {
@@ -33,13 +33,12 @@ object CacheSchema {
 
   class PullRequestCache(tag: Tag) extends Table[CachedPullRequest](tag, TableNames.pullRequests) {
     def sha = column[String]("sha", O.PrimaryKey, O.Length(40, varying = false))
-    def isMergeable = column[Boolean]("is_mergeable")
     def linesAdded = column[Long]("lines_added")
     def linesDeleted = column[Long]("lines_deleted")
     def filesChanged = column[Long]("files_changed")
     def commits = column[Long]("commits")
     def hasTestCode = column[Boolean]("has_test_code")
 
-    def * = (sha, isMergeable, linesAdded, linesDeleted, filesChanged, commits, hasTestCode) <> (CachedPullRequest.tupled, CachedPullRequest.unapply)
+    def * = (sha, linesAdded, linesDeleted, filesChanged, commits, hasTestCode) <> (CachedPullRequest.tupled, CachedPullRequest.unapply)
   }
 }

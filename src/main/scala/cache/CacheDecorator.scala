@@ -1,7 +1,7 @@
 package cache
 
 import cache.CacheSchema.{TableNames, Tables}
-import cache.models.CachedPullRequest
+import cache.models.{EmptyPairwiseList, CachedPullRequest}
 import git._
 
 import scala.slick.driver.SQLiteDriver.simple._
@@ -14,6 +14,7 @@ import scala.slick.jdbc.meta.MTable
 class CacheDecorator(base: PullRequestList, val provider: CacheProvider) extends PullRequestDecorator(base) {
   implicit lazy val session = provider.Db
   lazy val mode = provider.mode
+  lazy val pairCache = provider.getPairwiseDecorator(new EmptyPairwiseList).asInstanceOf[CachePairwiseDecorator]
   lazy val insertPull = Tables.pullRequests.insertInvoker
   lazy val getPullsByKey = for {
     sha <- Parameters[String]
@@ -37,6 +38,11 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider) extends
         case _ => // Cache already up-to-date
       }
 
+    // Retrieve or write merge status
+    val tmpPair = PullRequestPair(pullRequest, PullRequest(0, "author", pullRequest.shaTarget, "shaTarget", "source", "target"), pullRequest.isMergeable)
+    val pair = pairCache.decorate(tmpPair)
+    pullRequest.isMergeable = pair.isMergeable
+
     pullRequest
   }
 
@@ -53,11 +59,13 @@ class CacheDecorator(base: PullRequestList, val provider: CacheProvider) extends
 
     // (Re)create table
     table match {
-      case Some(t) => if (CacheSchema.ColumnCount.pullRequests != t.getColumns.list.length) {
+      case Some(t) => if (!t.getColumns.list.map(c => c.name).sameElements(CacheSchema.ColumnNames.pullRequests)) {
           Tables.pullRequests.ddl.drop
           Tables.pullRequests.ddl.create
         }
       case None => Tables.pullRequests.ddl.create
     }
+
+    pairCache.init()
   }
 }

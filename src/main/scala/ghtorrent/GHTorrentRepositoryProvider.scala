@@ -11,6 +11,7 @@ import scala.slick.jdbc.{StaticQuery => Q}
 class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends RepositoryProvider {
   lazy val repoId = getRepoId
   lazy val defaultBranch = getDefaultBranch
+  lazy val branchTips = getBranchTips
   implicit lazy val session = provider.Db
 
   private def getRepoId: Int = {
@@ -30,6 +31,10 @@ class GHTorrentRepositoryProvider(val provider: GHTorrentProvider) extends Repos
     val select = List("default_branch", "master_branch")
     val result = provider.mongoDb.getByKey(GHTorrentMongoSettings.repositoriesCollection, key, select)
     result.getOrElse(select(0), result.getOrElse(select(1), "master")).asInstanceOf[String]
+  }
+
+  private def getBranchTips: Map[String, String] = {
+    throw new UnsupportedOperationException
   }
 
   private lazy val getRepoIdQuery: Q[(String, String), Int] =

@@ -11,6 +11,7 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
   val source = "github"
   lazy val owner = provider.owner
   lazy val repository = provider.repository
+  lazy val branches = provider.loadedRepositoryProvider.branchTips
 
   override lazy val https: String = s"https://$host/$owner/$repository.git"
 
@@ -30,7 +31,8 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
       pr <- list
     } yield {
       val user = if (pr.user == null || pr.user.login == null) GhAuthor(null, null, "Unknown user", null, -1) else pr.user
-      val p = PullRequest(pr.number, user.login, pr.head.sha, pr.head.label, pr.base.ref)
+      val targetSha = branches(pr.base.ref)
+      val p = PullRequest(pr.number, user.login, pr.head.sha, targetSha, pr.head.label, pr.base.ref)
       p.commitProvider = Some(provider.loadedCommitProvider)
       p.title = Some(pr.title)
       p.`type` = Some(PullRequestType.parse(pr.title))

@@ -13,6 +13,7 @@ class EmptyProvider extends Provider {
 class EmptyRepositoryProvider extends RepositoryProvider {
   val commits = 0L
   val defaultBranch = "master"
+  val branchTips = Map[String, String]()
 }
 
 class EmptyPullRequestProvider extends PullRequestProvider {
