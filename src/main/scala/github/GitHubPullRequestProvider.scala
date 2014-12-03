@@ -31,7 +31,7 @@ class GitHubPullRequestProvider(val provider: GitHubProvider) extends PullReques
       pr <- list
     } yield {
       val user = if (pr.user == null || pr.user.login == null) GhAuthor(null, null, "Unknown user", null, -1) else pr.user
-      val targetSha = branches(pr.base.ref)
+      val targetSha = branches.getOrElse(pr.base.ref, "0000000000000000000000000000000000000000")
       val p = PullRequest(pr.number, user.login, pr.head.sha, targetSha, pr.head.label, pr.base.ref)
       p.commitProvider = Some(provider.loadedCommitProvider)
       p.title = Some(pr.title)
