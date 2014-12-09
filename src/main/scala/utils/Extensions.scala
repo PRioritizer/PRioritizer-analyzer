@@ -2,7 +2,7 @@ package utils
 
 import java.io.{ByteArrayOutputStream, PrintStream}
 
-import scala.util.{Success, Try}
+import scala.util.Try
 
 object Extensions {
   implicit class EnrichString(str: String) {

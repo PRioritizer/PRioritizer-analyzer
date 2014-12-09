@@ -9,7 +9,6 @@ JAR="$DIR/target/scala-$SCALA_VERSION/$NAME-assembly-$VERSION.jar"
 OWNER=$1
 REPOSITORY=$2
 GIT_LOCATION="$( cd "$3" && pwd )"
-TIMESTAMP=$4
 
 if ! [ -f "$JAR" ]; then
   echo "JAR file does not exist." >&2
@@ -17,9 +16,9 @@ if ! [ -f "$JAR" ]; then
   exit 1
 fi
 
-if [ "$#" -ne 3 ] && [ "$#" -ne 4 ]; then
-  echo "Wrong number of arguments, expected 3 or 4 arguments." >&2
-  echo "Usage: $0 owner_name repository_name git_location [timestamp]" >&2
+if [ "$#" -ne 3 ]; then
+  echo "Wrong number of arguments, expected 3 arguments." >&2
+  echo "Usage: $0 owner_name repository_name git_location" >&2
   exit 1
 fi
 
@@ -35,5 +34,5 @@ if ! [ -d "$GIT_LOCATION" ]; then
   exit 1
 fi
 
-JAVA_OPTS="-Dfile.encoding=UTF8 -Dgithub.owner=$OWNER -Dgithub.repository=$REPOSITORY -Djgit.directory=$GIT_LOCATION -Dupdate.timestamp=$TIMESTAMP"
+JAVA_OPTS="-Dfile.encoding=UTF8 -Dgithub.owner=$OWNER -Dgithub.repository=$REPOSITORY -Djgit.directory=$GIT_LOCATION"
 java $JAVA_OPTS -jar $JAR

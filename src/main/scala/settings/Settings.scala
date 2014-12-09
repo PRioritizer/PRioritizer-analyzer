@@ -3,12 +3,9 @@ package settings
 import java.io.{BufferedReader, FileNotFoundException, InputStreamReader}
 import java.util.Properties
 
-import utils.Extensions._
-
 import scala.collection.JavaConverters._
 
 object GeneralSettings {
-  lazy val updateTimestamp = Settings.get("update.timestamp").map(p => p.toOptionLong).flatten.getOrElse(0L)
   lazy val updateInterval = Settings.get("update.interval").map(p => p.toInt).getOrElse(120)
   lazy val pairTargetsEqual = Settings.get("pairs.targets.equal").map(c => c.toBoolean).getOrElse(true)
   lazy val outputDirectory = Settings.get("output.directory").getOrElse("")
