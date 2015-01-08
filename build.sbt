@@ -6,7 +6,10 @@ version := "1.0"
 
 scalaVersion := "2.11.0"
 
-resolvers += "spray" at "http://repo.spray.io/"
+resolvers ++= Seq(
+  "spray" at "http://repo.spray.io/",
+  "RoundEights" at "http://maven.spikemark.net/roundeights"
+)
 
 libraryDependencies ++= Seq(
   "com.github.nscala-time" %% "nscala-time" % "1.2.0",
@@ -17,6 +20,7 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.30",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",
   "org.mongodb" %% "casbah" % "2.7.2",
+  "com.roundeights" %% "hasher" % "1.0.0",
   "org.slf4j" % "slf4j-api" % "1.7.5",
   "org.slf4j" % "slf4j-simple" % "1.7.5"
 )

@@ -8,6 +8,7 @@ import org.joda.time.{DateTime, DateTimeZone}
 import output.JsonProtocol._
 import spray.json._
 import utils.Extensions._
+import com.roundeights.hasher.Implicits._
 
 object JsonWriter {
   val indexFile = "index.json"
@@ -30,7 +31,7 @@ object JsonWriter {
     )
 
     val json = jsonAst.prettyPrint // or .compactPrint
-    val file = getFile(dir, prProvider)
+    val file = getHashedFile(dir, prProvider) // or getFile(dir, prProvider)
     writeToFile(file, json)
   }
 
@@ -51,6 +52,15 @@ object JsonWriter {
     new File(repoDir, repoFile)
   }
 
+  def getHashedFile(dir: String, provider: PullRequestProvider): File = {
+    val ownerDir = provider.owner.toLowerCase.safeFileName
+    val repoDir: File = new File(dir, ownerDir)
+    val repoFile = getHash(provider) + ".json"
+    repoDir.mkdirs()
+
+    new File(repoDir, repoFile)
+  }
+
   private def getFileMap(dir: File): Array[Map[String, String]] = {
     val ext = ".json"
     val jsonFilter = (file: File) => file.getName.endsWith(ext)
@@ -65,5 +75,14 @@ object JsonWriter {
   private def writeToFile(file: File, contents: String): Unit = {
     val writer = new java.io.PrintWriter(file)
     try writer.write(contents) finally writer.close()
+  }
+
+  private def getHash(provider: PullRequestProvider) : String = {
+    val owner = provider.owner.toLowerCase.safeFileName
+    val repo = provider.repository.toLowerCase.safeFileName
+    val salt = "Analyz3r"
+    val value = salt + owner + '/' + repo
+    val hash = value.sha256.hex
+    hash.substring(0, 10)
   }
 }
