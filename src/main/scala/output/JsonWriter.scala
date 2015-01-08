@@ -43,9 +43,9 @@ object JsonWriter {
   }
 
   def getFile(dir: String, provider: PullRequestProvider): File = {
-    val ownerDir = provider.owner.safeFileName
+    val ownerDir = provider.owner.toLowerCase.safeFileName
     val repoDir: File = new File(dir, ownerDir)
-    val repoFile = provider.repository.safeFileName + ".json"
+    val repoFile = provider.repository.toLowerCase.safeFileName + ".json"
     repoDir.mkdirs()
 
     new File(repoDir, repoFile)
