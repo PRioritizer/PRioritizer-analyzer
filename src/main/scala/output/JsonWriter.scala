@@ -10,6 +10,8 @@ import spray.json._
 import utils.Extensions._
 import com.roundeights.hasher.Implicits._
 
+import scala.io.Source
+
 object JsonWriter {
   val indexFile = "index.json"
 
@@ -67,9 +69,23 @@ object JsonWriter {
     val dirs = dir.listFiles.filter(_.isDirectory)
     val owners = dirs.map(o => new {
       var name = o.getName
-      var repos = o.listFiles.filter(jsonFilter).map(f => f.getName.dropRight(ext.length))
+      var files = o.listFiles.filter(jsonFilter)
     })
-    owners.flatMap(owner => owner.repos.map(r => Map("owner" -> owner.name, "repo" -> r, "file" -> s"${owner.name}/$r$ext")))
+
+    val list = owners.flatMap(owner => owner.files.map(f => Map("owner" -> owner.name, "repo" -> readRepoFromFile(f), "file" -> s"${owner.name}/${f.getName}")))
+    list
+  }
+
+  private def readRepoFromFile(file: File): String = {
+    for (line <- Source.fromFile(file).getLines()) {
+      if (line.trim().substring(1).startsWith("repository")) {
+        val col = line.indexOf(':')
+        val com = line.lastIndexOf(',')
+        val repoJson = line.substring(col + 1, com)
+        return repoJson.parseJson.convertTo[String]
+      }
+    }
+    ""
   }
 
   private def writeToFile(file: File, contents: String): Unit = {
